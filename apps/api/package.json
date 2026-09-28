@@ -12,7 +12,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "create-assessment": "tsx src/cli/create-assessment.ts"
+    "create-assessment": "tsx src/cli/create-assessment.ts",
+    "test": "vitest run",
+    "test:e2e": "vitest run -c vitest.e2e.config.mts"
   },
   "dependencies": {
     "@clientready/shared": "workspace:*",
