@@ -54,8 +54,7 @@ describe('role template registry', () => {
     '%s gives the AI client no evaluator framing',
     (_id, t) => {
       // Everything except the rubric ends up in the AI client's instructions.
-      const { rubric: _rubric, levels, ...rest } = t;
-      const clientText = JSON.stringify([rest, levels]);
+      const clientText = JSON.stringify({ ...t, rubric: undefined });
       expect(clientText).not.toMatch(
         /\b(see|test|check)s? whether|\bevaluat|\bscor(e|ing)\b|\bassess|clarifying question/i,
       );
