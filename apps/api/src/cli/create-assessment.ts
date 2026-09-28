@@ -58,6 +58,9 @@ async function main(): Promise<void> {
     const result = await createAssessment(prisma, parsed.data, env.WEB_ORIGIN);
     console.log(`Assessment created: ${result.id}`);
     console.log(`Candidate link:     ${result.link}`);
+    console.log(
+      `Report (recruiter): ${new URL(`/admin/assessments/${result.id}`, env.WEB_ORIGIN).toString()}`,
+    );
   } finally {
     await prisma.$disconnect();
   }

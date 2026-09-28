@@ -152,3 +152,185 @@ button:disabled {
   font-size: 0.9rem;
   color: var(--muted);
 }
+
+/* --- Recruiter report (Polish) --- */
+
+main.wide {
+  max-width: 56rem;
+}
+
+main.wide .card + .card {
+  margin-top: 1rem;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button.link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 1rem 0;
+}
+
+.field input {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.verdict {
+  border-left-width: 6px;
+}
+
+.verdict__label {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.verdict--ready {
+  border-left-color: var(--ok);
+}
+
+.verdict--ready_with_concerns,
+.verdict--insufficient {
+  border-left-color: #c98a04;
+}
+
+.verdict--not_ready {
+  border-left-color: var(--error);
+}
+
+.notice {
+  border-left: 6px solid #c98a04;
+}
+
+.cefr {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.cefr__level {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.criterion + .criterion {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.criterion header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.criterion h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.score--1,
+.score--2 {
+  color: var(--error);
+}
+
+.score--4,
+.score--5 {
+  color: var(--ok);
+}
+
+.quotes {
+  list-style: none;
+  padding: 0;
+}
+
+.quotes q {
+  font-style: italic;
+}
+
+.recording audio {
+  width: 100%;
+}
+
+.transcript {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.turn {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  scroll-margin-top: 1rem;
+}
+
+.turn p {
+  margin: 0.15rem 0 0;
+}
+
+.turn--candidate {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.turn--quoted {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.turn:target {
+  outline: 3px solid var(--accent);
+}
+
+.turn__meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
