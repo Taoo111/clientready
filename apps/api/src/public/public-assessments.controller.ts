@@ -1,14 +1,36 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import {
   TranscriptTurnsInputSchema,
   type PublicAssessmentView,
+  type RecordingUploadResult,
   type RealtimeSessionResult,
   type TranscriptTurnsInput,
 } from '@clientready/shared';
 import { PublicError } from '../common/public-error';
 import { PublicAssessmentsService } from './public-assessments.service';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
+import { RecordingsService, type UploadedAudio } from './recordings.service';
+import { z } from 'zod';
+
+const RecordingFieldsSchema = z.object({
+  durationMs: z.coerce
+    .number()
+    .int()
+    .nonnegative()
+    .max(60 * 60_000)
+    .optional(),
+});
 
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{20,100}$/;
 
@@ -20,7 +42,10 @@ function checkToken(token: string): string {
 /** Candidate-facing endpoints, authorised only by the unguessable link token. */
 @Controller('public/assessments/:token')
 export class PublicAssessmentsController {
-  constructor(private readonly service: PublicAssessmentsService) {}
+  constructor(
+    private readonly service: PublicAssessmentsService,
+    private readonly recordings: RecordingsService,
+  ) {}
 
   @Get()
   async view(@Param('token') token: string): Promise<PublicAssessmentView> {
@@ -53,5 +78,18 @@ export class PublicAssessmentsController {
   @HttpCode(200)
   end(@Param('token') token: string): Promise<PublicAssessmentView> {
     return this.service.end(checkToken(token));
+  }
+
+  /** Multipart upload: field `file` (audio) and optional `durationMs`. */
+  @Post('recording')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @UseInterceptors(FileInterceptor('file'))
+  recording(
+    @Param('token') token: string,
+    @UploadedFile() file: UploadedAudio | undefined,
+    @Body(new ZodValidationPipe(RecordingFieldsSchema))
+    fields: z.infer<typeof RecordingFieldsSchema>,
+  ): Promise<RecordingUploadResult> {
+    return this.recordings.save(checkToken(token), file, fields.durationMs);
   }
 }

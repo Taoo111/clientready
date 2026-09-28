@@ -8,6 +8,7 @@ import { validateEnv } from './config/env';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { PublicModule } from './public/public.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PublicModule } from './public/public.module';
     }),
     CommonModule,
     PrismaModule,
+    StorageModule,
     AdminModule,
     PublicModule,
   ],
