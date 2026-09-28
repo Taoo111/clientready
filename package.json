@@ -21,7 +21,8 @@
     "test": "pnpm --filter @clientready/shared build && pnpm -r test",
     "create-assessment": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api create-assessment",
     "test:e2e": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api test:e2e",
-    "purge-data": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api purge-data"
+    "purge-data": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api purge-data",
+    "test:eval": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api test:eval"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

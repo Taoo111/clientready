@@ -15,7 +15,8 @@
     "create-assessment": "tsx src/cli/create-assessment.ts",
     "test": "vitest run",
     "test:e2e": "vitest run -c vitest.e2e.config.mts",
-    "purge-data": "tsx src/cli/purge-data.ts"
+    "purge-data": "tsx src/cli/purge-data.ts",
+    "test:eval": "vitest run -c vitest.eval.config.mts --silent=false"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
