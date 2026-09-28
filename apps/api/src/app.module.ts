@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
-import { Clock, SystemClock } from './common/clock';
+import { CommonModule } from './common/common.module';
 import { validateEnv } from './config/env';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
+import { PublicModule } from './public/public.module';
 
 @Module({
   imports: [
@@ -14,10 +17,17 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: ['.env', '../../.env'],
       validate: validateEnv,
     }),
+    // Per-IP rate limit; stricter limits on expensive endpoints via @Throttle.
+    ThrottlerModule.forRoot({
+      throttlers: [{ name: 'default', ttl: 60_000, limit: 300 }],
+      skipIf: () => process.env.NODE_ENV === 'test',
+    }),
+    CommonModule,
     PrismaModule,
     AdminModule,
+    PublicModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: Clock, useClass: SystemClock }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

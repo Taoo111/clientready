@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     include: ['test/**/*.e2e.test.ts'],
     globalSetup: ['test/global-setup.ts'],
+    setupFiles: ['test/setup-env.ts'],
     // Tests share one database.
     fileParallelism: false,
     testTimeout: 20_000,
