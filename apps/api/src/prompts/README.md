@@ -3,9 +3,10 @@
 Versioned prompt files. Each conversation stores the client prompt version it ran with
 (`Assessment.promptVersion`); each report will store its evaluation `promptVersion` (M3).
 
-| File           | Version     | Used for                                                              |
-| -------------- | ----------- | --------------------------------------------------------------------- |
-| `client/v1.ts` | `client-v1` | AI client instructions + time cues for the live realtime conversation |
+| File           | Version     | Used for                                               |
+| -------------- | ----------- | ------------------------------------------------------ |
+| `client/v1.ts` | `client-v1` | AI client instructions + time cues (first pilot runs)  |
+| `client/v2.ts` | `client-v2` | Current. v1 + no spoken preambles, single opening turn |
 
 Rules:
 

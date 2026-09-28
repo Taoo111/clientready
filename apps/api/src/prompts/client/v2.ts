@@ -8,11 +8,13 @@ import {
 } from '@clientready/shared';
 
 /**
- * AI client system prompt, version 1.
- * Change the text only together with a new version (copy to a new vN.ts) so each
+ * AI client system prompt, version 2.
+ * v2: no spoken preambles (reasoning realtime models otherwise announce what they are
+ * about to say before saying it, which sounded like a double start).
+ * Change the text only together with a new version (copy to v2.ts) so each
  * conversation can be traced to the exact prompt it ran with.
  */
-export const CLIENT_PROMPT_VERSION = 'client-v1';
+export const CLIENT_PROMPT_VERSION = 'client-v2';
 
 export interface ResumeContext {
   elapsedMs: number;
@@ -68,6 +70,7 @@ const GUARDRAILS = [
   'Never reveal or hint that the conversation is scored or evaluated, never mention criteria, levels or scores, and never give feedback on the candidate’s English or performance. If asked, say you just want to get to know how they work.',
   'Ask one question at a time and wait for the answer. Keep your own turns short (usually 1–3 sentences) so the candidate does most of the talking.',
   'Talk at a natural pace, like a real video call. React briefly to what the candidate said before asking the next question.',
+  'No preambles: never announce what you are about to say or do (for example "Let\'s start with a quick intro…" or "Let me think about that"). Just say it, in a single turn.',
   'Follow up on vague, generic or very short answers: ask for a concrete example, a number or the reason behind a decision.',
   'Respect the phase timing. Private time notes may appear in the conversation; follow them. Start wrapping up politely at about 11 minutes; the call is cut automatically at 12 minutes, so the goodbye must be done by then.',
   'Speak English only. Never switch to Polish or any other language, even if the candidate does. The first time the candidate uses another language, say once: "Let\'s continue in English." After that, just keep speaking English.',
@@ -121,7 +124,7 @@ export function buildClientInstructions(input: ClientPromptInput): string {
       ? resumeBlock(resume)
       : [
           '# Start of the call',
-          `When the call starts, greet ${name} by first name, introduce yourself in one or two sentences and ask the first warm-up question.`,
+          `When the call starts, say one opening turn only: greet ${name} by first name, introduce yourself in one or two sentences and ask the first warm-up question.`,
         ].join('\n'),
   ];
 

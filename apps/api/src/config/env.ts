@@ -15,6 +15,10 @@ const EnvSchema = z.object({
   // Live conversation (OpenAI Realtime)
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_REALTIME_MODEL: z.string().default('gpt-realtime-2.1-mini'),
+  /** Reasoning effort for reasoning realtime models (gpt-realtime-2.x); 'none' omits it for older models. */
+  OPENAI_REALTIME_REASONING_EFFORT: z
+    .enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh'])
+    .default('minimal'),
   OPENAI_REALTIME_VOICE: z.string().default('marin'),
   OPENAI_TRANSCRIBE_MODEL: z.string().default('gpt-4o-mini-transcribe'),
   // Recordings

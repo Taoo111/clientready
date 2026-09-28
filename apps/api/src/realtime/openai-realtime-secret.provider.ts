@@ -37,6 +37,7 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
       throw new RealtimeUnavailableError('OPENAI_API_KEY is not set');
     }
     const model = this.config.get('OPENAI_REALTIME_MODEL', { infer: true });
+    const reasoningEffort = this.config.get('OPENAI_REALTIME_REASONING_EFFORT', { infer: true });
 
     const body = {
       expires_after: { anchor: 'created_at', seconds: SECRET_TTL_SECONDS },
@@ -44,6 +45,8 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
         type: 'realtime',
         model,
         instructions: request.instructions,
+        // Older non-reasoning models (e.g. gpt-realtime-mini) reject this option.
+        ...(reasoningEffort === 'none' ? {} : { reasoning: { effort: reasoningEffort } }),
         output_modalities: ['audio'],
         audio: {
           input: {

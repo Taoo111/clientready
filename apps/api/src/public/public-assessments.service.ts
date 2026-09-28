@@ -33,7 +33,7 @@ import {
   buildClientInstructions,
   buildTimeCues,
   CLIENT_PROMPT_VERSION,
-} from '../prompts/client/v1';
+} from '../prompts/client/v2';
 import {
   RealtimeSecretProvider,
   RealtimeUnavailableError,

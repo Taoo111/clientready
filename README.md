@@ -64,6 +64,7 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `OPENAI_API_KEY`                                   | Server-side only; used to mint short-lived realtime client secrets                           |
 | `OPENAI_REALTIME_MODEL`                            | Realtime model for the live conversation (default `gpt-realtime-2.1-mini`)                   |
 | `OPENAI_REALTIME_VOICE`, `OPENAI_TRANSCRIBE_MODEL` | AI client voice and input transcription model                                                |
+| `OPENAI_REALTIME_REASONING_EFFORT`                 | `minimal` (default) for gpt-realtime-2.x; `none` for older models such as gpt-realtime-mini  |
 | `ADMIN_API_KEY`                                    | Protects `/admin/*` until recruiter login exists (min. 24 chars; unset = admin API off)      |
 | `LINK_TTL_DAYS`                                    | Unused candidate links expire after this many days (default 14)                              |
 | `MAX_REALTIME_CONNECTS`                            | Max connections (first connect + reconnects) per assessment (default 5)                      |
