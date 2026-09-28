@@ -28,28 +28,31 @@ enum Speaker {
 }
 
 model Assessment {
-  id             String           @id @default(cuid())
-  roleTemplateId String
-  targetLevel    TargetLevel
-  candidateName  String
-  candidateEmail String?
+  id                 String           @id @default(cuid())
+  roleTemplateId     String
+  targetLevel        TargetLevel
+  candidateName      String
+  candidateEmail     String?
   /// Unguessable token used in the candidate link.
-  token          String           @unique
-  status         AssessmentStatus @default(CREATED)
-  consentAt      DateTime?
-  startedAt      DateTime?
-  endedAt        DateTime?
+  token              String           @unique
+  status             AssessmentStatus @default(CREATED)
+  consentAt          DateTime?
+  startedAt          DateTime?
+  endedAt            DateTime?
   /// Realtime model and client prompt version used for the conversation (traceability).
-  realtimeModel  String?
-  promptVersion  String?
+  realtimeModel      String?
+  promptVersion      String?
   /// Number of realtime connections (first connect + resumes).
-  connectCount   Int              @default(0)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  connectCount       Int              @default(0)
+  /// Evaluation runs attempted by the automatic job, and the last error (if any).
+  evaluationAttempts Int              @default(0)
+  evaluationError    String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   turns      TranscriptTurn[]
   recordings Recording[]
-  report     Report?
+  reports    Report[]
 
   @@index([status])
   @@index([createdAt])
@@ -63,6 +66,8 @@ model TranscriptTurn {
   text         String
   /// Offset from session start, in milliseconds.
   startedAtMs  Int
+  /// Spoken duration (candidate: speech start to stop), when known.
+  durationMs   Int?
   seq          Int
   createdAt    DateTime   @default(now())
 
@@ -83,13 +88,18 @@ model Recording {
 
 model Report {
   id            String     @id @default(cuid())
-  assessmentId  String     @unique
+  assessmentId  String
   assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   /// Report validated against the shared zod schema.
   json          Json
+  /// Evaluation provider (openai | anthropic | rules) and model that produced it.
+  provider      String
   model         String
   promptVersion String
   createdAt     DateTime   @default(now())
+
+  /// Re-runs (calibration) add reports; the newest one is current.
+  @@index([assessmentId, createdAt])
 }
 
 model Recruiter {

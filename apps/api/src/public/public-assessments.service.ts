@@ -194,7 +194,12 @@ export class PublicAssessmentsService {
         this.prisma.transcriptTurn.upsert({
           where: { assessmentId_seq: { assessmentId: assessment.id, seq: turn.seq } },
           create: { assessmentId: assessment.id, ...turn },
-          update: { speaker: turn.speaker, text: turn.text, startedAtMs: turn.startedAtMs },
+          update: {
+            speaker: turn.speaker,
+            text: turn.text,
+            startedAtMs: turn.startedAtMs,
+            durationMs: turn.durationMs ?? null,
+          },
         }),
       ),
     );

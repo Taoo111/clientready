@@ -9,6 +9,8 @@ export interface FinalTurn {
   text: string;
   /** Epoch ms when the turn started. */
   startedAtEpochMs: number;
+  /** Spoken duration, when speech start and stop were both observed. */
+  durationMs?: number;
 }
 
 export interface RealtimeConnectionOptions {
@@ -42,6 +44,8 @@ export class RealtimeConnection {
   private readonly cueTimers: ReturnType<typeof setTimeout>[] = [];
   /** item_id -> epoch ms when the candidate started speaking. */
   private readonly speechStarts = new Map<string, number>();
+  /** item_id -> epoch ms when the candidate stopped speaking. */
+  private readonly speechStops = new Map<string, number>();
   /** response_id -> epoch ms when the AI started speaking. */
   private readonly responseStarts = new Map<string, number>();
   private readonly finishedResponses = new Set<string>();
@@ -160,28 +164,32 @@ export class RealtimeConnection {
         this.speechStarts.set(str(event.item_id), now);
         break;
 
-      case 'conversation.item.input_audio_transcription.completed': {
+      case 'input_audio_buffer.speech_stopped':
+        this.speechStops.set(str(event.item_id), now);
+        break;
+
+      case 'conversation.item.input_audio_transcription.completed':
+      case 'conversation.item.input_audio_transcription.failed': {
         const itemId = str(event.item_id);
-        const text = str(event.transcript).trim();
+        const text =
+          event.type === 'conversation.item.input_audio_transcription.failed'
+            ? '[inaudible]'
+            : str(event.transcript).trim();
+        const startedAt = this.speechStarts.get(itemId);
+        const stoppedAt = this.speechStops.get(itemId);
         if (text) {
           this.options.onTurn({
             speaker: 'CANDIDATE',
             text,
-            startedAtEpochMs: this.speechStarts.get(itemId) ?? now,
+            startedAtEpochMs: startedAt ?? now,
+            durationMs:
+              startedAt !== undefined && stoppedAt !== undefined
+                ? stoppedAt - startedAt
+                : undefined,
           });
         }
         this.speechStarts.delete(itemId);
-        break;
-      }
-
-      case 'conversation.item.input_audio_transcription.failed': {
-        const itemId = str(event.item_id);
-        this.options.onTurn({
-          speaker: 'CANDIDATE',
-          text: '[inaudible]',
-          startedAtEpochMs: this.speechStarts.get(itemId) ?? now,
-        });
-        this.speechStarts.delete(itemId);
+        this.speechStops.delete(itemId);
         break;
       }
 

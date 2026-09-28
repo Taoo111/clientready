@@ -71,6 +71,13 @@ export const TranscriptTurnInputSchema = z.object({
   text: z.string().trim().min(1).max(4000),
   /** Offset from the conversation start, in milliseconds. */
   startedAtMs: z.number().int().nonnegative(),
+  /** How long the turn was spoken (candidate turns: speech start to stop), if known. */
+  durationMs: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(10 * 60_000)
+    .optional(),
 });
 export type TranscriptTurnInput = z.infer<typeof TranscriptTurnInputSchema>;
 

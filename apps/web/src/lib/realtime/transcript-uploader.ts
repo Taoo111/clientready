@@ -21,12 +21,16 @@ export class TranscriptUploader {
     this.nextSeq = Math.max(this.nextSeq, serverNextSeq);
   }
 
-  add(speaker: Speaker, text: string, startedAtMs: number): void {
+  add(speaker: Speaker, text: string, startedAtMs: number, durationMs?: number): void {
     this.pending.push({
       seq: this.nextSeq++,
       speaker,
       text: text.slice(0, 4000),
       startedAtMs: Math.max(0, Math.round(startedAtMs)),
+      durationMs:
+        durationMs === undefined
+          ? undefined
+          : Math.min(600_000, Math.max(0, Math.round(durationMs))),
     });
     void this.send();
   }

@@ -17,6 +17,7 @@
     "test:e2e": "vitest run -c vitest.e2e.config.mts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@clientready/shared": "workspace:*",
     "@nestjs/common": "^12.1.1",
     "@nestjs/config": "^12.0.1",
@@ -26,6 +27,7 @@
     "@prisma/adapter-pg": "~7.10.0",
     "@prisma/client": "~7.10.0",
     "multer": "^2.4.0",
+    "openai": "^7.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^4.6.5"

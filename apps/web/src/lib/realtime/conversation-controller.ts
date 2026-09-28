@@ -137,6 +137,7 @@ export class ConversationController {
           turn.speaker,
           turn.text,
           turn.startedAtEpochMs - (this.sessionStartEpochMs ?? turn.startedAtEpochMs),
+          turn.durationMs,
         ),
       onDrop: (reason) => this.handleDrop(reason),
     });
