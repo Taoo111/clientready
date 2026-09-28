@@ -8,7 +8,7 @@ export default async function HomePage() {
   const healthy = await isApiHealthy();
 
   return (
-    <main>
+    <main className="legacy">
       <h1>{en.appName}</h1>
       <p>{en.tagline}</p>
       <p>

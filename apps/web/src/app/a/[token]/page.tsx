@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function CandidatePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   return (
-    <main>
+    <main className="legacy">
       <p className="brand">{en.appName}</p>
       <CandidateFlow token={token} />
     </main>

@@ -29,7 +29,7 @@ export default async function LoginPage({
   const { error, next } = await searchParams;
   const t = pl.login;
   return (
-    <main lang="pl">
+    <main lang="pl" className="legacy">
       <p className="brand">{pl.appName}</p>
       <section className="card">
         <h1>{t.title}</h1>

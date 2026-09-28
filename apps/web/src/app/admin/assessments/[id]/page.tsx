@@ -130,7 +130,7 @@ export default async function ReportPage({
   const data = await load(id);
   if (data === 'not-found' || data === 'error') {
     return (
-      <main lang="pl" className="wide">
+      <main lang="pl" className="legacy wide">
         <p className="brand">{pl.appName}</p>
         <section className="card">
           <p className="error">{data === 'not-found' ? t.notFound : t.apiError}</p>
@@ -144,7 +144,7 @@ export default async function ReportPage({
   const canRerun = ['COMPLETED', 'EVALUATED', 'FAILED'].includes(data.status);
 
   return (
-    <main lang="pl" className="wide">
+    <main lang="pl" className="legacy wide">
       <div className="topbar">
         <p className="brand">{pl.appName}</p>
         <form action={logout}>
