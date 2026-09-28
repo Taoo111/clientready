@@ -62,25 +62,25 @@ All configuration lives in a single `.env` at the repository root (see `.env.exa
 
 If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in `.env`.
 
-| Variable                                                          | Purpose                                                                                                                             |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENAI_API_KEY`                                                  | Server-side only; used to mint short-lived realtime client secrets                                                                  |
-| `OPENAI_REALTIME_MODEL`                                           | Realtime model for the live conversation (default `gpt-realtime-2.1`; `-mini` is cheaper but follows the prompt much less reliably) |
-| `OPENAI_REALTIME_VOICE`, `OPENAI_TRANSCRIBE_MODEL`                | AI client voice and input transcription model                                                                                       |
-| `OPENAI_REALTIME_REASONING_EFFORT`                                | `minimal` (default) for gpt-realtime-2.x; `none` for older models such as gpt-realtime-mini                                         |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                   | Recruiter panel account, created (or its password updated) at API startup; password min. 12 chars, argon2id                         |
-| `SESSION_TTL_HOURS`                                               | Panel login session lifetime (default 12 h)                                                                                         |
-| `ADMIN_API_KEY`                                                   | For scripts/CLI only: header `x-admin-key` on `/admin/*` endpoints (min. 24 chars; unset = disabled)                                |
-| `LINK_TTL_DAYS`                                                   | Unused candidate links expire after this many days (default 14)                                                                     |
-| `MAX_REALTIME_CONNECTS`                                           | Max connections (first connect + reconnects) per assessment (default 5)                                                             |
-| `STORAGE_DIR`, `MAX_RECORDING_MB`                                 | Where recordings are stored (relative to `apps/api`, default `storage`) and the upload limit                                        |
-| `NEXT_PUBLIC_API_URL`                                             | API URL as seen from the candidate's browser                                                                                        |
-| `EVAL_PROVIDER`, `EVAL_MODEL`                                     | Evaluation provider `openai` (default, `gpt-6-sol`) or `anthropic` (`claude-sonnet-5`); empty model = default                       |
-| `EVAL_REASONING_EFFORT`                                           | `low` / `medium` / `high` (default) for the evaluation model                                                                        |
-| `ANTHROPIC_API_KEY`                                               | Only needed with `EVAL_PROVIDER=anthropic`                                                                                          |
-| `EVAL_MIN_CONVERSATION_SEC`, `EVAL_MIN_CANDIDATE_SPEECH_SEC`      | Below these (default 7 min / 3 min) the report says "insufficient data" instead of scores                                           |
-| `EVAL_START_DELAY_MS`, `EVAL_MAX_ATTEMPTS`, `EVAL_RETRY_DELAY_MS` | Automatic evaluation: delay after the session, attempts, first retry delay (doubles)                                                |
-| `DATA_RETENTION_DAYS`                                             | Retention for `pnpm purge-data` (default 90)                                                                                        |
+| Variable                                                          | Purpose                                                                                                                                                  |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENAI_API_KEY`                                                  | Server-side only; used to mint short-lived realtime client secrets                                                                                       |
+| `OPENAI_REALTIME_MODEL`                                           | Realtime model: `gpt-realtime-2.1-mini` in development (`.env.example`), `gpt-realtime-2.1` in production (code default; follows the prompt much better) |
+| `OPENAI_REALTIME_VOICE`, `OPENAI_TRANSCRIBE_MODEL`                | AI client voice and input transcription model                                                                                                            |
+| `OPENAI_REALTIME_REASONING_EFFORT`                                | `minimal` (default) for gpt-realtime-2.x; `none` for older models such as gpt-realtime-mini                                                              |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                   | Recruiter panel account, created (or its password updated) at API startup; password min. 12 chars, argon2id                                              |
+| `SESSION_TTL_HOURS`                                               | Panel login session lifetime (default 12 h)                                                                                                              |
+| `ADMIN_API_KEY`                                                   | For scripts/CLI only: header `x-admin-key` on `/admin/*` endpoints (min. 24 chars; unset = disabled)                                                     |
+| `LINK_TTL_DAYS`                                                   | Unused candidate links expire after this many days (default 14)                                                                                          |
+| `MAX_REALTIME_CONNECTS`                                           | Max connections (first connect + reconnects) per assessment (default 5)                                                                                  |
+| `STORAGE_DIR`, `MAX_RECORDING_MB`                                 | Where recordings are stored (relative to `apps/api`, default `storage`) and the upload limit                                                             |
+| `NEXT_PUBLIC_API_URL`                                             | API URL as seen from the candidate's browser                                                                                                             |
+| `EVAL_PROVIDER`, `EVAL_MODEL`                                     | Evaluation provider `openai` (default, `gpt-6-sol`) or `anthropic` (`claude-sonnet-5`); empty model = default                                            |
+| `EVAL_REASONING_EFFORT`                                           | `low` / `medium` / `high` (default) for the evaluation model                                                                                             |
+| `ANTHROPIC_API_KEY`                                               | Only needed with `EVAL_PROVIDER=anthropic`                                                                                                               |
+| `EVAL_MIN_CONVERSATION_SEC`, `EVAL_MIN_CANDIDATE_SPEECH_SEC`      | Below these (default 7 min / 3 min) the report says "insufficient data" instead of scores                                                                |
+| `EVAL_START_DELAY_MS`, `EVAL_MAX_ATTEMPTS`, `EVAL_RETRY_DELAY_MS` | Automatic evaluation: delay after the session, attempts, first retry delay (doubles)                                                                     |
+| `DATA_RETENTION_DAYS`                                             | Retention for `pnpm purge-data` (default 90)                                                                                                             |
 
 ## Design
 
