@@ -14,7 +14,8 @@
     "db:studio": "prisma studio",
     "create-assessment": "tsx src/cli/create-assessment.ts",
     "test": "vitest run",
-    "test:e2e": "vitest run -c vitest.e2e.config.mts"
+    "test:e2e": "vitest run -c vitest.e2e.config.mts",
+    "purge-data": "tsx src/cli/purge-data.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
