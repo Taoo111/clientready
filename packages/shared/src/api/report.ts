@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { RecommendationSchema, SpeakerSchema, TargetLevelSchema } from '../enums.js';
+import {
+  AssessmentStatusSchema,
+  RecommendationSchema,
+  SpeakerSchema,
+  TargetLevelSchema,
+} from '../enums.js';
 
 export const CefrLevelSchema = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
 export type CefrLevel = z.infer<typeof CefrLevelSchema>;
@@ -88,6 +93,35 @@ export const AdminRecordingSchema = z.object({
   createdAt: z.string(),
 });
 
+export const AdminAssessmentListQuerySchema = z.object({
+  q: z.string().trim().max(200).optional(),
+  status: AssessmentStatusSchema.optional(),
+  role: z.string().max(100).optional(),
+});
+export type AdminAssessmentListQuery = z.infer<typeof AdminAssessmentListQuerySchema>;
+
+export const AdminAssessmentListItemSchema = z.object({
+  id: z.string(),
+  candidateName: z.string(),
+  roleTemplateId: z.string(),
+  roleName: z.string(),
+  targetLevel: TargetLevelSchema,
+  status: AssessmentStatusSchema,
+  recommendation: RecommendationSchema.nullable(),
+  reportStatus: ReportStatusSchema.nullable(),
+  createdAt: z.string(),
+  endedAt: z.string().nullable(),
+  dataDeleted: z.boolean(),
+});
+export type AdminAssessmentListItem = z.infer<typeof AdminAssessmentListItemSchema>;
+
+export const AdminAssessmentListSchema = z.object({
+  items: z.array(AdminAssessmentListItemSchema),
+  /** Number of assessments overall (without filters), for the empty state. */
+  total: z.number().int(),
+});
+export type AdminAssessmentList = z.infer<typeof AdminAssessmentListSchema>;
+
 export const AdminAssessmentDetailSchema = z.object({
   id: z.string(),
   candidateName: z.string(),
@@ -95,7 +129,10 @@ export const AdminAssessmentDetailSchema = z.object({
   roleTemplateId: z.string(),
   roleName: z.string(),
   targetLevel: TargetLevelSchema,
-  status: z.enum(['CREATED', 'IN_PROGRESS', 'COMPLETED', 'EVALUATED', 'FAILED']),
+  status: AssessmentStatusSchema,
+  /** Candidate link, while the conversation can still be started or resumed. */
+  candidateLink: z.string().nullable(),
+  dataDeletedAt: z.string().nullable(),
   createdAt: z.string(),
   startedAt: z.string().nullable(),
   endedAt: z.string().nullable(),

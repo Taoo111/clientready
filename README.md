@@ -22,7 +22,7 @@ docker-compose.yml  Local PostgreSQL
 Run from the repository root:
 
 ```powershell
-Copy-Item .env.example .env     # then fill in secrets if needed
+Copy-Item .env.example .env     # then fill in secrets (OPENAI_API_KEY, ADMIN_EMAIL, ADMIN_PASSWORD)
 pnpm install                    # also generates the Prisma client
 pnpm db:up                      # start PostgreSQL in Docker (host port 5433)
 pnpm db:migrate                 # apply Prisma migrations
@@ -31,7 +31,7 @@ pnpm dev                        # start shared (watch), api and web
 
 Then open:
 
-- Web: http://localhost:3000
+- Recruiter panel: http://localhost:3000/admin — log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`
 - API health check: http://localhost:3001/health — should return `{"status":"ok","db":"ok"}`
 
 Stop the dev servers with `Ctrl+C`; stop the database with `pnpm db:down` (data is kept in a Docker volume).
@@ -67,7 +67,9 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `OPENAI_REALTIME_MODEL`                                           | Realtime model for the live conversation (default `gpt-realtime-2.1-mini`)                                    |
 | `OPENAI_REALTIME_VOICE`, `OPENAI_TRANSCRIBE_MODEL`                | AI client voice and input transcription model                                                                 |
 | `OPENAI_REALTIME_REASONING_EFFORT`                                | `minimal` (default) for gpt-realtime-2.x; `none` for older models such as gpt-realtime-mini                   |
-| `ADMIN_API_KEY`                                                   | Protects `/admin/*` until recruiter login exists (min. 24 chars; unset = admin API off)                       |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                   | Recruiter panel account, created (or its password updated) at API startup; password min. 12 chars, argon2id   |
+| `SESSION_TTL_HOURS`                                               | Panel login session lifetime (default 12 h)                                                                   |
+| `ADMIN_API_KEY`                                                   | For scripts/CLI only: header `x-admin-key` on `/admin/*` endpoints (min. 24 chars; unset = disabled)          |
 | `LINK_TTL_DAYS`                                                   | Unused candidate links expire after this many days (default 14)                                               |
 | `MAX_REALTIME_CONNECTS`                                           | Max connections (first connect + reconnects) per assessment (default 5)                                       |
 | `STORAGE_DIR`, `MAX_RECORDING_MB`                                 | Where recordings are stored (relative to `apps/api`, default `storage`) and the upload limit                  |
@@ -79,16 +81,24 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `EVAL_START_DELAY_MS`, `EVAL_MAX_ATTEMPTS`, `EVAL_RETRY_DELAY_MS` | Automatic evaluation: delay after the session, attempts, first retry delay (doubles)                          |
 | `DATA_RETENTION_DAYS`                                             | Retention for `pnpm purge-data` (default 90)                                                                  |
 
-## Running an assessment (milestone 2)
+## Recruiter panel (milestone 4)
+
+- `http://localhost:3000/admin` (Polish). Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`. The API hashes the password (argon2id) and issues a session token; the web app keeps it in an httpOnly cookie and calls the API server-side (`Authorization: Bearer …`). The browser never sees an API key.
+- **Oceny**: list with search by name, status and role filters, newest first.
+- **Nowa ocena**: candidate, optional e-mail, role (from the template registry) and target level → a page with the candidate link, "Kopiuj link" and a ready invitation message in Polish and English.
+- **Raport**: recommendation, CEFR, criteria with score bars and expandable evidence quotes, recording, transcript split by speaker. Actions: "Oceń ponownie", "Drukuj / PDF" (print stylesheet — save as PDF from the browser and attach it in the ATS) and "Usuń dane kandydata" (GDPR: deletes transcript, recordings and reports, anonymises the name and invalidates the link).
+- `ADMIN_API_KEY` remains only for scripts and the CLI.
+
+## Running an assessment
 
 1. Start everything (`pnpm db:up`, `pnpm db:migrate`, `pnpm dev`) with `OPENAI_API_KEY` set in `.env`.
-2. Create an assessment — either with the CLI:
+2. Create an assessment in the panel (**Nowa ocena**), or with the CLI:
 
    ```powershell
    pnpm create-assessment --name "Jan Kowalski" --level B2 --role backend-developer
    ```
 
-   or through the admin API (header `x-admin-key` = `ADMIN_API_KEY`):
+   or through the admin API from a script (header `x-admin-key` = `ADMIN_API_KEY`):
 
    ```powershell
    $body = @{ roleTemplateId = 'backend-developer'; targetLevel = 'B2'; candidateName = 'Jan Kowalski' } | ConvertTo-Json
@@ -102,11 +112,11 @@ Microphone access requires a secure context: `http://localhost` works, a LAN add
 
 How it works:
 
-- The AI client's instructions are built only on the server (`apps/api/src/prompts/client/v1.ts`, from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
+- The AI client's instructions are built only on the server (`apps/api/src/prompts/client/v2.ts`, from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
 - Transcript turns (candidate input transcription + AI audio transcript) are sent to the API as they finish and stored in `TranscriptTurn`.
 - The conversation is hard-stopped after 12 minutes, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
 - Audio (candidate + AI mixed) is recorded per connection segment and uploaded to `apps/api/storage/recordings/<assessmentId>/` (`Recording` rows).
-- Endpoints: `POST /admin/assessments`; `GET /public/assessments/:token`, `POST …/consent`, `…/realtime-session`, `…/turns`, `…/recording`, `…/end`.
+- Endpoints: `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`; `GET|POST /admin/assessments`, `GET /admin/assessments/:id`, `POST …/:id/evaluate`, `DELETE …/:id/data`, `GET …/:id/recordings/:recordingId`; `GET /public/assessments/:token`, `POST …/consent`, `…/realtime-session`, `…/turns`, `…/recording`, `…/end`.
 
 ## Evaluation and report (milestone 3)
 
@@ -114,8 +124,8 @@ How it works:
 - Too short or interrupted conversations (defaults: under 7 min, or under 3 min of candidate speech) get an "insufficient data" report without calling the model.
 - The model scores only the candidate's turns (the AI's turns are context), gives 1–3 quotes per criterion and CEFR speaking/listening. Every quote is checked against the transcript after normalisation; quotes that are not found are dropped and logged. The recommendation (`READY` / `READY_WITH_CONCERNS` / `NOT_READY`) is computed by a fixed rule relative to the target level (`apps/api/src/evaluation/recommendation.ts`).
 - Prompt: `apps/api/src/prompts/evaluation/v1.ts` (`evaluation-v1`), the same for every provider. Each report stores provider, model and prompt version.
-- Report page (Polish): `http://localhost:3000/admin/assessments/<id>` — log in with `ADMIN_API_KEY` (temporary until recruiter login in M4). `pnpm create-assessment` prints this link.
-- Re-run for calibration: the button on the report page, or `POST /admin/assessments/:id/evaluate` (header `x-admin-key`). Earlier reports are kept.
+- Report page (Polish): `http://localhost:3000/admin/assessments/<id>` in the recruiter panel. `pnpm create-assessment` prints this link.
+- Re-run for calibration: the button on the report page, or `POST /admin/assessments/:id/evaluate` (session or `x-admin-key`). Earlier reports are kept.
 
 ## Tests
 

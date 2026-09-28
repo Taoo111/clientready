@@ -1,63 +1,55 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { RecruiterSchema, type Recruiter } from '@clientready/shared';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 /**
- * Temporary recruiter access (until M4 login): the recruiter enters ADMIN_API_KEY once;
- * an httpOnly cookie keeps a hash of it. Server-side only — the key never reaches the
- * browser, and all API calls are made from the Next.js server.
+ * Recruiter session (server-side only). The API issues an opaque session token at login;
+ * the web app keeps it in an httpOnly cookie and sends it as a Bearer token on every
+ * server-side API call. The browser never talks to /admin endpoints directly.
  */
-export const ADMIN_COOKIE = 'cr_admin';
-const MAX_AGE_SECONDS = 8 * 60 * 60;
+export const SESSION_COOKIE = 'cr_session';
 
-function adminKey(): string | undefined {
-  const key = process.env.ADMIN_API_KEY;
-  return key && key.length >= 24 ? key : undefined;
+const API_URL = () => process.env.API_URL ?? 'http://localhost:3001';
+
+export async function sessionToken(): Promise<string | undefined> {
+  return (await cookies()).get(SESSION_COOKIE)?.value;
 }
 
-function digest(value: string): string {
-  return createHash('sha256').update(`clientready-admin:${value}`).digest('hex');
-}
-
-function safeEqual(a: string, b: string): boolean {
-  const left = Buffer.from(a);
-  const right = Buffer.from(b);
-  return left.length === right.length && timingSafeEqual(left, right);
-}
-
-export function adminEnabled(): boolean {
-  return adminKey() !== undefined;
-}
-
-export async function isAdmin(): Promise<boolean> {
-  const key = adminKey();
-  const cookie = (await cookies()).get(ADMIN_COOKIE)?.value;
-  return !!key && !!cookie && safeEqual(cookie, digest(key));
-}
-
-/** Returns true and sets the session cookie when the provided key is correct. */
-export async function logIn(provided: string): Promise<boolean> {
-  const key = adminKey();
-  if (!key || !safeEqual(digest(provided), digest(key))) return false;
-  (await cookies()).set(ADMIN_COOKIE, digest(key), {
+export async function setSession(token: string, expiresAt: string): Promise<void> {
+  (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    path: '/admin',
-    maxAge: MAX_AGE_SECONDS,
+    path: '/',
+    expires: new Date(expiresAt),
   });
-  return true;
 }
 
-export async function logOut(): Promise<void> {
-  (await cookies()).delete({ name: ADMIN_COOKIE, path: '/admin' });
+export async function clearSession(): Promise<void> {
+  (await cookies()).delete(SESSION_COOKIE);
 }
 
-/** Server-side call to the API's /admin endpoints. */
-export function adminFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  return fetch(`${apiUrl}/admin${path}`, {
+/** Calls the API without authentication (login). */
+export function publicApiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(`${API_URL()}${path}`, { ...init, cache: 'no-store' });
+}
+
+/** Calls the API as the logged-in recruiter; redirects to the login page when the session is gone. */
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const token = await sessionToken();
+  if (!token) redirect('/admin/login');
+  const res = await fetch(`${API_URL()}${path}`, {
     ...init,
     cache: 'no-store',
-    headers: { ...init.headers, 'x-admin-key': adminKey() ?? '' },
+    headers: { ...init.headers, Authorization: `Bearer ${token}` },
   });
+  if (res.status === 401) redirect('/admin/login?expired=1');
+  return res;
+}
+
+/** The logged-in recruiter, or a redirect to the login page. */
+export async function requireRecruiter(): Promise<Recruiter> {
+  const res = await apiFetch('/auth/me');
+  if (!res.ok) redirect('/admin/login?expired=1');
+  return RecruiterSchema.parse(await res.json());
 }

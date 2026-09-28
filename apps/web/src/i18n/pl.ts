@@ -1,3 +1,5 @@
+import type { AssessmentStatus, Recommendation, TargetLevel } from '@clientready/shared';
+
 /** Recruiter panel and report strings (Polish). */
 export const pl = {
   appName: 'ClientReady',
@@ -5,50 +7,153 @@ export const pl = {
   apiOk: 'działa',
   apiDown: 'niedostępne',
 
-  login: {
-    title: 'Panel rekrutera',
-    body: 'Tymczasowy dostęp (do czasu logowania rekruterów): podaj klucz ADMIN_API_KEY.',
-    key: 'Klucz dostępu',
-    submit: 'Zaloguj',
-    invalid: 'Nieprawidłowy klucz.',
-    disabled: 'Panel jest wyłączony — ustaw ADMIN_API_KEY w .env.',
+  nav: {
+    assessments: 'Oceny',
+    newAssessment: 'Nowa ocena',
     logout: 'Wyloguj',
+    account: 'Konto',
+  },
+
+  login: {
+    title: 'Zaloguj się do panelu',
+    subtitle: 'Panel rekrutera ClientReady',
+    email: 'E-mail',
+    password: 'Hasło',
+    submit: 'Zaloguj się',
+    invalid: 'Nieprawidłowy e-mail lub hasło.',
+    expired: 'Sesja wygasła. Zaloguj się ponownie.',
+    unavailable: 'Nie udało się połączyć z serwerem. Spróbuj ponownie za chwilę.',
+    tooMany: 'Zbyt wiele prób logowania. Odczekaj minutę i spróbuj ponownie.',
+  },
+
+  status: {
+    CREATED: 'Oczekuje na kandydata',
+    IN_PROGRESS: 'W trakcie rozmowy',
+    COMPLETED: 'Ocena w toku',
+    EVALUATED: 'Oceniono',
+    FAILED: 'Błąd oceny',
+  } satisfies Record<AssessmentStatus, string>,
+
+  recommendation: {
+    READY: 'Gotowy',
+    READY_WITH_CONCERNS: 'Gotowy z zastrzeżeniami',
+    NOT_READY: 'Niegotowy',
+  } satisfies Record<Recommendation, string>,
+  insufficientShort: 'Za mało danych',
+
+  /** Polish names of the default rubric criteria (templates are in English). */
+  criteria: {
+    understanding_questions: 'Rozumienie pytań',
+    vocabulary_precision: 'Precyzja słownictwa technicznego i domenowego',
+    clarifying_questions: 'Zadawanie pytań doprecyzowujących',
+    handling_pressure: 'Radzenie sobie z presją i sprzeciwem',
+    fluency_coherence: 'Płynność i spójność wypowiedzi',
+  } as Record<string, string>,
+  dataDeleted: 'Dane usunięte',
+
+  list: {
+    title: 'Oceny kandydatów',
+    subtitle: 'Rozmowy głosowe z klientem AI i raporty gotowości do pracy z klientem.',
+    searchPlaceholder: 'Szukaj po imieniu lub nazwisku…',
+    allStatuses: 'Każdy status',
+    allRoles: 'Każda rola',
+    columns: {
+      candidate: 'Kandydat',
+      role: 'Rola',
+      level: 'Poziom',
+      status: 'Status',
+      recommendation: 'Rekomendacja',
+      date: 'Utworzono',
+    },
+    emptyTitle: 'Nie masz jeszcze żadnych ocen',
+    emptyBody: 'Utwórz pierwszą ocenę, wyślij kandydatowi link, a po rozmowie zobaczysz tu raport.',
+    noResultsTitle: 'Brak wyników',
+    noResultsBody: 'Żadna ocena nie pasuje do wyszukiwania lub filtrów.',
+    clearFilters: 'Wyczyść filtry',
+    count: (n: number) =>
+      `${n} ${n === 1 ? 'ocena' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'oceny' : 'ocen'}`,
+    loadError: 'Nie udało się pobrać listy ocen.',
+  },
+
+  create: {
+    title: 'Nowa ocena',
+    subtitle: 'Kandydat dostanie link do ok. 12-minutowej rozmowy po angielsku z klientem AI.',
+    candidateName: 'Imię i nazwisko kandydata',
+    candidateNamePlaceholder: 'np. Anna Nowak',
+    candidateEmail: 'E-mail kandydata',
+    optional: 'opcjonalnie',
+    candidateEmailHint: 'Tylko do Twojej informacji — nic nie wysyłamy automatycznie.',
+    role: 'Rola',
+    rolePlaceholder: 'Wybierz rolę',
+    level: 'Poziom docelowy',
+    levelHint: 'Poziom, którego wymaga projekt. Rekomendacja jest liczona względem niego.',
+    levels: {
+      B1: 'B1 — komunikatywny',
+      B2: 'B2 — swobodny (typowy dla pracy z klientem)',
+      C1: 'C1 — zaawansowany',
+    } satisfies Record<TargetLevel, string>,
+    submit: 'Utwórz i pokaż link',
+    cancel: 'Anuluj',
+    errors: {
+      candidateName: 'Podaj imię i nazwisko kandydata.',
+      candidateEmail: 'Nieprawidłowy adres e-mail.',
+      roleTemplateId: 'Wybierz rolę.',
+      targetLevel: 'Wybierz poziom.',
+      generic: 'Nie udało się utworzyć oceny. Spróbuj ponownie.',
+    },
+  },
+
+  invite: {
+    createdTitle: 'Ocena utworzona',
+    createdBody:
+      'Wyślij kandydatowi link. Link jest jednorazowy — rozmowę można przeprowadzić raz.',
+    title: 'Link dla kandydata',
+    body: 'Link działa, dopóki kandydat nie zakończy rozmowy. Nieużyty link wygasa po 14 dniach.',
+    copyLink: 'Kopiuj link',
+    copied: 'Skopiowano do schowka',
+    copyFailed: 'Nie udało się skopiować — zaznacz i skopiuj ręcznie.',
+    messageTitle: 'Gotowa wiadomość do kandydata',
+    copyMessage: 'Kopiuj wiadomość',
+    polish: 'Po polsku',
+    english: 'Po angielsku',
+    messagePl: (name: string, role: string, link: string) =>
+      `Cześć ${name},\n\nw ramach rekrutacji na stanowisko ${role} zapraszamy Cię na krótką rozmowę po angielsku (ok. 12 minut). Porozmawiasz z asystentem AI, który odgrywa rolę klienta — zapyta o Twoje doświadczenie i omówi z Tobą typową sytuację projektową. Rozmowa jest nagrywana, a jej wynik przegląda rekruter.\n\nWystarczy przeglądarka (najlepiej Chrome lub Edge na komputerze), mikrofon i ciche miejsce — najlepiej ze słuchawkami. Link możesz użyć raz:\n${link}\n\nPowodzenia!`,
+    messageEn: (name: string, role: string, link: string) =>
+      `Hi ${name},\n\nAs part of the recruitment process for the ${role} role, we'd like to invite you to a short conversation in English (about 12 minutes). You'll talk to an AI assistant playing a client — it will ask about your experience and discuss a typical project situation with you. The conversation is recorded and reviewed by a recruiter.\n\nAll you need is a browser (ideally Chrome or Edge on a computer), a microphone and a quiet place — headphones help. The link can be used once:\n${link}\n\nGood luck!`,
   },
 
   report: {
-    title: 'Raport z rozmowy',
-    notFound: 'Nie znaleziono oceny o tym identyfikatorze.',
-    apiError: 'Nie udało się pobrać danych z API.',
+    back: 'Wszystkie oceny',
+    title: 'Raport',
     role: 'Rola',
     targetLevel: 'Poziom docelowy',
-    conversation: 'Rozmowa',
-    status: {
-      CREATED: 'Link wysłany — kandydat jeszcze nie rozpoczął',
-      IN_PROGRESS: 'Rozmowa w toku',
-      COMPLETED: 'Rozmowa zakończona — ocena w toku…',
-      EVALUATED: 'Oceniono',
-      FAILED: 'Ocena nie powiodła się',
+    conversationDate: 'Rozmowa',
+    duration: 'Długość',
+    created: 'Utworzono',
+    waiting: {
+      CREATED: 'Kandydat jeszcze nie rozpoczął rozmowy.',
+      IN_PROGRESS: 'Kandydat jest w trakcie rozmowy albo rozmowa została przerwana.',
+      COMPLETED: 'Rozmowa zakończona — ocena jest przygotowywana. Odśwież stronę za chwilę.',
     },
-    recommendation: {
-      READY: 'Gotowy do pracy z klientem',
-      READY_WITH_CONCERNS: 'Gotowy z zastrzeżeniami',
-      NOT_READY: 'Niegotowy',
-    },
-    insufficient: 'Niewystarczające dane do oceny',
+    failed: 'Automatyczna ocena nie powiodła się',
+    insufficientTitle: 'Za mało danych do oceny',
     humanDecision:
-      'To rekomendacja wygenerowana przez AI na podstawie transkrypcji. Decyzję podejmuje rekruter — sprawdź cytaty, transkrypcję i nagranie.',
+      'Rekomendacja AI na podstawie transkrypcji. Decyzję podejmuje rekruter — sprawdź cytaty, transkrypcję i nagranie.',
+    recommendationLabel: 'Rekomendacja',
     modelDisagrees: (label: string) =>
-      `Model oceniający sugerował: ${label}. Rekomendacja powyżej wynika ze stałej reguły względem poziomu docelowego.`,
+      `Model oceniający sugerował „${label}”. Rekomendacja wynika ze stałej reguły względem poziomu docelowego.`,
     cefrTitle: 'Szacowany poziom CEFR',
     speaking: 'Mówienie',
     listening: 'Rozumienie',
-    languageTitle: 'Użycie innego języka',
+    vsTarget: (target: string) => `cel: ${target}`,
+    languageTitle: 'Kandydat używał innego języka',
     criteriaTitle: 'Kryteria',
-    evidence: 'Cytaty',
-    noEvidence: 'Brak zweryfikowanych cytatów dla tego kryterium — traktuj wynik ostrożnie.',
+    evidenceShow: (n: number) => `Pokaż cytaty (${n})`,
+    evidenceHide: 'Ukryj cytaty',
+    noEvidence: 'Brak zweryfikowanych cytatów — traktuj ten wynik ostrożnie.',
     rejectedQuotes: (n: number) =>
-      `${n} ${n === 1 ? 'cytat odrzucony' : 'cytaty odrzucone'} (nie znaleziono w transkrypcji)`,
-    goToTurn: 'pokaż w transkrypcji',
+      `${n} ${n === 1 ? 'cytat odrzucony' : 'cytaty odrzucone'} — nie znaleziono ich w transkrypcji.`,
+    goToTurn: 'W transkrypcji',
     recordingTitle: 'Nagranie',
     noRecording: 'Brak nagrania.',
     recordingPart: (n: number) => `Część ${n}`,
@@ -65,10 +170,27 @@ export const pl = {
       candidateSpeech: 'Czas wypowiedzi kandydata',
       candidateTurns: 'Wypowiedzi kandydata',
     },
-    rerun: 'Uruchom ocenę ponownie',
-    rerunHint: 'Nowy raport zostanie dodany; poprzednie zostają w bazie (kalibracja).',
-    rerunFailed: 'Ponowna ocena nie powiodła się',
-    evaluationError: 'Błąd oceny',
+    actions: {
+      rerun: 'Oceń ponownie',
+      rerunning: 'Oceniam…',
+      rerunDone: 'Dodano nowy raport',
+      rerunFailed: 'Ponowna ocena nie powiodła się',
+      print: 'Drukuj / PDF',
+      delete: 'Usuń dane kandydata',
+      deleteTitle: 'Usunąć dane kandydata?',
+      deleteBody:
+        'Transkrypcja, nagranie i wszystkie raporty zostaną trwale usunięte, a imię i nazwisko zanonimizowane. Link kandydata przestanie działać. Tej operacji nie można cofnąć.',
+      deleteConfirm: 'Usuń trwale',
+      deleting: 'Usuwam…',
+      deleted: 'Dane kandydata zostały usunięte',
+      deleteFailed: 'Nie udało się usunąć danych',
+      cancel: 'Anuluj',
+    },
+    deletedNotice: (date: string) =>
+      `Dane kandydata usunięto ${date} (transkrypcja, nagranie, raporty).`,
+    notFound: 'Nie znaleziono tej oceny.',
+    loadError: 'Nie udało się pobrać raportu.',
+    printedAt: (date: string) => `Wygenerowano ${date} · ClientReady`,
     minutes: (ms: number) => `${(ms / 60_000).toFixed(1).replace('.', ',')} min`,
   },
 } as const;

@@ -16,3 +16,6 @@ process.env.EVAL_RETRY_DELAY_MS = '20';
 process.env.EVAL_MAX_ATTEMPTS = '3';
 process.env.EVAL_MIN_CONVERSATION_SEC = '420';
 process.env.EVAL_MIN_CANDIDATE_SPEECH_SEC = '180';
+process.env.ADMIN_EMAIL = 'recruiter@example.com';
+process.env.ADMIN_PASSWORD = 'correct horse battery staple';
+process.env.SESSION_TTL_HOURS = '12';

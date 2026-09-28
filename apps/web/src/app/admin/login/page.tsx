@@ -1,57 +1,31 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { Logo } from '@/components/brand/logo';
+import { LoginForm } from '@/components/admin/login-form';
 import { pl } from '@/i18n/pl';
-import { adminEnabled, logIn } from '@/lib/admin/session';
 
 export const metadata: Metadata = {
-  title: `${pl.appName} — ${pl.login.title}`,
+  title: `${pl.login.title} — ${pl.appName}`,
   robots: { index: false, follow: false },
 };
-
-/** Only same-site relative paths under /admin are allowed as redirect targets. */
-function safeNext(value: FormDataEntryValue | string | string[] | undefined | null): string {
-  const next = typeof value === 'string' ? value : '';
-  return next.startsWith('/admin/') && !next.startsWith('//') ? next : '/admin/login';
-}
-
-async function login(formData: FormData) {
-  'use server';
-  const next = safeNext(formData.get('next'));
-  const ok = await logIn(String(formData.get('key') ?? ''));
-  redirect(ok ? next : `/admin/login?error=1&next=${encodeURIComponent(next)}`);
-}
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ next?: string; expired?: string }>;
 }) {
-  const { error, next } = await searchParams;
-  const t = pl.login;
+  const { next, expired } = await searchParams;
   return (
-    <main lang="pl" className="legacy">
-      <p className="brand">{pl.appName}</p>
-      <section className="card">
-        <h1>{t.title}</h1>
-        {adminEnabled() ? (
-          <form action={login}>
-            <p>{t.body}</p>
-            <input type="hidden" name="next" value={safeNext(next)} />
-            <label className="field">
-              <span>{t.key}</span>
-              <input type="password" name="key" required autoComplete="current-password" />
-            </label>
-            {error && (
-              <p className="error" role="alert">
-                {t.invalid}
-              </p>
-            )}
-            <button type="submit">{t.submit}</button>
-          </form>
-        ) : (
-          <p className="error">{t.disabled}</p>
-        )}
-      </section>
+    <main lang="pl" className="flex min-h-dvh flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm space-y-8">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <Logo className="scale-110" />
+          <p className="text-sm text-muted-foreground">{pl.login.subtitle}</p>
+        </div>
+        <div className="rounded-2xl border bg-card p-6 shadow-card sm:p-8">
+          <h1 className="mb-6 text-xl font-semibold tracking-tight">{pl.login.title}</h1>
+          <LoginForm next={next ?? ''} expired={expired === '1'} />
+        </div>
+      </div>
     </main>
   );
 }

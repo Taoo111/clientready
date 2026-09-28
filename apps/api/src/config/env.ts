@@ -7,8 +7,12 @@ const EnvSchema = z.object({
   API_PORT: z.coerce.number().int().positive().default(3001),
   WEB_ORIGIN: z.url().default('http://localhost:3000'),
   DATA_RETENTION_DAYS: z.coerce.number().int().positive().default(90),
-  /** Temporary protection of /admin endpoints until recruiter login (M4). Unset = admin disabled. */
+  /** Key for scripts/CLI calling /admin endpoints (header x-admin-key). Unset = key access disabled. */
   ADMIN_API_KEY: z.string().min(24, 'ADMIN_API_KEY must be at least 24 characters').optional(),
+  /** Recruiter account created/updated at startup (panel login). */
+  ADMIN_EMAIL: z.email().optional(),
+  ADMIN_PASSWORD: z.string().min(12, 'ADMIN_PASSWORD must be at least 12 characters').optional(),
+  SESSION_TTL_HOURS: z.coerce.number().positive().default(12),
   /** Candidate links that were never used expire after this many days. */
   LINK_TTL_DAYS: z.coerce.number().int().positive().default(14),
   /** Max realtime connections (first connect + resumes) per assessment. */

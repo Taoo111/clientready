@@ -1,19 +1,6 @@
-import { en } from '@/i18n/en';
-import { pl } from '@/i18n/pl';
-import { isApiHealthy } from '@/lib/api';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function HomePage() {
-  const healthy = await isApiHealthy();
-
-  return (
-    <main className="legacy">
-      <h1>{en.appName}</h1>
-      <p>{en.tagline}</p>
-      <p>
-        {pl.apiStatus}: <strong>{healthy ? pl.apiOk : pl.apiDown}</strong>
-      </p>
-    </main>
-  );
+/** Candidates arrive via their personal link (/a/<token>); everyone else goes to the recruiter panel. */
+export default function HomePage() {
+  redirect('/admin');
 }

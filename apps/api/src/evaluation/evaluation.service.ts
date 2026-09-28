@@ -135,6 +135,9 @@ export class EvaluationService implements OnApplicationBootstrap, OnApplicationS
       include: { turns: true },
     });
     if (!assessment) throw new EvaluationNotPossibleError('Assessment not found');
+    if (assessment.dataDeletedAt) {
+      throw new EvaluationNotPossibleError('Candidate data was deleted');
+    }
     if (!['COMPLETED', 'EVALUATED', 'FAILED'].includes(assessment.status)) {
       throw new EvaluationNotPossibleError(
         `Cannot evaluate an assessment in status ${assessment.status}`,

@@ -47,6 +47,8 @@ model Assessment {
   /// Evaluation runs attempted by the automatic job, and the last error (if any).
   evaluationAttempts Int              @default(0)
   evaluationError    String?
+  /// Candidate data deleted on request (GDPR): transcript, recordings and reports removed, name anonymised.
+  dataDeletedAt      DateTime?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
@@ -105,6 +107,22 @@ model Report {
 model Recruiter {
   id           String   @id @default(cuid())
   email        String   @unique
+  /// argon2id hash
   passwordHash String
   createdAt    DateTime @default(now())
+
+  sessions RecruiterSession[]
+}
+
+/// Panel login session; the browser holds the random token (httpOnly cookie), we store its hash.
+model RecruiterSession {
+  id          String    @id @default(cuid())
+  recruiterId String
+  recruiter   Recruiter @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime  @default(now())
+
+  @@index([expiresAt])
 }
