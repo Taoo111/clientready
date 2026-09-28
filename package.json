@@ -18,7 +18,8 @@
     "db:migrate": "pnpm --filter @clientready/api db:migrate",
     "db:generate": "pnpm --filter @clientready/api db:generate",
     "db:studio": "pnpm --filter @clientready/api db:studio",
-    "test": "pnpm --filter @clientready/shared build && pnpm -r test"
+    "test": "pnpm --filter @clientready/shared build && pnpm -r test",
+    "create-assessment": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api create-assessment"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
