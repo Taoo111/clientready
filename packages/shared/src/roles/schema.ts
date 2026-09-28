@@ -41,19 +41,32 @@ export const LevelAdjustmentSchema = z.object({
   guidance: z.string().min(1),
 });
 
-export const RoleTemplateSchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+$/, 'id must be kebab-case'),
-  name: z.string().min(1),
-  description: z.string().min(1),
-  persona: PersonaSchema,
-  phases: z.array(PhaseSchema).min(1),
-  rubric: z.array(RubricCriterionSchema).min(1),
-  levels: z.object({
-    B1: LevelAdjustmentSchema,
-    B2: LevelAdjustmentSchema,
-    C1: LevelAdjustmentSchema,
-  }),
-});
+function hasDuplicates(values: string[]): boolean {
+  return new Set(values).size !== values.length;
+}
+
+export const RoleTemplateSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9-]+$/, 'id must be kebab-case'),
+    name: z.string().min(1),
+    description: z.string().min(1),
+    persona: PersonaSchema,
+    phases: z.array(PhaseSchema).min(1),
+    rubric: z.array(RubricCriterionSchema).min(1),
+    levels: z.object({
+      B1: LevelAdjustmentSchema,
+      B2: LevelAdjustmentSchema,
+      C1: LevelAdjustmentSchema,
+    }),
+  })
+  .superRefine((template, ctx) => {
+    if (hasDuplicates(template.phases.map((p) => p.id))) {
+      ctx.addIssue({ code: 'custom', path: ['phases'], message: 'phase ids must be unique' });
+    }
+    if (hasDuplicates(template.rubric.map((c) => c.key))) {
+      ctx.addIssue({ code: 'custom', path: ['rubric'], message: 'rubric keys must be unique' });
+    }
+  });
 
 export type Persona = z.infer<typeof PersonaSchema>;
 export type Phase = z.infer<typeof PhaseSchema>;
