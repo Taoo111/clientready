@@ -19,7 +19,8 @@
     "db:generate": "pnpm --filter @clientready/api db:generate",
     "db:studio": "pnpm --filter @clientready/api db:studio",
     "test": "pnpm --filter @clientready/shared build && pnpm -r test",
-    "create-assessment": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api create-assessment"
+    "create-assessment": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api create-assessment",
+    "test:e2e": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api test:e2e"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
