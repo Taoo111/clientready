@@ -4,6 +4,7 @@ import { buildTurns, type TranscriptFixture } from './build';
 export const strongCandidate: TranscriptFixture = {
   name: 'strong',
   description: 'Mocny kandydat B2+/C1',
+  templateId: 'backend-developer',
   targetLevel: 'B2',
   expected: { recommendation: 'READY', speaking: ['B2', 'C2'] },
   ...buildTurns([

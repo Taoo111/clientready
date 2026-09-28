@@ -7,6 +7,7 @@ import { buildTurns, type TranscriptFixture } from './build';
 export const mediumCandidate: TranscriptFixture = {
   name: 'medium',
   description: 'Średni kandydat B1/B2, problemy pod presją',
+  templateId: 'backend-developer',
   targetLevel: 'B2',
   expected: { recommendation: 'READY_WITH_CONCERNS', speaking: ['B1', 'B2'] },
   ...buildTurns([

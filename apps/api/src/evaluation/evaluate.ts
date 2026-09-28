@@ -10,7 +10,7 @@ import {
   buildEvaluationSystemPrompt,
   buildEvaluationUserMessage,
   EVALUATION_PROMPT_VERSION,
-} from '../prompts/evaluation/v1';
+} from '../prompts/evaluation/v2';
 import { EvaluationProvider, EvaluationProviderError } from './provider';
 import { verifyQuotes } from './quotes';
 import { computeRecommendation } from './recommendation';

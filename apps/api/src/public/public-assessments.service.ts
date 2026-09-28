@@ -30,11 +30,7 @@ import { PublicError } from '../common/public-error';
 import type { Env } from '../config/env';
 import type { Assessment } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  buildClientInstructions,
-  buildTimeCues,
-  CLIENT_PROMPT_VERSION,
-} from '../prompts/client/v2';
+import { currentClientPrompt } from '../prompts/client';
 import {
   RealtimeSecretProvider,
   RealtimeUnavailableError,
@@ -137,7 +133,7 @@ export class PublicAssessmentsService {
       : [];
     const elapsed = elapsedMs(assessment, now);
 
-    const instructions = buildClientInstructions({
+    const instructions = currentClientPrompt.buildClientInstructions({
       template,
       level: assessment.targetLevel,
       candidateName: assessment.candidateName,
@@ -163,12 +159,12 @@ export class PublicAssessmentsService {
         status: 'IN_PROGRESS',
         startedAt: assessment.startedAt ?? now,
         realtimeModel: secret.model,
-        promptVersion: CLIENT_PROMPT_VERSION,
+        promptVersion: currentClientPrompt.CLIENT_PROMPT_VERSION,
       },
     });
     this.logger.log(
       `Assessment ${assessment.id}: realtime session ${isResume ? 'resumed' : 'started'} ` +
-        `(model=${secret.model}, prompt=${CLIENT_PROMPT_VERSION}, elapsed=${elapsed}ms)`,
+        `(model=${secret.model}, prompt=${currentClientPrompt.CLIENT_PROMPT_VERSION}, elapsed=${elapsed}ms)`,
     );
 
     const maxSeq = turns.reduce((max, t) => Math.max(max, t.seq), -1);
@@ -180,7 +176,7 @@ export class PublicAssessmentsService {
       elapsedMs: elapsed,
       remainingMs: SESSION_HARD_LIMIT_MS - elapsed,
       nextSeq: maxSeq + 1,
-      timeCues: buildTimeCues(template).filter((cue) => cue.atMs > elapsed),
+      timeCues: currentClientPrompt.buildTimeCues(template).filter((cue) => cue.atMs > elapsed),
     };
   }
 

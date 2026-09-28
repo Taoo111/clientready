@@ -19,7 +19,7 @@ const EnvSchema = z.object({
   MAX_REALTIME_CONNECTS: z.coerce.number().int().positive().default(5),
   // Live conversation (OpenAI Realtime)
   OPENAI_API_KEY: z.string().optional(),
-  OPENAI_REALTIME_MODEL: z.string().default('gpt-realtime-2.1-mini'),
+  OPENAI_REALTIME_MODEL: z.string().default('gpt-realtime-2.1'),
   /** Reasoning effort for reasoning realtime models (gpt-realtime-2.x); 'none' omits it for older models. */
   OPENAI_REALTIME_REASONING_EFFORT: z
     .enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh'])

@@ -21,7 +21,7 @@ async function seed(name: string, createdDaysAgo: number, endedDaysAgo: number |
       endedAt: endedDaysAgo === null ? null : new Date(now.getTime() - endedDaysAgo * DAY),
       turns: { create: [{ seq: 0, speaker: 'CANDIDATE', text: 'Hello', startedAtMs: 0 }] },
       reports: {
-        create: [{ json: {}, provider: 'rules', model: 'none', promptVersion: 'evaluation-v1' }],
+        create: [{ json: {}, provider: 'rules', model: 'none', promptVersion: 'evaluation-v2' }],
       },
     },
   });

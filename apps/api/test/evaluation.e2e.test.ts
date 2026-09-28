@@ -103,7 +103,7 @@ describe('automatic evaluation', () => {
     expect(res.body.report).toMatchObject({
       provider: 'openai',
       model: 'fake-eval',
-      promptVersion: 'evaluation-v1',
+      promptVersion: 'evaluation-v2',
       data: {
         status: 'OK',
         targetLevel: 'B2',

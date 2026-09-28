@@ -14,7 +14,6 @@ import { transcriptFixtures, type TranscriptFixture } from '../fixtures/transcri
 loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
 const env = validateEnv(process.env);
 const hasKey = env.EVAL_PROVIDER === 'openai' ? !!env.OPENAI_API_KEY : !!env.ANTHROPIC_API_KEY;
-const template = getRoleTemplate('backend-developer') as RoleTemplate;
 const results = new Map<string, EvaluationResult>();
 const rejectedQuotes: string[] = [];
 
@@ -22,14 +21,17 @@ const average = (r: EvaluationResult) =>
   r.report.criteria.reduce((sum, c) => sum + c.score, 0) / r.report.criteria.length;
 const score = (r: EvaluationResult, key: string) =>
   r.report.criteria.find((c) => c.key === key)?.score ?? 0;
+const byRole = (templateId: string) =>
+  transcriptFixtures.filter((f) => f.templateId === templateId);
+const roles = [...new Set(transcriptFixtures.map((f) => f.templateId))];
 
 describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
   beforeAll(async () => {
     const provider = createEvaluationProvider(env);
-    const runs = transcriptFixtures.map(async (fixture: TranscriptFixture) => {
+    const evaluate = async (fixture: TranscriptFixture) => {
       const result = await evaluateConversation(
         {
-          template,
+          template: getRoleTemplate(fixture.templateId) as RoleTemplate,
           targetLevel: fixture.targetLevel,
           turns: fixture.turns,
           conversationMs: fixture.conversationMs,
@@ -39,21 +41,25 @@ describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
         { warn: (message) => rejectedQuotes.push(`${fixture.name}: ${message}`) },
       );
       results.set(fixture.name, result);
-    });
-    await Promise.all(runs);
+    };
+    await Promise.all(transcriptFixtures.map(evaluate));
 
     console.table(
-      [...results.entries()].map(([name, r]) => ({
-        fixture: name,
-        model: `${r.provider}/${r.model}`,
-        status: r.report.status,
-        recommendation: r.report.recommendation,
-        modelRecommendation: r.report.modelRecommendation,
-        speaking: r.report.cefr?.speaking.level,
-        listening: r.report.cefr?.listening.level,
-        scores: r.report.criteria.map((c) => c.score).join(' '),
-        evidence: r.report.criteria.map((c) => c.evidence.length).join(' '),
-      })),
+      transcriptFixtures.map((f) => {
+        const r = results.get(f.name)!;
+        return {
+          fixture: f.name,
+          model: `${r.provider}/${r.model}`,
+          prompt: r.promptVersion,
+          status: r.report.status,
+          recommendation: r.report.recommendation,
+          modelRecommendation: r.report.modelRecommendation,
+          speaking: r.report.cefr?.speaking.level,
+          listening: r.report.cefr?.listening.level,
+          scores: r.report.criteria.map((c) => c.score).join(' '),
+          evidence: r.report.criteria.map((c) => c.evidence.length).join(' '),
+        };
+      }),
     );
     if (rejectedQuotes.length) console.warn(rejectedQuotes.join('\n'));
   });
@@ -71,18 +77,15 @@ describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
     },
   );
 
-  it('orders candidates by average score: strong > medium > weak', () => {
-    const [strong, medium, weak] = ['strong', 'medium', 'weak'].map((n) =>
-      average(results.get(n)!),
-    );
+  it.each(roles)('%s: orders candidates by average score (strong > medium > weak)', (role) => {
+    const [strong, medium, weak] = byRole(role).map((f) => average(results.get(f.name)!));
     expect(strong).toBeGreaterThan(medium!);
     expect(medium).toBeGreaterThan(weak!);
   });
 
-  it('scores handling pressure lower for the medium candidate than for the strong one', () => {
-    expect(score(results.get('medium')!, 'handling_pressure')).toBeLessThan(
-      score(results.get('strong')!, 'handling_pressure'),
-    );
+  it.each(roles)('%s: medium handles pressure worse than strong', (role) => {
+    const [strong, medium] = byRole(role).map((f) => results.get(f.name)!);
+    expect(score(medium!, 'handling_pressure')).toBeLessThan(score(strong!, 'handling_pressure'));
   });
 
   it('backs every criterion with at least one verified quote', () => {
@@ -93,7 +96,11 @@ describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
     }
   });
 
-  it('notices the Polish sentence of the weak candidate', () => {
-    expect(results.get('weak')!.report.language.nonEnglishDetected).toBe(true);
+  it('notices the Polish sentences of the weak candidates', () => {
+    for (const fixture of transcriptFixtures.filter((f) => f.name.endsWith('weak'))) {
+      expect(results.get(fixture.name)!.report.language.nonEnglishDetected, fixture.name).toBe(
+        true,
+      );
+    }
   });
 });

@@ -7,6 +7,7 @@ export type ScriptLine = ['AI' | 'C', string, number?];
 export interface TranscriptFixture {
   name: string;
   description: string;
+  templateId: string;
   targetLevel: TargetLevel;
   expected: {
     recommendation: Recommendation;
