@@ -1,9 +1,14 @@
 'use client';
 
+import { ArrowRight, CircleCheck, Headphones, MicOff, RotateCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Notice } from '@/components/common/notice';
+import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 import { LevelMeter, SPEAKING_THRESHOLD } from '@/lib/audio/level-meter';
-import { LevelBar } from './LevelBar';
+import { cn } from '@/lib/utils';
+import { CandidateCard } from './CandidateShell';
+import { VoiceOrb } from './VoiceOrb';
 
 type MicError = keyof typeof en.mic.errors;
 
@@ -34,6 +39,7 @@ export function MicCheckStep({
   const t = en.mic;
   const [stream, setStream] = useState<MediaStream>();
   const [error, setError] = useState<MicError>();
+  const [requesting, setRequesting] = useState(false);
   const [level, setLevel] = useState(0);
   const [detected, setDetected] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -41,10 +47,13 @@ export function MicCheckStep({
 
   async function enable() {
     setError(undefined);
+    setRequesting(true);
     try {
       setStream(await navigator.mediaDevices.getUserMedia(MIC_CONSTRAINTS));
     } catch (e) {
       setError(micErrorFor(e));
+    } finally {
+      setRequesting(false);
     }
   }
 
@@ -78,31 +87,80 @@ export function MicCheckStep({
     [stream],
   );
 
-  return (
-    <section className="card">
-      <h1>{resume ? t.resumeTitle : t.title}</h1>
-      <p>{resume ? t.resumeBody : t.body}</p>
+  const speaking = level > SPEAKING_THRESHOLD;
 
-      {!stream && (
-        <button type="button" onClick={() => void enable()}>
-          {t.allow}
-        </button>
-      )}
+  return (
+    <CandidateCard className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-balance">
+          {resume ? t.resumeTitle : t.title}
+        </h1>
+        <p className="text-pretty text-muted-foreground">{resume ? t.resumeBody : t.body}</p>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 py-2">
+        <VoiceOrb
+          size="md"
+          mode={!stream ? 'idle' : speaking ? 'you' : 'listening'}
+          level={stream ? level * 1.4 : 0}
+        />
+        {stream && (
+          <>
+            <div
+              className="flex h-2 w-48 overflow-hidden rounded-full bg-muted"
+              role="meter"
+              aria-label={t.level}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(level * 100)}
+            >
+              <span
+                className={cn(
+                  'h-full rounded-full transition-[width] duration-75',
+                  detected ? 'bg-success' : 'bg-brand',
+                )}
+                style={{ width: `${Math.round(Math.min(1, level * 1.4) * 100)}%` }}
+              />
+            </div>
+            <p
+              className={cn(
+                'flex items-center gap-2 text-center text-sm',
+                detected ? 'font-medium text-success' : 'text-muted-foreground',
+              )}
+              aria-live="polite"
+            >
+              {detected && <CircleCheck className="size-4" aria-hidden />}
+              {detected ? t.detected : t.speakNow}
+            </p>
+          </>
+        )}
+      </div>
 
       {error && (
-        <p className="error" role="alert">
-          {t.errors[error]}
-        </p>
+        <Notice tone="danger" icon={MicOff} title={t.errors[error].title}>
+          {t.errors[error].body}
+        </Notice>
+      )}
+      {stream && !detected && showHint && (
+        <Notice tone="warning" icon={MicOff}>
+          {t.notDetected}
+        </Notice>
       )}
 
-      {stream && (
-        <>
-          <p>{detected ? t.detected : t.speakNow}</p>
-          <LevelBar level={level} label={t.level} active={detected} />
-          {!detected && showHint && <p className="muted">{t.notDetected}</p>}
-          <p className="muted">{t.headphones}</p>
-          <button
-            type="button"
+      {!stream ? (
+        <Button size="lg" className="w-full" disabled={requesting} onClick={() => void enable()}>
+          {error ? <RotateCw aria-hidden /> : null}
+          {error ? en.retry : t.allow}
+        </Button>
+      ) : (
+        <div className="space-y-3">
+          <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Headphones className="size-4" aria-hidden />
+            {t.headphones}
+          </p>
+          <Button
+            size="lg"
+            className="w-full"
             disabled={!detected}
             onClick={() => {
               handedOver.current = true;
@@ -110,9 +168,11 @@ export function MicCheckStep({
             }}
           >
             {resume ? t.resume : t.start}
-          </button>
-        </>
+            <ArrowRight aria-hidden />
+          </Button>
+          {!resume && <p className="text-center text-xs text-muted-foreground">{t.startHint}</p>}
+        </div>
       )}
-    </section>
+    </CandidateCard>
   );
 }

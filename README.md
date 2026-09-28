@@ -81,6 +81,10 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `EVAL_START_DELAY_MS`, `EVAL_MAX_ATTEMPTS`, `EVAL_RETRY_DELAY_MS` | Automatic evaluation: delay after the session, attempts, first retry delay (doubles)                          |
 | `DATA_RETENTION_DAYS`                                             | Retention for `pnpm purge-data` (default 90)                                                                  |
 
+## Design
+
+Tailwind CSS v4 + shadcn/ui (Radix) + lucide-react; tokens (colours, radius, shadows) in `apps/web/src/app/globals.css` — see "Design" in CLAUDE.md. In development, `http://localhost:3000/design` shows the tokens and components. Candidate screens are in English, the recruiter panel in Polish; both work from 360 px wide.
+
 ## Recruiter panel (milestone 4)
 
 - `http://localhost:3000/admin` (Polish). Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`. The API hashes the password (argon2id) and issues a session token; the web app keeps it in an httpOnly cookie and calls the API server-side (`Authorization: Bearer …`). The browser never sees an API key.

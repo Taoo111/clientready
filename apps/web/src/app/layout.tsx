@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
-import './legacy.css';
 
 const geistSans = Geist({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-sans' });
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
