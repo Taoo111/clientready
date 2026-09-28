@@ -32,7 +32,7 @@ Volume at the pilot customer: a few to a dozen+ candidates per month. Optimize f
 - **Live conversation**: OpenAI Realtime API over WebRTC, directly from the browser. The backend mints a short-lived ephemeral client secret per session; the real API key never reaches the browser. Start with the mini realtime model; make the model configurable via env. Always check current OpenAI Realtime docs before implementing — the API changes often.
 - **Transcription**: use the realtime session's input audio transcription events; the browser streams transcript turns to the API, which persists them per session.
 - **Audio recording**: browser `MediaRecorder` (candidate + AI mixed if feasible, otherwise candidate only), uploaded after the session. MVP storage: local disk behind a storage interface; S3-compatible (EU region) later.
-- **Evaluation**: Anthropic API, model `claude-sonnet-5` (configurable via env), structured JSON output validated with zod against the report schema. Evaluation is a separate step from the conversation so it is consistent and can be re-run/calibrated.
+- **Evaluation**: provider-independent. An `EvaluationProvider` interface with two implementations — **OpenAI** (default; Responses API + Structured Outputs, mid-tier model `gpt-6-sol`) and **Anthropic** (`claude-sonnet-5`, `output_config.format`). Selected by env `EVAL_PROVIDER` (`openai` | `anthropic`) and `EVAL_MODEL` (empty = provider default). Both use the same versioned prompt, rubric and zod output schema; every report stores provider + model + promptVersion. Evidence quotes are verified in code against the transcript. The recommendation is computed by a fixed rule relative to the target level (the model's suggestion is kept for calibration). Evaluation is a separate step from the conversation so it is consistent and can be re-run/calibrated. Always check current provider docs before changing models or request shapes.
 - **Languages**: candidate-facing UI and conversation in English; recruiter panel and reports in Polish (keep strings centralized so i18n is easy later).
 - **Config**: all secrets via `.env` (commit `.env.example` only).
 
@@ -55,7 +55,7 @@ Default criteria (can be overridden per role): understanding questions, technica
 - `Assessment` — id, roleTemplateId, targetLevel, candidateName, candidateEmail (optional), token (unguessable), status (`CREATED` → `IN_PROGRESS` → `COMPLETED` → `EVALUATED` / `FAILED`), consentAt, startedAt, endedAt, createdAt
 - `TranscriptTurn` — assessmentId, speaker (`AI` | `CANDIDATE`), text, startedAtMs, seq
 - `Recording` — assessmentId, storageKey, durationMs, mimeType
-- `Report` — assessmentId, json (validated report), model, promptVersion, createdAt
+- `Report` — assessmentId, json (validated report), provider, model, promptVersion, createdAt (several per assessment: re-runs keep history, newest is current)
 - `Recruiter` — minimal auth for the panel (MVP: seeded admin user, email + password, session cookie)
 
 Keep a data retention setting (env, default 90 days) and a job/command that purges old recordings and transcripts.
