@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
 import path from 'node:path';
-import { defineConfig, env } from 'prisma/config';
+import { defineConfig } from 'prisma/config';
 
-// Single .env for the whole monorepo lives at the repo root.
+// Single .env for the whole monorepo lives at the repo root (development only).
 config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 export default defineConfig({
@@ -11,6 +11,8 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    url: env('DATABASE_URL'),
+    // Not needed for `prisma generate` (e.g. while building the Docker image); required for
+    // migrations, where the hosting platform provides it.
+    url: process.env.DATABASE_URL ?? '',
   },
 });

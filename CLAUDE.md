@@ -28,13 +28,14 @@ Volume at the pilot customer: a few to a dozen+ candidates per month. Optimize f
   - `apps/api` — NestJS (TypeScript), REST
   - `apps/web` — Next.js (App Router, TypeScript), candidate flow + recruiter panel
   - `packages/shared` — shared types, zod schemas, **role templates**
-- **DB**: PostgreSQL + Prisma. Local dev via `docker-compose` (Postgres only).
+- **DB**: PostgreSQL + Prisma. Local dev via `docker-compose` (Postgres only); production: Supabase (Frankfurt) through the session pooler.
 - **Live conversation**: OpenAI Realtime API over WebRTC, directly from the browser. The backend mints a short-lived ephemeral client secret per session; the real API key never reaches the browser. Model configurable via env: development uses `gpt-realtime-2.1-mini` (cheaper), production `gpt-realtime-2.1` (the code default) — M5 simulations showed the mini model ignoring the one-question/turn-length rules in ~35–40% of turns (vs ~4%), which also distorted the evaluation. Reasoning effort `minimal` (no spoken preambles). Always check current OpenAI Realtime docs before implementing — the API changes often.
 - **Transcription**: use the realtime session's input audio transcription events; the browser streams transcript turns to the API, which persists them per session.
-- **Audio recording**: browser `MediaRecorder` (candidate + AI mixed if feasible, otherwise candidate only), uploaded after the session. MVP storage: local disk behind a storage interface; S3-compatible (EU region) later.
+- **Audio recording**: browser `MediaRecorder` (candidate + AI mixed if feasible, otherwise candidate only), uploaded after the session. Storage interface: local disk in development, private Supabase Storage bucket in production (short-lived signed URLs for playback).
 - **Evaluation**: provider-independent. An `EvaluationProvider` interface with two implementations — **OpenAI** (default; Responses API + Structured Outputs, mid-tier model `gpt-6-sol`) and **Anthropic** (`claude-sonnet-5`, `output_config.format`). Selected by env `EVAL_PROVIDER` (`openai` | `anthropic`) and `EVAL_MODEL` (empty = provider default). Both use the same versioned prompt, rubric and zod output schema; every report stores provider + model + promptVersion. Evidence quotes are verified in code against the transcript. The recommendation is computed by a fixed rule relative to the target level (the model's suggestion is kept for calibration). Evaluation is a separate step from the conversation so it is consistent and can be re-run/calibrated. Always check current provider docs before changing models or request shapes.
 - **Languages**: candidate-facing UI and conversation in English; recruiter panel and reports in Polish (keep strings centralized so i18n is easy later).
-- **Config**: all secrets via `.env` (commit `.env.example` only).
+- **Config**: all secrets via `.env` (commit `.env.example` only); in production via the Render / Vercel dashboards.
+- **Deploy (demo, zero cost)**: web on Vercel Hobby (region fra1, root `apps/web`, `vercel.json`); API on Render free web service in Frankfurt from `apps/api/Dockerfile` (`render.yaml` blueprint, runs `prisma migrate deploy` on start); database and recordings on Supabase free (Frankfurt). Free-tier consequences designed for: Render sleeps after 15 min idle (the web wakes it via `/health` on the login and candidate screens with a friendly waiting state and keeps it awake while a candidate page is open; the panel shows a wake-up screen instead of failing); the Render disk is ephemeral (nothing is stored locally); the in-memory evaluation queue resumes COMPLETED sessions on start. Candidate calls go from the browser straight to the API (CORS for the Vercel origin, no cookies); the recruiter panel calls the API only server-side, so the session cookie stays first-party on the Vercel domain (no cross-site cookies, no 4.5 MB Vercel body limit for recordings).
 
 ## Design
 
@@ -86,7 +87,7 @@ Keep a data retention setting (env, default 90 days) and a job/command that purg
 3. **Evaluation & report** — evaluation service with Claude + zod schema, report page (Polish) with scores, evidence quotes, recommendation, transcript, audio player.
 4. **Recruiter panel** — login, list of assessments with status, create assessment + copy link, view report.
 5. **BA template** + prompt tuning on real test runs.
-6. **Deploy** — EU hosting, HTTPS, storage on S3-compatible EU bucket.
+6. **Deploy** — Vercel (web) + Render (API) + Supabase (DB, recordings), all in the EU; HTTPS by the platforms. See README → Deploy.
    Known before deploy (found in M5): the OpenAI account's realtime rate limit (tokens/min) is low at the current usage tier — simulations hit it, and parallel live calls could too; raise the tier/limit. The browser retries rate-limited responses a few times.
 
 Goal of milestones 1–5: a working demo HR can try themselves (they play the candidate and read their own report).

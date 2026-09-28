@@ -366,7 +366,11 @@ export default async function ReportPage({
                     controls
                     preload="metadata"
                     className="w-full"
-                    src={`/admin/assessments/${encodeURIComponent(detail.id)}/recordings/${encodeURIComponent(recording.id)}`}
+                    src={
+                      // Cloud storage: short-lived signed URL; local disk: streamed via this app.
+                      recording.playbackUrl ??
+                      `/admin/assessments/${encodeURIComponent(detail.id)}/recordings/${encodeURIComponent(recording.id)}`
+                    }
                   />
                 </div>
               ))}

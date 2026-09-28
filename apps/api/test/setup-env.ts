@@ -19,3 +19,4 @@ process.env.EVAL_MIN_CANDIDATE_SPEECH_SEC = '180';
 process.env.ADMIN_EMAIL = 'recruiter@example.com';
 process.env.ADMIN_PASSWORD = 'correct horse battery staple';
 process.env.SESSION_TTL_HOURS = '12';
+process.env.RETENTION_PURGE_INTERVAL_HOURS = '0';

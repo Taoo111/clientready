@@ -24,6 +24,24 @@ export const pl = {
     expired: 'Sesja wygasła. Zaloguj się ponownie.',
     unavailable: 'Nie udało się połączyć z serwerem. Spróbuj ponownie za chwilę.',
     tooMany: 'Zbyt wiele prób logowania. Odczekaj minutę i spróbuj ponownie.',
+    connecting: 'Łączenie z serwerem…',
+    waking: 'Uruchamiamy serwer…',
+    wakingBody:
+      'Serwer usypia się po okresie bezczynności i właśnie się budzi — to trwa do ok. minuty. Możesz już wpisać dane logowania.',
+    apiDown: 'Serwer nie odpowiada. Spróbuj ponownie za chwilę.',
+    retry: 'Spróbuj ponownie',
+  },
+
+  wake: {
+    title: 'Uruchamiamy serwer…',
+    body: 'Serwer usypia się po okresie bezczynności i właśnie się budzi. To trwa do ok. minuty — strona odświeży się sama.',
+    waiting: 'Czekam na serwer…',
+    downTitle: 'Serwer nie odpowiada',
+    downBody: 'Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie za chwilę.',
+    retry: 'Spróbuj ponownie',
+    errorTitle: 'Coś poszło nie tak',
+    errorBody:
+      'Nie udało się wczytać danych. Serwer mógł się właśnie uruchamiać — spróbuj ponownie.',
   },
 
   status: {

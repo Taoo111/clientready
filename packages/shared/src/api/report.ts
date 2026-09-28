@@ -91,6 +91,8 @@ export const AdminRecordingSchema = z.object({
   mimeType: z.string(),
   durationMs: z.number().int().nullable(),
   createdAt: z.string(),
+  /** Short-lived direct URL (cloud storage); null = stream through the API. */
+  playbackUrl: z.string().nullable(),
 });
 
 export const AdminAssessmentListQuerySchema = z.object({

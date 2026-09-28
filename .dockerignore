@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.next
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+apps/web
+storage
+apps/api/storage
+simulations
+coverage

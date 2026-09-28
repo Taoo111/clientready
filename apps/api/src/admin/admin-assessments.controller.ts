@@ -174,12 +174,20 @@ export class AdminAssessmentsController {
         text: t.text,
         startedAtMs: t.startedAtMs,
       })),
-      recordings: assessment.recordings.map((r) => ({
-        id: r.id,
-        mimeType: r.mimeType,
-        durationMs: r.durationMs,
-        createdAt: r.createdAt.toISOString(),
-      })),
+      recordings: await Promise.all(
+        assessment.recordings.map(async (r) => ({
+          id: r.id,
+          mimeType: r.mimeType,
+          durationMs: r.durationMs,
+          createdAt: r.createdAt.toISOString(),
+          playbackUrl: await this.storage
+            .signedUrl(r.storageKey, this.config.get('RECORDING_URL_TTL_SEC', { infer: true }))
+            .catch((error: unknown) => {
+              this.logger.warn(`Recording ${r.id}: no signed URL (${String(error)})`);
+              return null;
+            }),
+        })),
+      ),
     };
   }
 

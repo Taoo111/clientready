@@ -5,8 +5,10 @@ import { CircleCheck, Clock, Link2Off, MonitorX, RotateCw, WifiOff } from 'lucid
 import type { LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/common/spinner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { en } from '@/i18n/en';
+import { useApiWake } from '@/lib/api-wake';
 import { ApiError, candidateApi } from '@/lib/candidate-api';
 import { ConversationController } from '@/lib/realtime/conversation-controller';
 import { CandidateCard, CandidateShell, StatusScreen } from './CandidateShell';
@@ -63,9 +65,18 @@ async function stepFor(token: string, view: PublicAssessmentView): Promise<Step>
   return { kind: 'error', error: 'alreadyCompleted' };
 }
 
-function LoadingCard() {
+function LoadingCard({ waking }: { waking: boolean }) {
   return (
     <CandidateCard className="space-y-4" aria-busy="true">
+      {waking && (
+        <div className="flex items-start gap-3 rounded-2xl bg-brand-soft/70 p-4 text-sm">
+          <Spinner className="mt-0.5 text-brand" />
+          <div className="space-y-0.5">
+            <p className="font-medium">{en.preparing.title}</p>
+            <p className="text-muted-foreground">{en.preparing.body}</p>
+          </div>
+        </div>
+      )}
       <Skeleton className="h-7 w-2/3" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-5/6" />
@@ -80,6 +91,8 @@ function LoadingCard() {
 
 export function CandidateFlow({ token }: { token: string }) {
   const [step, setStep] = useState<Step>({ kind: 'loading' });
+  // Free hosting sleeps when idle: wake the API first, and keep it awake while the page is open.
+  const api = useApiWake({ keepAlive: true });
 
   const load = useCallback(async () => {
     setStep({ kind: 'loading' });
@@ -95,15 +108,29 @@ export function CandidateFlow({ token }: { token: string }) {
   }, [token]);
 
   useEffect(() => {
-    // Initial data load from the API on mount.
-    void load();
-  }, [load]);
+    // Initial data load once the API is up.
+    if (api.state === 'ready') void load();
+  }, [api.state, load]);
+
+  if (api.state === 'down' && step.kind === 'loading') {
+    const message = en.errors.network;
+    return (
+      <CandidateShell>
+        <StatusScreen icon={WifiOff} tone="danger" title={message.title} body={message.body}>
+          <Button size="lg" onClick={api.retry}>
+            <RotateCw aria-hidden />
+            {en.retry}
+          </Button>
+        </StatusScreen>
+      </CandidateShell>
+    );
+  }
 
   switch (step.kind) {
     case 'loading':
       return (
         <CandidateShell>
-          <LoadingCard />
+          <LoadingCard waking={api.state === 'waking'} />
         </CandidateShell>
       );
 

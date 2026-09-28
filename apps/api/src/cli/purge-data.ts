@@ -9,8 +9,9 @@ import { parseArgs } from 'node:util';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { validateEnv } from '../config/env';
 import { PrismaClient } from '../generated/prisma/client';
+import { pgOptions } from '../prisma/pg-options';
 import { purgeExpiredData } from '../retention/purge';
-import { LocalDiskStorage } from '../storage/local-disk.storage';
+import { createStorage } from '../storage/create-storage';
 
 loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
 
@@ -21,10 +22,10 @@ async function main(): Promise<void> {
   });
   const env = validateEnv(process.env);
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
+    adapter: new PrismaPg(pgOptions(env.DATABASE_URL, 2, env.DATABASE_SSL_CA)),
   });
   try {
-    const result = await purgeExpiredData(prisma, new LocalDiskStorage(env.STORAGE_DIR), {
+    const result = await purgeExpiredData(prisma, createStorage(env), {
       now: new Date(),
       retentionDays: env.DATA_RETENTION_DAYS,
       dryRun: values['dry-run'],

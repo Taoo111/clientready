@@ -32,4 +32,9 @@ export class LocalDiskStorage extends Storage {
   async delete(key: string): Promise<void> {
     await rm(this.pathFor(key), { force: true });
   }
+
+  signedUrl(key: string): Promise<string | null> {
+    assertValidKey(key);
+    return Promise.resolve(null);
+  }
 }

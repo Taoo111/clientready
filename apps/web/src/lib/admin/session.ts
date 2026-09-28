@@ -29,20 +29,46 @@ export async function clearSession(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
+/** The API did not answer (asleep on free hosting, restarting or down). */
+export class ApiUnavailableError extends Error {}
+
+/** Server-side API calls give up after this long (the panel then shows the wake-up screen). */
+const DEFAULT_TIMEOUT_MS = 12_000;
+
+async function fetchApi(path: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  try {
+    return await fetch(`${API_URL()}${path}`, {
+      ...init,
+      cache: 'no-store',
+      signal: init.signal ?? AbortSignal.timeout(timeoutMs),
+    });
+  } catch (error) {
+    throw new ApiUnavailableError(error instanceof Error ? error.message : String(error));
+  }
+}
+
 /** Calls the API without authentication (login). */
-export function publicApiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  return fetch(`${API_URL()}${path}`, { ...init, cache: 'no-store' });
+export function publicApiFetch(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
+  return fetchApi(path, init, timeoutMs);
 }
 
 /** Calls the API as the logged-in recruiter; redirects to the login page when the session is gone. */
-export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+export async function apiFetch(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
   const token = await sessionToken();
   if (!token) redirect('/admin/login');
-  const res = await fetch(`${API_URL()}${path}`, {
-    ...init,
-    cache: 'no-store',
-    headers: { ...init.headers, Authorization: `Bearer ${token}` },
-  });
+  const res = await fetchApi(
+    path,
+    { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } },
+    timeoutMs,
+  );
   if (res.status === 401) redirect('/admin/login?expired=1');
   return res;
 }

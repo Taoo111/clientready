@@ -148,3 +148,47 @@ How it works:
 
 - Prisma schema: `apps/api/prisma/schema.prisma`, migrations in `apps/api/prisma/migrations`.
 - After changing the schema: `pnpm db:migrate` (prompts for a migration name).
+
+## Deploy (milestone 6)
+
+Zero-cost demo setup, everything in the EU:
+
+| Part          | Where                                         | Config in repo                          |
+| ------------- | --------------------------------------------- | --------------------------------------- |
+| Web (Next.js) | Vercel Hobby, region `fra1`                   | `apps/web/vercel.json`                  |
+| API (NestJS)  | Render free web service, Frankfurt, Docker    | `render.yaml`, `apps/api/Dockerfile`    |
+| Database      | Supabase free (Frankfurt), session pooler     | `DATABASE_URL`, `DATABASE_SSL_CA`       |
+| Recordings    | Supabase Storage, private bucket `recordings` | `STORAGE_DRIVER=supabase`, `SUPABASE_*` |
+
+Pushing to `main` deploys both the web (Vercel) and the API (Render, only when API-related files change). The API applies pending Prisma migrations on start and creates/updates the recruiter account from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+
+**How the parts talk to each other.** The candidate's browser calls the API directly (CORS allows only `WEB_ORIGIN`; no cookies involved). The recruiter panel calls the API only from the Next.js server with a Bearer token, so the session cookie stays first-party on the Vercel domain — no cross-site cookies (`SameSite=None`) needed. A `/api` proxy through Vercel was rejected: recording uploads (up to ~10–50 MB) exceed Vercel's 4.5 MB function body limit, and it would add a hop. Recordings are played from short-lived Supabase signed URLs.
+
+**Free-tier behaviour.**
+
+- Render puts the API to sleep after 15 minutes without traffic; waking takes up to ~1 minute. The login page, the panel and the candidate page wake it via `/health` and show "Uruchamiamy serwer…" / "Preparing your conversation…" meanwhile; the candidate page keeps it awake while open.
+- Render's disk is ephemeral: nothing is stored locally (recordings go to Supabase Storage).
+- The evaluation queue lives in memory; after a restart, sessions in `COMPLETED` (no report yet) are evaluated again automatically.
+- Supabase pauses free projects after about a week without activity — unpause it in the Supabase dashboard before a demo.
+- Data older than `DATA_RETENTION_DAYS` is purged by the API when it runs (daily while awake) and on demand with `pnpm purge-data`.
+- Vercel Hobby is meant for non-commercial use; move to Pro (or another host) before real paid usage.
+
+### Checklist — manual steps
+
+1. **Supabase** (supabase.com → New project, region _Central EU (Frankfurt)_):
+   - Connect → **Session pooler** connection string (port 5432), with your database password, and append `?sslmode=require` → this is `DATABASE_URL`.
+   - Project Settings → Database → SSL Configuration → **Download certificate**; its PEM content (`-----BEGIN CERTIFICATE----- …`) is `DATABASE_SSL_CA`.
+   - Project Settings → API Keys → **Secret key** (`sb_secret_…`) → `SUPABASE_SECRET_KEY`; Project URL (`https://<ref>.supabase.co`) → `SUPABASE_URL`.
+   - Storage: nothing to do — the API creates the private `recordings` bucket on the first upload (or create it yourself, **private**).
+2. **Render** (render.com → New → **Blueprint** → this GitHub repo; it reads `render.yaml`). Fill in the secrets it asks for:
+   - `DATABASE_URL`, `DATABASE_SSL_CA`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` (from step 1)
+   - `WEB_ORIGIN` = your Vercel production URL, e.g. `https://clientready.vercel.app` (no trailing slash)
+   - `OPENAI_API_KEY`
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (min. 12 characters) — the recruiter login; changing the password here and redeploying updates it and logs out existing sessions.
+   - Wait for the deploy, then open `https://<service>.onrender.com/health` → `{"status":"ok","db":"ok"}`.
+3. **Vercel** (your existing project):
+   - Settings → General → **Root Directory** `apps/web` (framework Next.js, Node.js 22.x). Install/build commands and the `fra1` region come from `apps/web/vercel.json`.
+   - Settings → Environment Variables (Production): `NEXT_PUBLIC_API_URL` and `API_URL` = `https://<service>.onrender.com`.
+   - Redeploy (the `NEXT_PUBLIC_*` value is built into the bundle).
+4. **OpenAI**: check the realtime rate limits of your usage tier (see CLAUDE.md) and set a monthly budget limit.
+5. **Smoke test**: open `https://<vercel-url>/admin` (first time: wake-up message) → log in → create an assessment → open the candidate link (HTTPS, so the microphone works also on other devices) → short conversation → end → report with recording within a minute.

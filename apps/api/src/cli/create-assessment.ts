@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { createAssessment } from '../assessments/create-assessment';
 import { validateEnv } from '../config/env';
 import { PrismaClient } from '../generated/prisma/client';
+import { pgOptions } from '../prisma/pg-options';
 
 loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
 
@@ -52,7 +53,7 @@ async function main(): Promise<void> {
 
   const env = validateEnv(process.env);
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
+    adapter: new PrismaPg(pgOptions(env.DATABASE_URL, 2, env.DATABASE_SSL_CA)),
   });
   try {
     const result = await createAssessment(prisma, parsed.data, env.WEB_ORIGIN);

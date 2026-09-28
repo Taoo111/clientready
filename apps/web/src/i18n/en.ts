@@ -9,6 +9,11 @@ export const en = {
 
   steps: ['Consent', 'Microphone', 'Conversation'] as const,
 
+  preparing: {
+    title: 'Preparing your conversation…',
+    body: 'This can take up to a minute. Please keep this page open.',
+  },
+
   errors: {
     notFound: {
       title: 'This link doesn’t work',

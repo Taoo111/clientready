@@ -9,6 +9,7 @@ import { validateEnv } from './config/env';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { PublicModule } from './public/public.module';
+import { RetentionService } from './retention/retention.service';
 import { StorageModule } from './storage/storage.module';
 
 @Module({
@@ -32,6 +33,6 @@ import { StorageModule } from './storage/storage.module';
     PublicModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, RetentionService],
 })
 export class AppModule {}
