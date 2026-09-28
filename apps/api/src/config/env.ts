@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EVALUATION_PROVIDERS, type EvaluationProviderName } from '../evaluation/provider';
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -24,10 +25,27 @@ const EnvSchema = z.object({
   // Recordings
   STORAGE_DIR: z.string().default('storage'),
   MAX_RECORDING_MB: z.coerce.number().positive().default(50),
-  // Evaluation (Anthropic) — used from milestone 3
+  // Evaluation (provider-independent)
+  EVAL_PROVIDER: z.enum(EVALUATION_PROVIDERS).default('openai'),
+  /** Defaults per provider: see DEFAULT_EVAL_MODELS. */
+  EVAL_MODEL: z.string().optional(),
+  EVAL_REASONING_EFFORT: z.enum(['low', 'medium', 'high']).default('high'),
   ANTHROPIC_API_KEY: z.string().optional(),
-  EVAL_MODEL: z.string().default('claude-sonnet-5'),
+  /** Conversations shorter than this are not scored ("insufficient data"). */
+  EVAL_MIN_CONVERSATION_SEC: z.coerce.number().int().nonnegative().default(420),
+  /** Minimum total candidate speech for a scored report. */
+  EVAL_MIN_CANDIDATE_SPEECH_SEC: z.coerce.number().int().nonnegative().default(180),
+  EVAL_MAX_ATTEMPTS: z.coerce.number().int().positive().default(3),
+  /** Wait after the session ends before evaluating (late transcript flushes). */
+  EVAL_START_DELAY_MS: z.coerce.number().int().nonnegative().default(10_000),
+  /** First retry delay; doubles with each attempt. */
+  EVAL_RETRY_DELAY_MS: z.coerce.number().int().nonnegative().default(30_000),
 });
+
+export const DEFAULT_EVAL_MODELS: Record<EvaluationProviderName, string> = {
+  openai: 'gpt-6-sol',
+  anthropic: 'claude-sonnet-5',
+};
 
 export type Env = z.infer<typeof EnvSchema>;
 

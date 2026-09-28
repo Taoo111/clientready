@@ -25,6 +25,7 @@ import {
   remainingMs,
 } from '../assessments/assessment-rules';
 import { Clock } from '../common/clock';
+import { EvaluationService } from '../evaluation/evaluation.service';
 import { PublicError } from '../common/public-error';
 import type { Env } from '../config/env';
 import type { Assessment } from '../generated/prisma/client';
@@ -50,6 +51,7 @@ export class PublicAssessmentsService {
     private readonly config: ConfigService<Env, true>,
     private readonly clock: Clock,
     private readonly realtime: RealtimeSecretProvider,
+    private readonly evaluation: EvaluationService,
   ) {}
 
   /** Loads an assessment by candidate token, applying expiry and overdue auto-completion. */
@@ -228,6 +230,7 @@ export class PublicAssessmentsService {
     });
     if (result.count > 0) {
       this.logger.log(`Assessment ${assessment.id}: completed (${reason})`);
+      this.evaluation.schedule(assessment.id);
     }
     return this.prisma.assessment.findUniqueOrThrow({ where: { id: assessment.id } });
   }

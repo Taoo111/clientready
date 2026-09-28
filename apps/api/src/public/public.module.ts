@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
+import { EvaluationModule } from '../evaluation/evaluation.module';
 import { memoryStorage } from 'multer';
 import type { Env } from '../config/env';
 import { OpenAiRealtimeSecretProvider } from '../realtime/openai-realtime-secret.provider';
@@ -11,6 +12,7 @@ import { RecordingsService } from './recordings.service';
 
 @Module({
   imports: [
+    EvaluationModule,
     MulterModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({

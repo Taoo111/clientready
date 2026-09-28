@@ -46,7 +46,8 @@ export function canResume(a: AssessmentTimes, now: Date): boolean {
 export function acceptsSessionData(a: AssessmentTimes, now: Date): boolean {
   if (a.status === 'IN_PROGRESS') return true;
   return (
-    a.status === 'COMPLETED' &&
+    // The evaluation may already have run (EVALUATED/FAILED) while audio is still uploading.
+    isFinished(a.status) &&
     a.endedAt !== null &&
     now.getTime() <= a.endedAt.getTime() + POST_SESSION_GRACE_MS
   );
