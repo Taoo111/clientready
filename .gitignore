@@ -14,7 +14,8 @@ next-env.d.ts
 apps/api/src/generated/
 
 # local storage (recordings)
-storage/
+/storage/
+/apps/api/storage/
 
 # logs / OS / IDE
 *.log
