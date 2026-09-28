@@ -156,7 +156,7 @@ describe('conversation lifecycle', () => {
     expect(row).toMatchObject({
       status: 'IN_PROGRESS',
       realtimeModel: 'fake-realtime',
-      promptVersion: 'client-v2',
+      promptVersion: 'client-v3',
       connectCount: 1,
     });
     expect(row.startedAt).not.toBeNull();

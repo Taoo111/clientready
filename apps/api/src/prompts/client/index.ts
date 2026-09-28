@@ -17,4 +17,4 @@ export const clientPrompts: Record<string, ClientPromptModule> = {
 };
 
 /** The version used for real conversations. */
-export const currentClientPrompt: ClientPromptModule = v2;
+export const currentClientPrompt: ClientPromptModule = v3;

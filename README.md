@@ -38,22 +38,23 @@ Stop the dev servers with `Ctrl+C`; stop the database with `pnpm db:down` (data 
 
 ## Scripts (root)
 
-| Command                             | What it does                                                        |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| `pnpm dev`                          | Build `shared`, then run all packages in watch/dev mode             |
-| `pnpm build`                        | Production build of all packages                                    |
-| `pnpm typecheck`                    | TypeScript check across the workspace                               |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint                                                              |
-| `pnpm format` / `pnpm format:check` | Prettier                                                            |
-| `pnpm db:up` / `pnpm db:down`       | Start / stop PostgreSQL (docker compose)                            |
-| `pnpm db:migrate`                   | Create/apply migrations in development (`prisma migrate dev`)       |
-| `pnpm db:generate`                  | Regenerate the Prisma client (`apps/api/src/generated`, gitignored) |
-| `pnpm db:studio`                    | Open Prisma Studio                                                  |
-| `pnpm test`                         | Unit tests (role templates, prompts, evaluation rules, storage)     |
-| `pnpm test:e2e`                     | API end-to-end tests (needs `pnpm db:up`)                           |
-| `pnpm test:eval`                    | Live evaluation of 3 fixture transcripts (real provider, costs ¢)   |
-| `pnpm create-assessment --name "…"` | Create an assessment; prints the candidate link and report link     |
-| `pnpm purge-data [--dry-run]`       | Delete assessments older than `DATA_RETENTION_DAYS`                 |
+| Command                              | What it does                                                        |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| `pnpm dev`                           | Build `shared`, then run all packages in watch/dev mode             |
+| `pnpm build`                         | Production build of all packages                                    |
+| `pnpm typecheck`                     | TypeScript check across the workspace                               |
+| `pnpm lint` / `pnpm lint:fix`        | ESLint                                                              |
+| `pnpm format` / `pnpm format:check`  | Prettier                                                            |
+| `pnpm db:up` / `pnpm db:down`        | Start / stop PostgreSQL (docker compose)                            |
+| `pnpm db:migrate`                    | Create/apply migrations in development (`prisma migrate dev`)       |
+| `pnpm db:generate`                   | Regenerate the Prisma client (`apps/api/src/generated`, gitignored) |
+| `pnpm db:studio`                     | Open Prisma Studio                                                  |
+| `pnpm test`                          | Unit tests (role templates, prompts, evaluation rules, storage)     |
+| `pnpm test:e2e`                      | API end-to-end tests (needs `pnpm db:up`)                           |
+| `pnpm test:eval`                     | Live evaluation of the fixture transcripts (real provider, costs ¢) |
+| `pnpm simulate --role … --persona …` | Simulated AI-client conversation for prompt tuning (costs ¢)        |
+| `pnpm create-assessment --name "…"`  | Create an assessment; prints the candidate link and report link     |
+| `pnpm purge-data [--dry-run]`        | Delete assessments older than `DATA_RETENTION_DAYS`                 |
 
 ## Configuration
 
@@ -131,11 +132,17 @@ How it works:
 - Report page (Polish): `http://localhost:3000/admin/assessments/<id>` in the recruiter panel. `pnpm create-assessment` prints this link.
 - Re-run for calibration: the button on the report page, or `POST /admin/assessments/:id/evaluate` (session or `x-admin-key`). Earlier reports are kept.
 
+## Roles and prompt tuning (milestone 5)
+
+- Role templates: **Backend Developer** (fintech client, Amsterdam) and **Business Analyst** (insurance claims client, Rotterdam) in `packages/shared/roles/`. Adding a role = adding a template file and listing it in `roles/index.ts`; template tests check that every suggestion is a single question and that no evaluator framing ("see whether…", "clarifying questions") reaches the AI client.
+- `pnpm simulate --role business-analyst --persona medium [--prompt client-v3] [--runs 3] [--evaluate]` runs a text-mode conversation between the AI client and a scripted candidate and checks every client turn against the guardrails. Workflow and personas: `apps/api/src/prompts/README.md`.
+- Findings from the first real run and simulations are recorded in the prompt files (`client/v3.ts`, `evaluation/v2.ts`) and in CLAUDE.md (realtime model choice).
+
 ## Tests
 
 - `pnpm test` — unit tests (Vitest).
 - `pnpm test:e2e` — API e2e tests against a separate database `<POSTGRES_DB>_test` on the same PostgreSQL (created and migrated automatically; override with `TEST_DATABASE_URL`). OpenAI and the evaluation provider are replaced by fakes, so no API key is needed.
-- `pnpm test:eval` — sends three scripted transcripts (strong B2+/C1, medium B1/B2 struggling under pressure, weak A2/B1) to the configured evaluation provider and checks that they get READY / READY_WITH_CONCERNS / NOT_READY, sensible CEFR levels and verified evidence. Uses real API calls (a few cents); skipped without a key.
+- `pnpm test:eval` — sends scripted transcripts for every role (backend developer and business analyst: strong B2+/C1, medium B1/B2 struggling under pressure, weak A2/B1) to the configured evaluation provider and checks that they get READY / READY_WITH_CONCERNS / NOT_READY, sensible CEFR levels and verified evidence. Uses real API calls (a few cents); skipped without a key.
 
 ## Database
 

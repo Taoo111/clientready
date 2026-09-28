@@ -87,6 +87,7 @@ Keep a data retention setting (env, default 90 days) and a job/command that purg
 4. **Recruiter panel** — login, list of assessments with status, create assessment + copy link, view report.
 5. **BA template** + prompt tuning on real test runs.
 6. **Deploy** — EU hosting, HTTPS, storage on S3-compatible EU bucket.
+   Known before deploy (found in M5): the OpenAI account's realtime rate limit (tokens/min) is low at the current usage tier — simulations hit it, and parallel live calls could too; raise the tier/limit. The browser retries rate-limited responses a few times.
 
 Goal of milestones 1–5: a working demo HR can try themselves (they play the candidate and read their own report).
 

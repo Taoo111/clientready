@@ -120,6 +120,7 @@ describe('buildTimeCues', () => {
     ]);
     expect(cues[3]?.text).toContain('Client situation');
     expect(cues[1]?.text).toMatch(/still in "Project deep-dive" — about 4 more minutes/);
+    expect(cues[4]?.text).toMatch(/the same situation you already raised/);
     for (const cue of cues) {
       expect(cue.text).toMatch(/do not mention it/);
       expect(cue.text).not.toMatch(/phase d/i);

@@ -177,7 +177,7 @@ export function buildTimeCues(template: RoleTemplate): TimeCue[] {
       const minutesLeft = Math.max(1, Math.round((endMs - stayAt) / 60_000));
       cues.push({
         atMs: stayAt,
-        text: `(Private note — do not mention it.) You are still in "${phase.name}" — about ${minutesLeft} more minute${minutesLeft > 1 ? 's' : ''} for this part. Stay on it with follow-up questions; do not move on or wrap up yet.`,
+        text: `(Private note — do not mention it.) You are still in "${phase.name}" — about ${minutesLeft} more minute${minutesLeft > 1 ? 's' : ''} for this part. Stay with the same topic${phase.id === 'client-situation' ? ' — the same situation you already raised' : ''}: go deeper with follow-up questions. Do not bring up a new topic or situation, move on or wrap up yet.`,
       });
     }
     atMs = endMs;

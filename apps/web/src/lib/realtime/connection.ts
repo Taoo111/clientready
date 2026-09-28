@@ -49,6 +49,7 @@ export class RealtimeConnection {
   /** response_id -> epoch ms when the AI started speaking. */
   private readonly responseStarts = new Map<string, number>();
   private readonly finishedResponses = new Set<string>();
+  private rateLimitRetries = 0;
 
   constructor(private readonly options: RealtimeConnectionOptions) {}
 
@@ -216,6 +217,23 @@ export class RealtimeConnection {
           });
         }
         this.responseStarts.delete(responseId);
+        break;
+      }
+
+      case 'response.done': {
+        // A response rejected by the rate limit leaves the client silent: ask again shortly.
+        const response = event.response as
+          { status?: string; status_details?: { error?: { code?: string } } } | undefined;
+        if (
+          response?.status === 'failed' &&
+          response.status_details?.error?.code === 'rate_limit_exceeded' &&
+          this.rateLimitRetries < 3
+        ) {
+          this.rateLimitRetries++;
+          setTimeout(() => this.send({ type: 'response.create' }), 1_500 * this.rateLimitRetries);
+        } else if (response?.status === 'completed') {
+          this.rateLimitRetries = 0;
+        }
         break;
       }
 

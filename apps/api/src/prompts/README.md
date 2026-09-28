@@ -4,13 +4,13 @@ Versioned prompt files. Each conversation stores the client prompt version it ra
 (`Assessment.promptVersion`); each report stores its provider, model and evaluation
 `promptVersion` (`Report`).
 
-| File               | Version         | Used for                                                                          |
-| ------------------ | --------------- | --------------------------------------------------------------------------------- |
-| `client/v1.ts`     | `client-v1`     | AI client instructions + time cues (first pilot run)                              |
-| `client/v2.ts`     | `client-v2`     | v1 + no spoken preambles, single opening turn                                     |
-| `client/v3.ts`     | `client-v3`     | M5 tuning: turn shape (1 question, ~30 words), private instructions, pacing notes |
-| `evaluation/v1.ts` | `evaluation-v1` | Evaluation system prompt, user message and output schema (zod)                    |
-| `evaluation/v2.ts` | `evaluation-v2` | Current. v1 + fair listening/clarifying rules learned from a real run             |
+| File               | Version         | Used for                                                                                   |
+| ------------------ | --------------- | ------------------------------------------------------------------------------------------ |
+| `client/v1.ts`     | `client-v1`     | AI client instructions + time cues (first pilot run)                                       |
+| `client/v2.ts`     | `client-v2`     | v1 + no spoken preambles, single opening turn                                              |
+| `client/v3.ts`     | `client-v3`     | Current. M5 tuning: turn shape (1 question, ~30 words), private instructions, pacing notes |
+| `evaluation/v1.ts` | `evaluation-v1` | Evaluation system prompt, user message and output schema (zod)                             |
+| `evaluation/v2.ts` | `evaluation-v2` | Current. v1 + fair listening/clarifying rules learned from a real run                      |
 
 The client version used for real conversations is `currentClientPrompt` in `client/index.ts`;
 all versions are registered there so the simulator can compare them.
