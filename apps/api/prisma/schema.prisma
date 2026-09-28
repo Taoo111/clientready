@@ -1,0 +1,95 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TargetLevel {
+  B1
+  B2
+  C1
+}
+
+enum AssessmentStatus {
+  CREATED
+  IN_PROGRESS
+  COMPLETED
+  EVALUATED
+  FAILED
+}
+
+enum Speaker {
+  AI
+  CANDIDATE
+}
+
+model Assessment {
+  id             String           @id @default(cuid())
+  roleTemplateId String
+  targetLevel    TargetLevel
+  candidateName  String
+  candidateEmail String?
+  /// Unguessable token used in the candidate link.
+  token          String           @unique
+  status         AssessmentStatus @default(CREATED)
+  consentAt      DateTime?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  turns      TranscriptTurn[]
+  recordings Recording[]
+  report     Report?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model TranscriptTurn {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  speaker      Speaker
+  text         String
+  /// Offset from session start, in milliseconds.
+  startedAtMs  Int
+  seq          Int
+  createdAt    DateTime   @default(now())
+
+  @@unique([assessmentId, seq])
+}
+
+model Recording {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  storageKey   String
+  durationMs   Int?
+  mimeType     String
+  createdAt    DateTime   @default(now())
+
+  @@index([assessmentId])
+}
+
+model Report {
+  id            String     @id @default(cuid())
+  assessmentId  String     @unique
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  /// Report validated against the shared zod schema.
+  json          Json
+  model         String
+  promptVersion String
+  createdAt     DateTime   @default(now())
+}
+
+model Recruiter {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
