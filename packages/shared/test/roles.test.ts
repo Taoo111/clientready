@@ -39,8 +39,51 @@ describe('role template registry', () => {
     expect(listRoleTemplates().map((t) => t.id)).toEqual(roleTemplates.map((t) => t.id));
   });
 
+  it.each(roleTemplates.map((t) => [t.id, t] as const))(
+    '%s suggests one question at a time (outside the scripted client situation)',
+    (_id, t) => {
+      for (const phase of t.phases.filter((p) => p.id !== 'client-situation')) {
+        for (const question of phase.suggestedQuestions) {
+          expect((question.match(/\?/g) ?? []).length, question).toBeLessThanOrEqual(1);
+        }
+      }
+    },
+  );
+
+  it.each(roleTemplates.map((t) => [t.id, t] as const))(
+    '%s gives the AI client no evaluator framing',
+    (_id, t) => {
+      // Everything except the rubric ends up in the AI client's instructions.
+      const { rubric: _rubric, levels, ...rest } = t;
+      const clientText = JSON.stringify([rest, levels]);
+      expect(clientText).not.toMatch(
+        /\b(see|test|check)s? whether|\bevaluat|\bscor(e|ing)\b|\bassess|clarifying question/i,
+      );
+    },
+  );
+
   it('rejects duplicate template ids', () => {
     expect(() => loadTemplates([backend, backend])).toThrow(/Duplicate role template id/);
+  });
+});
+
+describe('business-analyst template', () => {
+  const ba = getRoleTemplate('business-analyst');
+
+  it('is registered with the default criteria and the standard phases', () => {
+    expect(ba).toBeDefined();
+    expect(ba!.rubric.map((c) => c.key)).toEqual([...DEFAULT_CRITERIA_KEYS]);
+    expect(ba!.phases.map((p) => p.id)).toEqual([
+      'warm-up',
+      'project-deep-dive',
+      'client-situation',
+      'closing',
+    ]);
+  });
+
+  it('is clearly different from the backend template', () => {
+    expect(ba!.persona.company).not.toEqual(backend!.persona.company);
+    expect(ba!.rubric.find((c) => c.key === 'vocabulary_precision')!.name).toMatch(/business/i);
   });
 });
 

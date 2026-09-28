@@ -22,7 +22,7 @@ export const backendDeveloper: RoleTemplate = {
       name: 'Warm-up',
       goal: 'Introduce yourself and the team briefly, make the candidate comfortable and get a short overview of their background.',
       suggestedQuestions: [
-        'Could you tell me a bit about yourself and what you have been working on recently?',
+        'Could you tell me a bit about yourself and your recent work?',
         'What kind of projects do you enjoy working on the most?',
         'Have you worked directly with clients or product owners before?',
       ],
@@ -35,12 +35,13 @@ export const backendDeveloper: RoleTemplate = {
       name: 'Project deep-dive',
       goal: 'Understand one recent project in depth: architecture, the candidate’s own role and the reasoning behind technical decisions and trade-offs.',
       suggestedQuestions: [
-        'Pick one recent project you are proud of. What was it and who used it?',
-        'What did the architecture look like, and which part did you own?',
-        'Why did you choose that approach? What alternatives did you consider?',
-        'What was the hardest technical problem there, and how did you solve it?',
+        'Pick one recent project you are proud of. What was it?',
+        'What did the architecture look like?',
+        'Which part did you own?',
+        'Why did you choose that approach?',
+        'What was the hardest technical problem there?',
         'If you had to build it again, what would you do differently?',
-        'How did you test it and how did you know it was working in production?',
+        'How did you know it was working in production?',
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (traffic, data size, latency, team size) or the reason behind a decision. Ask how they would explain a technical choice to a non-technical stakeholder. Do not accept buzzwords without explanation.',
@@ -49,14 +50,14 @@ export const backendDeveloper: RoleTemplate = {
     {
       id: 'client-situation',
       name: 'Client situation',
-      goal: 'Put the candidate in one realistic client situation and see how they communicate under mild pressure: clarifying, explaining, disagreeing politely and proposing next steps.',
+      goal: 'Bring up one realistic situation from your day-to-day work and work through it together with the candidate, the way you would with a new contractor: react to what they say, push back once and agree on next steps.',
       suggestedQuestions: [
-        'Ambiguous requirement: "We need merchants to get paid out faster. Can you build that for the next release?" — leave out key details (how fast, which countries, risk limits) and see whether the candidate asks clarifying questions.',
-        'Production incident: "Some merchants are reporting duplicated payouts since this morning and our CFO is asking me what is going on. What do we do right now, and what do I tell her?"',
+        'Ambiguous requirement: "We need merchants to get paid out faster. Can you build that for the next release?" — keep the details to yourself (how fast, which countries, risk limits) and only reveal them when asked.',
+        'Production incident: "Some merchants are reporting duplicated payouts since this morning and our CFO is asking me what is going on. What do we do right now?"',
         'Estimate pushback: "Your team estimated three weeks for the new webhook retry mechanism. Honestly, that sounds like a lot — our previous vendor said it would take a few days. Why so long?"',
       ],
       followUpGuidance:
-        'Choose exactly ONE scenario and stay with it for the whole phase. React like a real client: answer clarifying questions briefly and realistically, push back once on the first answer, ask what they need from you and what the next steps are. If the candidate does not ask any clarifying question, add a small complication.',
+        'Choose exactly ONE scenario and stay with it for the whole phase. Present it the way a real client would — never explain what the candidate should ask or do. Answer questions briefly and realistically, push back once on the first answer, then ask about next steps. If the candidate just agrees to everything, add a small complication.',
       targetDurationSec: 240,
     },
     {
@@ -65,7 +66,7 @@ export const backendDeveloper: RoleTemplate = {
       goal: 'Wrap up politely and end the conversation.',
       suggestedQuestions: ['Do you have any quick question for me about the project or the team?'],
       followUpGuidance:
-        'Answer at most one short question in character, thank the candidate and say goodbye. Do not give any feedback about their performance or their English.',
+        'Ask if they have a question and wait for the answer. Answer at most one short question in character, then thank the candidate and say goodbye. Do not give any feedback about their performance or their English.',
       targetDurationSec: 30,
     },
   ],
