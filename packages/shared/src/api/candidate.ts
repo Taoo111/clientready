@@ -1,31 +1,12 @@
+/** Candidate-facing API (authorised by the link token). */
 import { z } from 'zod';
-import { AssessmentStatusSchema, SpeakerSchema, TargetLevelSchema } from '../enums.js';
+import { AssessmentStatusSchema, SpeakerSchema } from '../enums.js';
 import { PersonaCardSchema } from '../roles/schema.js';
 
 /** The conversation is hard-stopped after this long (measured from the first connect). */
 export const SESSION_HARD_LIMIT_MS = 12 * 60_000;
 /** The AI client starts wrapping up the conversation at this point. */
 export const WRAP_UP_AT_MS = 11 * 60_000;
-
-// --- Admin -------------------------------------------------------------------
-
-export const CreateAssessmentInputSchema = z.object({
-  roleTemplateId: z.string().min(1),
-  targetLevel: TargetLevelSchema,
-  candidateName: z.string().trim().min(1).max(200),
-  candidateEmail: z.email().optional(),
-});
-export type CreateAssessmentInput = z.infer<typeof CreateAssessmentInputSchema>;
-
-export const CreateAssessmentResultSchema = z.object({
-  id: z.string(),
-  token: z.string(),
-  /** Link to send to the candidate. */
-  link: z.url(),
-});
-export type CreateAssessmentResult = z.infer<typeof CreateAssessmentResultSchema>;
-
-// --- Public (candidate, by token) --------------------------------------------
 
 /** What the candidate's browser may see about an assessment. No email, ids or level. */
 export const PublicAssessmentViewSchema = z.object({
