@@ -5,21 +5,10 @@ import {
   WRAP_UP_AT_MS,
   type PublicAssessmentView,
 } from '@clientready/shared';
-import { Clock, PhoneOff, RotateCw, WifiOff } from 'lucide-react';
+import { RotateCw, WifiOff } from 'lucide-react';
 import { useEffect, useSyncExternalStore } from 'react';
 import { Notice } from '@/components/common/notice';
 import { Spinner } from '@/components/common/spinner';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 import { SPEAKING_THRESHOLD } from '@/lib/audio/level-meter';
@@ -27,16 +16,12 @@ import type {
   ConversationController,
   ConversationState,
 } from '@/lib/realtime/conversation-controller';
-import { cn } from '@/lib/utils';
-import { CandidateCard, StatusScreen } from './CandidateShell';
-import { EndedStep } from './EndedStep';
-import { ClientPresence, type PresenceState } from './ClientPresence';
-import { PhaseProgress } from './PhaseProgress';
-
-function formatTime(ms: number): string {
-  const totalSec = Math.ceil(ms / 1000);
-  return `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, '0')}`;
-}
+import { CandidateCard, StatusScreen } from './candidate-shell';
+import { EndedStep } from './ended-step';
+import { ClientPresence, type PresenceState } from './client-presence';
+import { EndCallButton } from './end-call-button';
+import { PhaseProgress } from './phase-progress';
+import { SessionTimer } from './session-timer';
 
 function presenceState(state: ConversationState): PresenceState {
   if (state.phase === 'connecting') return 'connecting';
@@ -57,59 +42,6 @@ function useLeaveWarning(active: boolean): void {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [active]);
-}
-
-function Timer({ remainingMs }: { remainingMs: number }) {
-  const elapsed = SESSION_HARD_LIMIT_MS - remainingMs;
-  const wrapUp = elapsed >= WRAP_UP_AT_MS;
-  return (
-    <div
-      className={cn(
-        'inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-sm shadow-card',
-        wrapUp && 'border-warning/30 bg-warning-soft',
-      )}
-      role="timer"
-      aria-live="off"
-    >
-      <Clock
-        className={cn('size-4', wrapUp ? 'text-warning' : 'text-muted-foreground')}
-        aria-hidden
-      />
-      <span className="font-mono font-medium tabular">{formatTime(remainingMs)}</span>
-      <span className="text-muted-foreground">{en.live.timeLeft}</span>
-    </div>
-  );
-}
-
-function EndButton({ onConfirm, disabled }: { onConfirm: () => void; disabled?: boolean }) {
-  const t = en.live;
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="lg"
-          disabled={disabled}
-          className="text-danger hover:bg-danger-soft hover:text-danger"
-        >
-          <PhoneOff aria-hidden />
-          {t.end}
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t.endTitle}</AlertDialogTitle>
-          <AlertDialogDescription>{t.endConfirm}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t.endCancel}</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t.endAction}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
 }
 
 export function LiveStep({
@@ -144,7 +76,7 @@ export function LiveStep({
     return (
       <div className="space-y-4">
         <div className="flex justify-center">
-          <Timer remainingMs={state.remainingMs} />
+          <SessionTimer remainingMs={state.remainingMs} />
         </div>
         <StatusScreen
           icon={WifiOff}
@@ -177,7 +109,7 @@ export function LiveStep({
   return (
     <CandidateCard className="flex flex-1 flex-col items-center justify-between gap-8 py-6 text-center sm:min-h-[34rem] sm:py-8">
       <div className="flex w-full flex-col items-center gap-4">
-        <Timer remainingMs={state.remainingMs} />
+        <SessionTimer remainingMs={state.remainingMs} />
         <PhaseProgress phases={view.phases} elapsedMs={elapsed} />
       </div>
 
@@ -193,7 +125,7 @@ export function LiveStep({
         </p>
       </div>
 
-      <EndButton
+      <EndCallButton
         disabled={state.phase === 'connecting'}
         onConfirm={() => void controller.endByCandidate()}
       />

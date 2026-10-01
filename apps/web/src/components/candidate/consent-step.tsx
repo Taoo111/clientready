@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { en } from '@/i18n/en';
 import { brand } from '@/lib/brand';
-import { CandidateCard } from './CandidateShell';
-import { ClientPortrait } from './ClientPortrait';
+import { CandidateCard } from './candidate-shell';
+import { ClientPortrait } from './client-portrait';
 
 const pointIcons = [Bot, Mic, UserCheck, ShieldCheck];
 

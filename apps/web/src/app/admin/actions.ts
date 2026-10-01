@@ -2,27 +2,14 @@
 
 import {
   CreateAssessmentInputSchema,
-  CreateAssessmentResultSchema,
   LoginInputSchema,
   LoginResultSchema,
 } from '@clientready/shared';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { pl } from '@/i18n/pl';
-import {
-  apiFetch,
-  ApiUnavailableError,
-  clearSession,
-  publicApiFetch,
-  sessionToken,
-  setSession,
-} from '@/lib/admin/session';
-
-/** Treats an unreachable API as a failed action; other errors (incl. redirects) propagate. */
-function nullIfUnavailable(error: unknown): null {
-  if (error instanceof ApiUnavailableError) return null;
-  throw error;
-}
+import { adminApi } from '@/lib/admin/admin-api';
+import { clearSession, publicApiFetch, sessionToken, setSession } from '@/lib/admin/session';
 
 export interface FormState {
   error?: string;
@@ -104,13 +91,8 @@ export async function createAssessmentAction(
     return { fieldErrors, values };
   }
 
-  const res = await apiFetch('/admin/assessments', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(parsed.data),
-  }).catch(nullIfUnavailable);
-  if (!res?.ok) return { error: pl.create.errors.generic, values };
-  const created = CreateAssessmentResultSchema.parse(await res.json());
+  const created = await adminApi.createAssessment(parsed.data);
+  if (!created) return { error: pl.create.errors.generic, values };
   revalidatePath('/admin');
   redirect(`/admin/assessments/${created.id}?created=1`);
 }
@@ -120,22 +102,14 @@ export interface ActionResult {
 }
 
 export async function rerunEvaluationAction(id: string): Promise<ActionResult> {
-  const res = await apiFetch(
-    `/admin/assessments/${encodeURIComponent(id)}/evaluate`,
-    { method: 'POST' },
-    240_000,
-  ).catch(nullIfUnavailable);
+  const ok = await adminApi.rerunEvaluation(id);
   revalidatePath(`/admin/assessments/${id}`);
-  if (!res) return { ok: false };
-  return { ok: res.ok };
+  return { ok };
 }
 
 export async function deleteCandidateDataAction(id: string): Promise<ActionResult> {
-  const res = await apiFetch(`/admin/assessments/${encodeURIComponent(id)}/data`, {
-    method: 'DELETE',
-  }).catch(nullIfUnavailable);
-  if (!res) return { ok: false };
+  const ok = await adminApi.deleteCandidateData(id);
   revalidatePath(`/admin/assessments/${id}`);
   revalidatePath('/admin');
-  return { ok: res.ok };
+  return { ok };
 }

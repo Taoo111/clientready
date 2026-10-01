@@ -1,6 +1,6 @@
 import { SESSION_HARD_LIMIT_MS, type RealtimeSessionResult } from '@clientready/shared';
 import { LevelMeter, SPEAKING_THRESHOLD } from '../audio/level-meter';
-import { ConversationRecorder } from '../audio/recorder';
+import { SegmentRecorder } from '../audio/segment-recorder';
 import { ApiError, candidateApi } from '../candidate-api';
 import { RealtimeConnection, type ConversationActivity } from './connection';
 import { TranscriptUploader } from './transcript-uploader';
@@ -27,7 +27,6 @@ export interface ConversationState {
 const TICK_MS = 100;
 /** Stop showing "thinking" if no reply came (e.g. the speech detector reacted to noise). */
 const MAX_THINKING_MS = 8_000;
-const UPLOAD_RETRIES = 3;
 
 /**
  * Runs the live conversation: realtime connection(s), timer and hard stop, transcript
@@ -49,9 +48,8 @@ export class ConversationController {
   private aiMeter: LevelMeter | undefined;
   private readonly remoteAudio: HTMLAudioElement;
   private readonly uploader: TranscriptUploader;
+  private readonly recorder: SegmentRecorder;
   private connection: RealtimeConnection | undefined;
-  private recorder: ConversationRecorder | undefined;
-  private readonly recordingUploads: Promise<boolean>[] = [];
   private sessionStartEpochMs: number | undefined;
   private thinkingSince: number | undefined;
   private readonly ticker: ReturnType<typeof setInterval>;
@@ -71,6 +69,9 @@ export class ConversationController {
     this.remoteAudio = new Audio();
     this.remoteAudio.autoplay = true;
     this.uploader = new TranscriptUploader(token);
+    this.recorder = new SegmentRecorder(this.context, mic, (blob, durationMs) =>
+      candidateApi.uploadRecording(token, blob, durationMs),
+    );
     this.ticker = setInterval(() => this.tick(), TICK_MS);
   }
 
@@ -139,20 +140,14 @@ export class ConversationController {
     this.sessionStartEpochMs = Date.now() - session.elapsedMs;
     this.uploader.syncNextSeq(session.nextSeq);
 
-    const recorder = new ConversationRecorder(this.context, this.mic);
-    this.recorder = recorder;
-    try {
-      recorder.start();
-    } catch (error) {
-      console.warn('[conversation] recording could not start', error);
-    }
+    this.recorder.startSegment();
 
     const connection = new RealtimeConnection({
       clientSecret: session.clientSecret,
       mic: this.mic,
       timeCues: session.timeCues,
       sessionStartEpochMs: this.sessionStartEpochMs,
-      onRemoteStream: (stream) => this.attachRemote(stream, recorder),
+      onRemoteStream: (stream) => this.attachRemote(stream),
       onTurn: (turn) =>
         this.uploader.add(
           turn.speaker,
@@ -193,12 +188,12 @@ export class ConversationController {
     void this.context?.close().catch(() => undefined);
   }
 
-  private attachRemote(stream: MediaStream, recorder: ConversationRecorder): void {
+  private attachRemote(stream: MediaStream): void {
     this.remoteAudio.srcObject = stream;
     void this.remoteAudio.play().catch(() => undefined);
     this.aiMeter?.dispose();
     this.aiMeter = this.context ? new LevelMeter(this.context, stream) : undefined;
-    recorder.addRemote(stream);
+    this.recorder.addRemote(stream);
   }
 
   private handleSessionError(error: unknown): void {
@@ -223,31 +218,11 @@ export class ConversationController {
     void this.uploader.flush();
   }
 
-  /** Stops the current recording segment and uploads it in the background. */
+  /** Ends the current connection segment: its recording is uploaded in the background. */
   private stopSegment(): void {
-    const recorder = this.recorder;
-    this.recorder = undefined;
     this.aiMeter?.dispose();
     this.aiMeter = undefined;
-    if (!recorder) return;
-    this.recordingUploads.push(
-      recorder
-        .stop()
-        .then((result) => (result ? this.uploadWithRetry(result.blob, result.durationMs) : true))
-        .catch(() => false),
-    );
-  }
-
-  private async uploadWithRetry(blob: Blob, durationMs: number): Promise<boolean> {
-    for (let attempt = 0; attempt < UPLOAD_RETRIES; attempt++) {
-      try {
-        await candidateApi.uploadRecording(this.token, blob, durationMs);
-        return true;
-      } catch {
-        await new Promise((resolve) => setTimeout(resolve, 2_000 * (attempt + 1)));
-      }
-    }
-    return false;
+    this.recorder.stopSegment();
   }
 
   private async finish(reason: 'candidate' | 'timeUp'): Promise<void> {
@@ -265,9 +240,9 @@ export class ConversationController {
     }
     for (const track of this.mic.getTracks()) track.stop();
 
-    this.update({ phase: 'ended', upload: this.recordingUploads.length ? 'uploading' : 'done' });
-    const results = await Promise.all(this.recordingUploads);
-    this.update({ upload: results.every(Boolean) ? 'done' : 'failed' });
+    this.update({ phase: 'ended', upload: this.recorder.hasUploads ? 'uploading' : 'done' });
+    const uploaded = await this.recorder.allUploaded();
+    this.update({ upload: uploaded ? 'done' : 'failed' });
     this.dispose();
   }
 }

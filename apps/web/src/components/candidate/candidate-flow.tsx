@@ -1,22 +1,16 @@
 'use client';
 
 import type { PublicAssessmentView } from '@clientready/shared';
-import { CircleCheck, Clock, Link2Off, MonitorX, RotateCw, WifiOff } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/common/spinner';
-import { Skeleton } from '@/components/ui/skeleton';
-import { en } from '@/i18n/en';
 import { useApiWake } from '@/lib/api-wake';
-import { ApiError, candidateApi } from '@/lib/candidate-api';
+import { candidateApi } from '@/lib/candidate-api';
 import { ConversationController } from '@/lib/realtime/conversation-controller';
-import { CandidateCard, CandidateShell, StatusScreen } from './CandidateShell';
-import { ConsentStep } from './ConsentStep';
-import { LiveStep } from './LiveStep';
-import { MicCheckStep } from './MicCheckStep';
-
-type ErrorKind = keyof typeof en.errors;
+import { CandidateShell } from './candidate-shell';
+import { ConsentStep } from './consent-step';
+import { errorFor, ErrorScreen, type ErrorKind } from './error-screen';
+import { LiveStep } from './live-step';
+import { LoadingCard } from './loading-card';
+import { MicCheckStep } from './mic-check-step';
 
 type Step =
   | { kind: 'loading' }
@@ -24,26 +18,6 @@ type Step =
   | { kind: 'consent'; view: PublicAssessmentView }
   | { kind: 'mic'; view: PublicAssessmentView; resume: boolean }
   | { kind: 'live'; controller: ConversationController; view: PublicAssessmentView };
-
-const errorScreens: Record<
-  ErrorKind,
-  { icon: LucideIcon; tone: 'neutral' | 'warning' | 'success' | 'danger' }
-> = {
-  notFound: { icon: Link2Off, tone: 'warning' },
-  expired: { icon: Clock, tone: 'warning' },
-  alreadyCompleted: { icon: CircleCheck, tone: 'success' },
-  network: { icon: WifiOff, tone: 'danger' },
-  unsupported: { icon: MonitorX, tone: 'warning' },
-};
-
-function errorFor(error: unknown): ErrorKind {
-  if (error instanceof ApiError) {
-    if (error.code === 'LINK_EXPIRED') return 'expired';
-    if (error.code === 'ALREADY_COMPLETED') return 'alreadyCompleted';
-    if (error.status === 404) return 'notFound';
-  }
-  return 'network';
-}
 
 function browserSupported(): boolean {
   return (
@@ -63,30 +37,6 @@ async function stepFor(token: string, view: PublicAssessmentView): Promise<Step>
     await candidateApi.end(token).catch(() => undefined);
   }
   return { kind: 'error', error: 'alreadyCompleted' };
-}
-
-function LoadingCard({ waking }: { waking: boolean }) {
-  return (
-    <CandidateCard className="space-y-4" aria-busy="true">
-      {waking && (
-        <div className="flex items-start gap-3 rounded-2xl bg-brand-soft/70 p-4 text-sm">
-          <Spinner className="mt-0.5 text-brand" />
-          <div className="space-y-0.5">
-            <p className="font-medium">{en.preparing.title}</p>
-            <p className="text-muted-foreground">{en.preparing.body}</p>
-          </div>
-        </div>
-      )}
-      <Skeleton className="h-7 w-2/3" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-5/6" />
-      <div className="space-y-3 pt-4">
-        <Skeleton className="h-14 w-full rounded-xl" />
-        <Skeleton className="h-14 w-full rounded-xl" />
-      </div>
-      <Skeleton className="mt-4 h-11 w-full rounded-lg" />
-    </CandidateCard>
-  );
 }
 
 export function CandidateFlow({ token }: { token: string }) {
@@ -113,15 +63,9 @@ export function CandidateFlow({ token }: { token: string }) {
   }, [api.state, load]);
 
   if (api.state === 'down' && step.kind === 'loading') {
-    const message = en.errors.network;
     return (
       <CandidateShell>
-        <StatusScreen icon={WifiOff} tone="danger" title={message.title} body={message.body}>
-          <Button size="lg" onClick={api.retry}>
-            <RotateCw aria-hidden />
-            {en.retry}
-          </Button>
-        </StatusScreen>
+        <ErrorScreen error="network" onRetry={api.retry} />
       </CandidateShell>
     );
   }
@@ -134,27 +78,12 @@ export function CandidateFlow({ token }: { token: string }) {
         </CandidateShell>
       );
 
-    case 'error': {
-      const message = en.errors[step.error];
-      const screen = errorScreens[step.error];
+    case 'error':
       return (
         <CandidateShell>
-          <StatusScreen
-            icon={screen.icon}
-            tone={screen.tone}
-            title={message.title}
-            body={message.body}
-          >
-            {step.error === 'network' && (
-              <Button size="lg" onClick={() => void load()}>
-                <RotateCw aria-hidden />
-                {en.retry}
-              </Button>
-            )}
-          </StatusScreen>
+          <ErrorScreen error={step.error} onRetry={() => void load()} />
         </CandidateShell>
       );
-    }
 
     case 'consent':
       return (

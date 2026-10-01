@@ -3,7 +3,7 @@ import { Spinner } from '@/components/common/spinner';
 import { en } from '@/i18n/en';
 import type { UploadStatus } from '@/lib/realtime/conversation-controller';
 import { cn } from '@/lib/utils';
-import { StatusScreen } from './CandidateShell';
+import { StatusScreen } from './candidate-shell';
 
 export function EndedStep({ timeUp, upload }: { timeUp: boolean; upload: UploadStatus }) {
   const t = en.ended;

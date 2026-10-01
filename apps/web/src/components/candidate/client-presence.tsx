@@ -2,7 +2,7 @@ import type { PersonaCard } from '@clientready/shared';
 import { Mic } from 'lucide-react';
 import { en } from '@/i18n/en';
 import { cn } from '@/lib/utils';
-import { ClientPortrait } from './ClientPortrait';
+import { ClientPortrait } from './client-portrait';
 
 export type PresenceState = 'connecting' | 'listening' | 'thinking' | 'speaking' | 'you';
 

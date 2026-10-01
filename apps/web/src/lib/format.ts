@@ -18,9 +18,18 @@ export function formatDateTime(iso: string | null | undefined): string {
   return iso ? dateTimeFormat.format(new Date(iso)) : '-';
 }
 
-/** m:ss */
+/** m:ss (elapsed time, rounded down) */
 export function formatClock(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000));
+  return minutesSeconds(Math.floor(ms / 1000));
+}
+
+/** m:ss for a countdown: rounded up, so it shows 0:00 only when time is really up. */
+export function formatCountdown(ms: number): string {
+  return minutesSeconds(Math.ceil(ms / 1000));
+}
+
+function minutesSeconds(totalSec: number): string {
+  const total = Math.max(0, totalSec);
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 

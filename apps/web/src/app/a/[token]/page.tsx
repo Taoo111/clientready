@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { CandidateFlow } from '@/components/candidate/CandidateFlow';
+import { CandidateFlow } from '@/components/candidate/candidate-flow';
 import { en } from '@/i18n/en';
 
 export const metadata: Metadata = {

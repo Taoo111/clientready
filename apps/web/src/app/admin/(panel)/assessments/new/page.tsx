@@ -1,7 +1,6 @@
 import { listRoleTemplates } from '@clientready/shared';
-import { ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { BackLink } from '@/components/admin/back-link';
 import { CreateAssessmentForm } from '@/components/admin/create-assessment-form';
 import { pl } from '@/i18n/pl';
 
@@ -15,13 +14,7 @@ export default function NewAssessmentPage() {
   }));
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <Link
-        href="/admin"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        {pl.report.back}
-      </Link>
+      <BackLink />
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">{pl.create.title}</h1>
         <p className="text-sm text-muted-foreground">{pl.create.subtitle}</p>

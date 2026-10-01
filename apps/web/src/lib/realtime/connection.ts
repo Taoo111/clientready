@@ -1,19 +1,16 @@
-import type { Speaker, TimeCue } from '@clientready/shared';
+import type { TimeCue } from '@clientready/shared';
+import {
+  TurnTracker,
+  type ConversationActivity,
+  type FinalTurn,
+  type ServerEvent,
+} from './turn-tracker';
+
+export type { ConversationActivity, FinalTurn } from './turn-tracker';
 
 const CALLS_URL = 'https://api.openai.com/v1/realtime/calls';
 /** A "disconnected" peer connection often recovers by itself; give it a moment. */
 const DISCONNECT_GRACE_MS = 5_000;
-
-export interface FinalTurn {
-  speaker: Speaker;
-  text: string;
-  /** Epoch ms when the turn started. */
-  startedAtEpochMs: number;
-  /** Spoken duration, when speech start and stop were both observed. */
-  durationMs?: number;
-}
-
-export type ConversationActivity = 'candidate-started' | 'candidate-stopped' | 'response-done';
 
 export interface RealtimeConnectionOptions {
   clientSecret: string;
@@ -29,12 +26,6 @@ export interface RealtimeConnectionOptions {
   onActivity?: (activity: ConversationActivity) => void;
 }
 
-type ServerEvent = { type: string } & Record<string, unknown>;
-
-function str(value: unknown): string {
-  return typeof value === 'string' ? value : '';
-}
-
 /**
  * One WebRTC call to the OpenAI Realtime API (GA interface):
  * mic track + "oai-events" data channel, SDP exchanged via POST /v1/realtime/calls
@@ -46,16 +37,12 @@ export class RealtimeConnection {
   private closed = false;
   private disconnectTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly cueTimers: ReturnType<typeof setTimeout>[] = [];
-  /** item_id -> epoch ms when the candidate started speaking. */
-  private readonly speechStarts = new Map<string, number>();
-  /** item_id -> epoch ms when the candidate stopped speaking. */
-  private readonly speechStops = new Map<string, number>();
-  /** response_id -> epoch ms when the AI started speaking. */
-  private readonly responseStarts = new Map<string, number>();
-  private readonly finishedResponses = new Set<string>();
+  private readonly turns: TurnTracker;
   private rateLimitRetries = 0;
 
-  constructor(private readonly options: RealtimeConnectionOptions) {}
+  constructor(private readonly options: RealtimeConnectionOptions) {
+    this.turns = new TurnTracker({ onTurn: options.onTurn, onActivity: options.onActivity });
+  }
 
   async connect(): Promise<void> {
     const pc = new RTCPeerConnection();
@@ -162,70 +149,9 @@ export class RealtimeConnection {
     } catch {
       return;
     }
-    const now = Date.now();
+    if (this.turns.handle(event, Date.now())) return;
 
     switch (event.type) {
-      case 'input_audio_buffer.speech_started':
-        this.speechStarts.set(str(event.item_id), now);
-        this.options.onActivity?.('candidate-started');
-        break;
-
-      case 'input_audio_buffer.speech_stopped':
-        this.speechStops.set(str(event.item_id), now);
-        this.options.onActivity?.('candidate-stopped');
-        break;
-
-      case 'conversation.item.input_audio_transcription.completed':
-      case 'conversation.item.input_audio_transcription.failed': {
-        const itemId = str(event.item_id);
-        const text =
-          event.type === 'conversation.item.input_audio_transcription.failed'
-            ? '[inaudible]'
-            : str(event.transcript).trim();
-        const startedAt = this.speechStarts.get(itemId);
-        const stoppedAt = this.speechStops.get(itemId);
-        if (text) {
-          this.options.onTurn({
-            speaker: 'CANDIDATE',
-            text,
-            startedAtEpochMs: startedAt ?? now,
-            durationMs:
-              startedAt !== undefined && stoppedAt !== undefined
-                ? stoppedAt - startedAt
-                : undefined,
-          });
-        }
-        this.speechStarts.delete(itemId);
-        this.speechStops.delete(itemId);
-        break;
-      }
-
-      // GA name first; the legacy (beta) name is still present in some SDK typings.
-      case 'response.output_audio_transcript.delta':
-      case 'response.audio_transcript.delta': {
-        const responseId = str(event.response_id);
-        if (!this.responseStarts.has(responseId)) this.responseStarts.set(responseId, now);
-        break;
-      }
-
-      case 'response.output_audio_transcript.done':
-      case 'response.audio_transcript.done': {
-        const responseId = str(event.response_id);
-        const key = `${responseId}:${str(event.item_id)}:${String(event.content_index ?? 0)}`;
-        if (this.finishedResponses.has(key)) break;
-        this.finishedResponses.add(key);
-        const text = str(event.transcript).trim();
-        if (text) {
-          this.options.onTurn({
-            speaker: 'AI',
-            text,
-            startedAtEpochMs: this.responseStarts.get(responseId) ?? now,
-          });
-        }
-        this.responseStarts.delete(responseId);
-        break;
-      }
-
       case 'response.done': {
         this.options.onActivity?.('response-done');
         // A response rejected by the rate limit leaves the client silent: ask again shortly.
@@ -259,7 +185,6 @@ export class RealtimeConnection {
 /** High-frequency events not worth logging in development. */
 const IGNORED_EVENTS = new Set([
   'response.output_audio.delta',
-  'response.output_audio_transcript.delta',
   'conversation.item.input_audio_transcription.delta',
   'rate_limits.updated',
 ]);

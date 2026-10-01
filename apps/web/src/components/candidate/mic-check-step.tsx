@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 import { LevelMeter, SPEAKING_THRESHOLD } from '@/lib/audio/level-meter';
 import { cn } from '@/lib/utils';
-import { CandidateCard } from './CandidateShell';
-import { VoiceOrb } from './VoiceOrb';
+import { CandidateCard } from './candidate-shell';
+import { VoiceOrb } from './voice-orb';
 
 type MicError = keyof typeof en.mic.errors;
 
