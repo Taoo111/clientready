@@ -28,21 +28,21 @@ export const pl = {
     connecting: 'Łączenie z serwerem…',
     waking: 'Uruchamiamy serwer…',
     wakingBody:
-      'Serwer usypia się po okresie bezczynności i właśnie się budzi — to trwa do ok. minuty. Możesz już wpisać dane logowania.',
+      'Serwer usypia się po okresie bezczynności i właśnie się budzi - to trwa do ok. minuty. Możesz już wpisać dane logowania.',
     apiDown: 'Serwer nie odpowiada. Spróbuj ponownie za chwilę.',
     retry: 'Spróbuj ponownie',
   },
 
   wake: {
     title: 'Uruchamiamy serwer…',
-    body: 'Serwer usypia się po okresie bezczynności i właśnie się budzi. To trwa do ok. minuty — strona odświeży się sama.',
+    body: 'Serwer usypia się po okresie bezczynności i właśnie się budzi. To trwa do ok. minuty - strona odświeży się sama.',
     waiting: 'Czekam na serwer…',
     downTitle: 'Serwer nie odpowiada',
     downBody: 'Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie za chwilę.',
     retry: 'Spróbuj ponownie',
     errorTitle: 'Coś poszło nie tak',
     errorBody:
-      'Nie udało się wczytać danych. Serwer mógł się właśnie uruchamiać — spróbuj ponownie.',
+      'Nie udało się wczytać danych. Serwer mógł się właśnie uruchamiać - spróbuj ponownie.',
   },
 
   status: {
@@ -101,15 +101,15 @@ export const pl = {
     candidateNamePlaceholder: 'np. Anna Nowak',
     candidateEmail: 'E-mail kandydata',
     optional: 'opcjonalnie',
-    candidateEmailHint: 'Tylko do Twojej informacji — nic nie wysyłamy automatycznie.',
+    candidateEmailHint: 'Tylko do Twojej informacji - nic nie wysyłamy automatycznie.',
     role: 'Rola',
     rolePlaceholder: 'Wybierz rolę',
     level: 'Poziom docelowy',
     levelHint: 'Poziom, którego wymaga projekt. Rekomendacja jest liczona względem niego.',
     levels: {
-      B1: 'B1 — komunikatywny',
-      B2: 'B2 — swobodny (typowy dla pracy z klientem)',
-      C1: 'C1 — zaawansowany',
+      B1: 'B1 - komunikatywny',
+      B2: 'B2 - swobodny (typowy dla pracy z klientem)',
+      C1: 'C1 - zaawansowany',
     } satisfies Record<TargetLevel, string>,
     submit: 'Utwórz i pokaż link',
     cancel: 'Anuluj',
@@ -125,12 +125,12 @@ export const pl = {
   invite: {
     createdTitle: 'Ocena utworzona',
     createdBody:
-      'Wyślij kandydatowi link. Link jest jednorazowy — rozmowę można przeprowadzić raz.',
+      'Wyślij kandydatowi link. Link jest jednorazowy - rozmowę można przeprowadzić raz.',
     title: 'Link dla kandydata',
     body: 'Link działa, dopóki kandydat nie zakończy rozmowy. Nieużyty link wygasa po 14 dniach.',
     copyLink: 'Kopiuj link',
     copied: 'Skopiowano do schowka',
-    copyFailed: 'Nie udało się skopiować — zaznacz i skopiuj ręcznie.',
+    copyFailed: 'Nie udało się skopiować - zaznacz i skopiuj ręcznie.',
     messageTitle: 'Gotowa wiadomość do kandydata',
     copyMessage: 'Kopiuj wiadomość',
     polish: 'Po polsku',
@@ -152,12 +152,12 @@ export const pl = {
     waiting: {
       CREATED: 'Kandydat jeszcze nie rozpoczął rozmowy.',
       IN_PROGRESS: 'Kandydat jest w trakcie rozmowy albo rozmowa została przerwana.',
-      COMPLETED: 'Rozmowa zakończona — ocena jest przygotowywana. Odśwież stronę za chwilę.',
+      COMPLETED: 'Rozmowa zakończona - ocena jest przygotowywana. Odśwież stronę za chwilę.',
     },
     failed: 'Automatyczna ocena nie powiodła się',
     insufficientTitle: 'Za mało danych do oceny',
     humanDecision:
-      'Rekomendacja AI na podstawie transkrypcji. Decyzję podejmuje rekruter — sprawdź cytaty, transkrypcję i nagranie.',
+      'Rekomendacja AI na podstawie transkrypcji. Decyzję podejmuje rekruter - sprawdź cytaty, transkrypcję i nagranie.',
     recommendationLabel: 'Rekomendacja',
     modelDisagrees: (label: string) =>
       `Model oceniający sugerował „${label}”. Rekomendacja wynika ze stałej reguły względem poziomu docelowego.`,
@@ -169,9 +169,9 @@ export const pl = {
     criteriaTitle: 'Kryteria',
     evidenceShow: (n: number) => `Pokaż cytaty (${n})`,
     evidenceHide: 'Ukryj cytaty',
-    noEvidence: 'Brak zweryfikowanych cytatów — traktuj ten wynik ostrożnie.',
+    noEvidence: 'Brak zweryfikowanych cytatów - traktuj ten wynik ostrożnie.',
     rejectedQuotes: (n: number) =>
-      `${n} ${n === 1 ? 'cytat odrzucony' : 'cytaty odrzucone'} — nie znaleziono ich w transkrypcji.`,
+      `${n} ${n === 1 ? 'cytat odrzucony' : 'cytaty odrzucone'} - nie znaleziono ich w transkrypcji.`,
     goToTurn: 'W transkrypcji',
     recordingTitle: 'Nagranie',
     noRecording: 'Brak nagrania.',

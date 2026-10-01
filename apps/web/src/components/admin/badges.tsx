@@ -81,7 +81,7 @@ export function RecommendationBadge({
       </span>
     );
   }
-  if (!recommendation) return <span className="text-sm text-muted-foreground">—</span>;
+  if (!recommendation) return <span className="text-sm text-muted-foreground">-</span>;
   const { className: tone, icon: Icon } = recommendationStyles[recommendation];
   return (
     <span className={cn(pill, tone, className)}>

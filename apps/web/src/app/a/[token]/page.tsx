@@ -3,7 +3,7 @@ import { CandidateFlow } from '@/components/candidate/CandidateFlow';
 import { en } from '@/i18n/en';
 
 export const metadata: Metadata = {
-  title: `${en.appName} — English conversation`,
+  title: `${en.appName} - English conversation`,
   // Candidate links are private.
   robots: { index: false, follow: false },
   referrer: 'no-referrer',

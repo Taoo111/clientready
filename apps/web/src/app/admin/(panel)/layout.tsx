@@ -6,7 +6,7 @@ import { pl } from '@/i18n/pl';
 import { ApiUnavailableError, requireRecruiter } from '@/lib/admin/session';
 
 export const metadata: Metadata = {
-  title: { default: pl.appName, template: `%s — ${pl.appName}` },
+  title: { default: pl.appName, template: `%s - ${pl.appName}` },
   robots: { index: false, follow: false },
 };
 

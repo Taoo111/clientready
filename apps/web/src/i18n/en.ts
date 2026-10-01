@@ -26,7 +26,7 @@ export const en = {
     },
     alreadyCompleted: {
       title: 'This conversation is already done',
-      body: 'Thank you — your conversation has been recorded. There is nothing more you need to do; your recruiter will be in touch.',
+      body: 'Thank you - your conversation has been recorded. There is nothing more you need to do; your recruiter will be in touch.',
     },
     network: {
       title: 'We can’t reach the server',
@@ -40,10 +40,10 @@ export const en = {
 
   consent: {
     talkingTo: 'You will talk to',
-    aiCharacter: 'An AI character playing a client — not a real person.',
+    aiCharacter: 'An AI character playing a client - not a real person.',
     title: (name: string) => `Hi ${name}, welcome`,
     intro: (role: string, company?: string) =>
-      `This is a relaxed, 12-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} — like a first call with a new client.`,
+      `This is a relaxed, 12-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} - like a first call with a new client.`,
     points: [
       {
         title: 'You’ll talk to an AI',
@@ -64,7 +64,7 @@ export const en = {
     ],
     tipsTitle: 'A few tips',
     tips: [
-      'Find a quiet place — headphones help a lot.',
+      'Find a quiet place - headphones help a lot.',
       'Speak as you would with a real client. There are no trick questions.',
       'It’s fine to ask the client to repeat or clarify.',
     ],
@@ -78,7 +78,7 @@ export const en = {
     body: 'Your browser will ask for permission to use the microphone. Allow it, then say a few words.',
     allow: 'Allow microphone',
     speakNow: 'Say something, for example “Hello, can you hear me?”',
-    detected: 'Great — we can hear you clearly.',
+    detected: 'Great - we can hear you clearly.',
     notDetected:
       'We can’t hear you yet. Check that the right microphone is selected in your system settings and that it isn’t muted.',
     headphones: 'Tip: use headphones so the AI doesn’t hear itself.',
@@ -87,7 +87,7 @@ export const en = {
     startHint: 'The client will greet you first. The timer starts now.',
     resumeTitle: 'Welcome back',
     resumeBody:
-      'Your conversation was interrupted. Check your microphone, then continue where you left off — the timer kept running while you were away.',
+      'Your conversation was interrupted. Check your microphone, then continue where you left off - the timer kept running while you were away.',
     resume: 'Continue the conversation',
     errors: {
       denied: {
@@ -134,10 +134,10 @@ export const en = {
     endCancel: 'Keep talking',
     endAction: 'End conversation',
     finishing: 'Saving your conversation…',
-    wrapUp: 'About a minute left — the client will wrap up.',
+    wrapUp: 'About a minute left - the client will wrap up.',
     dropped: {
       title: 'The connection dropped',
-      body: 'No worries — your answers so far are saved. Check your internet connection and reconnect to continue where you stopped.',
+      body: 'No worries - your answers so far are saved. Check your internet connection and reconnect to continue where you stopped.',
       reconnect: 'Reconnect',
     },
     errors: {
@@ -152,7 +152,7 @@ export const en = {
   },
 
   ended: {
-    title: 'Thank you — you’re done!',
+    title: 'Thank you - you’re done!',
     body: 'Your conversation is complete. Your recruiter will review it and get back to you about the next steps.',
     timeUp: 'The time for the conversation is up.',
     uploading: 'Saving the recording… please keep this page open for a moment.',

@@ -130,7 +130,7 @@ export function CreateAssessmentForm({
               />
               <span className="font-mono text-sm font-semibold">{level}</span>
               <span className="text-xs text-muted-foreground">
-                {t.levels[level].split(' — ')[1]}
+                {t.levels[level].split(' - ')[1]}
               </span>
             </label>
           ))}

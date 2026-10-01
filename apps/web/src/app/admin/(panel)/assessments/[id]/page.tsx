@@ -29,7 +29,7 @@ import { Logo } from '@/components/brand/logo';
 import { Notice } from '@/components/common/notice';
 import { pl } from '@/i18n/pl';
 import { apiFetch } from '@/lib/admin/session';
-import { formatClock, formatDate, formatDateTime } from '@/lib/format';
+import { formatClock, formatDate, formatDateTime, withPlainDashes } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = { title: pl.report.title };
@@ -218,7 +218,7 @@ export default async function ReportPage({
     );
   }
 
-  const report = detail.report?.data ?? null;
+  const report = detail.report ? withPlainDashes(detail.report.data) : null;
   const quoted = new Set(report?.criteria.flatMap((c) => c.evidence.map((e) => e.seq)));
   const durationMs =
     detail.startedAt && detail.endedAt

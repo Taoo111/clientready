@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const metadata: Metadata = {
-  title: 'ClientReady — design system',
+  title: 'ClientReady - design system',
   robots: { index: false },
 };
 

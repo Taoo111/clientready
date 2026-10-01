@@ -5,7 +5,7 @@ import { pl } from '@/i18n/pl';
 import { brand } from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: `${pl.login.title} — ${pl.appName}`,
+  title: `${pl.login.title} - ${pl.appName}`,
   robots: { index: false, follow: false },
 };
 
