@@ -1,4 +1,9 @@
-import type { AssessmentStatus, Recommendation, ReportStatus } from '@clientready/shared';
+import type {
+  AdminAssessmentListItem,
+  AssessmentStatus,
+  Recommendation,
+  ReportStatus,
+} from '@clientready/shared';
 import {
   CircleCheck,
   CircleDashed,
@@ -8,6 +13,8 @@ import {
   Mic,
   Trash2,
   TriangleAlert,
+  UserCheck,
+  UserSearch,
 } from 'lucide-react';
 import { pl } from '@/i18n/pl';
 import { cn } from '@/lib/utils';
@@ -89,4 +96,39 @@ export function RecommendationBadge({
       {pl.recommendation[recommendation]}
     </span>
   );
+}
+
+/**
+ * The recruiter's decision on the current report, or "to review" when a recommendation is
+ * waiting for a human decision. Nothing to show before there is a recommendation.
+ */
+export function DecisionBadge({
+  item,
+  className,
+}: {
+  item: Pick<AdminAssessmentListItem, 'decision' | 'recommendation' | 'dataDeleted'>;
+  className?: string;
+}) {
+  if (item.decision) {
+    const differs = !item.decision.agreesWithAi;
+    return (
+      <span
+        className={cn(pill, 'border-border bg-card text-foreground', className)}
+        title={differs ? pl.list.differsFromAiTitle : undefined}
+      >
+        <UserCheck aria-hidden />
+        {pl.recommendation[item.decision.verdict]}
+        {differs && <span className="text-warning">{pl.list.differsFromAi}</span>}
+      </span>
+    );
+  }
+  if (item.recommendation && !item.dataDeleted) {
+    return (
+      <span className={cn(pill, 'border-warning/30 bg-warning-soft text-warning', className)}>
+        <UserSearch aria-hidden />
+        {pl.list.toReview}
+      </span>
+    );
+  }
+  return <span className="text-sm text-muted-foreground">-</span>;
 }

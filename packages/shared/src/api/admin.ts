@@ -57,6 +57,8 @@ export const AdminAssessmentListItemSchema = z.object({
   status: AssessmentStatusSchema,
   recommendation: RecommendationSchema.nullable(),
   reportStatus: ReportStatusSchema.nullable(),
+  /** The recruiter's decision on the current report; null = not reviewed yet. */
+  decision: z.object({ verdict: RecommendationSchema, agreesWithAi: z.boolean() }).nullable(),
   createdAt: z.string(),
   endedAt: z.string().nullable(),
   dataDeleted: z.boolean(),

@@ -41,7 +41,12 @@ export class AssessmentsService {
         orderBy: { createdAt: 'desc' },
         take: 500,
         include: {
-          reports: { orderBy: { createdAt: 'desc' }, take: 1, select: { json: true } },
+          reports: { orderBy: { createdAt: 'desc' }, take: 1, select: { id: true, json: true } },
+          decisions: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { verdict: true, agreesWithAi: true, reportId: true },
+          },
         },
       }),
       this.prisma.assessment.count(),

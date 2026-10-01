@@ -59,6 +59,11 @@ describe('recruiter decision', () => {
     }).expect(200);
 
     expect(res.body.decision).toMatchObject({ verdict: 'NOT_READY', agreesWithAi: false });
+    const list = await http()
+      .get('/admin/assessments')
+      .set('x-admin-key', TEST_ADMIN_KEY)
+      .expect(200);
+    expect(list.body.items[0].decision).toEqual({ verdict: 'NOT_READY', agreesWithAi: false });
     expect(await ctx.prisma.recruiterDecision.count({ where: { assessmentId: id } })).toBe(2);
   });
 
@@ -74,6 +79,12 @@ describe('recruiter decision', () => {
       .set('x-admin-key', TEST_ADMIN_KEY)
       .expect(200);
     expect(res.body.decision.forCurrentReport).toBe(false);
+    const list = await http()
+      .get('/admin/assessments')
+      .set('x-admin-key', TEST_ADMIN_KEY)
+      .expect(200);
+    // An outdated decision means the new report still needs a review.
+    expect(list.body.items[0].decision).toBeNull();
   });
 
   it('is rejected without a report, and removed with the candidate data', async () => {

@@ -21,10 +21,16 @@ function roleName(roleTemplateId: string): string {
 }
 
 export function toListItem(
-  assessment: Assessment & { reports: Pick<Report, 'json'>[] },
+  assessment: Assessment & {
+    reports: Pick<Report, 'id' | 'json'>[];
+    decisions: Pick<RecruiterDecision, 'verdict' | 'agreesWithAi' | 'reportId'>[];
+  },
 ): AdminAssessmentListItem {
   const latest = assessment.reports[0];
   const report = latest ? ReportSchema.safeParse(latest.json) : undefined;
+  // A decision about an older report (evaluation re-run since) does not count as reviewed.
+  const decision = assessment.decisions[0];
+  const currentDecision = decision && decision.reportId === latest?.id ? decision : undefined;
   return {
     id: assessment.id,
     candidateName: assessment.candidateName,
@@ -34,6 +40,9 @@ export function toListItem(
     status: assessment.status,
     recommendation: report?.success ? report.data.recommendation : null,
     reportStatus: report?.success ? report.data.status : null,
+    decision: currentDecision
+      ? { verdict: currentDecision.verdict, agreesWithAi: currentDecision.agreesWithAi }
+      : null,
     createdAt: assessment.createdAt.toISOString(),
     endedAt: iso(assessment.endedAt),
     dataDeleted: assessment.dataDeletedAt !== null,

@@ -1,7 +1,7 @@
 import type { AdminAssessmentListItem } from '@clientready/shared';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { RecommendationBadge, StatusBadge } from '@/components/admin/badges';
+import { DecisionBadge, RecommendationBadge, StatusBadge } from '@/components/admin/badges';
 import { pl } from '@/i18n/pl';
 import { formatDate } from '@/lib/format';
 
@@ -29,6 +29,9 @@ export function AssessmentList({ items }: { items: AdminAssessmentListItem[] }) 
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
                 {t.columns.recommendation}
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                {t.columns.decision}
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
                 {t.columns.date}
@@ -81,6 +84,9 @@ function Row({ item }: { item: AdminAssessmentListItem }) {
           reportStatus={item.reportStatus}
         />
       </td>
+      <td className="px-4 py-3.5">
+        <DecisionBadge item={item} />
+      </td>
       <td className="px-4 py-3.5 text-sm whitespace-nowrap text-muted-foreground tabular">
         {formatDate(item.createdAt)}
       </td>
@@ -125,6 +131,9 @@ function MobileCard({ item }: { item: AdminAssessmentListItem }) {
               recommendation={item.recommendation}
               reportStatus={item.reportStatus}
             />
+          )}
+          {(item.decision || item.recommendation) && !item.dataDeleted && (
+            <DecisionBadge item={item} />
           )}
         </div>
       </Link>

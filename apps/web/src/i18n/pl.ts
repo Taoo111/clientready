@@ -82,6 +82,7 @@ export const pl = {
       level: 'Poziom',
       status: 'Status',
       recommendation: 'Rekomendacja',
+      decision: 'Decyzja',
       date: 'Utworzono',
     },
     emptyTitle: 'Nie masz jeszcze żadnych ocen',
@@ -92,6 +93,9 @@ export const pl = {
     count: (n: number) =>
       `${n} ${n === 1 ? 'ocena' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'oceny' : 'ocen'}`,
     loadError: 'Nie udało się pobrać listy ocen.',
+    toReview: 'Do przejrzenia',
+    differsFromAi: '≠ AI',
+    differsFromAiTitle: 'Decyzja inna niż rekomendacja AI',
   },
 
   create: {

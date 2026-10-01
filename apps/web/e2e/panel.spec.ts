@@ -39,6 +39,13 @@ test('recruiter reads the report and records a decision', async ({ page }) => {
   ).toBeVisible();
 
   const t = pl.report.decision;
+  // Before any decision the list marks the report as waiting for review.
+  await page.goto('/admin');
+  await expect(
+    page.getByRole('row', { name: /Maria Wiśniewska/ }).getByText(pl.list.toReview),
+  ).toBeVisible();
+  await page.goto(`/admin/assessments/${id}`);
+
   // Agree in one click.
   await page.getByRole('button', { name: t.agree, exact: true }).click();
   await expect(page.getByText(t.agrees)).toBeVisible();
@@ -58,4 +65,10 @@ test('recruiter reads the report and records a decision', async ({ page }) => {
   // Persisted: still there after a reload.
   await page.reload();
   await expect(page.getByText(t.differs)).toBeVisible();
+
+  // The list shows the decision instead of "to review".
+  await page.goto('/admin');
+  const row = page.getByRole('row', { name: /Maria Wiśniewska/ });
+  await expect(row.getByText(pl.recommendation.NOT_READY)).toBeVisible();
+  await expect(row.getByText(pl.list.toReview)).toHaveCount(0);
 });
