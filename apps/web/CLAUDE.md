@@ -37,4 +37,4 @@ src/
 - Browser-only logic that is not React (WebRTC, audio, event bookkeeping) lives in `lib/` as plain classes; components subscribe via `useSyncExternalStore`. Keep such logic testable without a DOM where possible (see `turn-tracker.test.ts`).
 - Styling: Tailwind utilities + design tokens from `app/globals.css`; no new colours outside the tokens; follow "Design" in the root CLAUDE.md (states, mobile-first, print).
 - Files kebab-case, one exported component per file (small private helpers in the same file are fine).
-- Tests: `pnpm --filter @clientready/web test` (vitest, `src/**/*.test.ts`, no DOM). Before a commit also `pnpm --filter @clientready/web build`.
+- Tests: unit tests with vitest (`src/**/*.test.ts`, no DOM); browser tests with Playwright in `e2e/` (`pnpm test:ui`, real API + separate database, fake microphone, no AI calls). New screens or flows get a Playwright test; select elements by role and the strings from `i18n/`, not by CSS classes.

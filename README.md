@@ -56,6 +56,7 @@ Stop the dev servers with `Ctrl+C`; stop the database with `pnpm db:down` (data 
 | `pnpm db:studio`                     | Open Prisma Studio                                                   |
 | `pnpm test`                          | Unit tests (role templates, prompts, evaluation rules, storage)      |
 | `pnpm test:e2e`                      | API end-to-end tests (needs `pnpm db:up`)                            |
+| `pnpm test:ui`                       | Browser tests (Playwright) of the candidate flow and the panel       |
 | `pnpm test:eval`                     | Live evaluation of the fixture transcripts (real provider, costs ¢)  |
 | `pnpm simulate --role … --persona …` | Simulated AI-client conversation for prompt tuning (costs ¢)         |
 | `pnpm create-assessment --name "…"`  | Create an assessment; prints the candidate link and report link      |
@@ -148,6 +149,7 @@ How it works:
 - `pnpm verify` — everything below except e2e/eval, plus format, lint and typecheck. Run it before every commit.
 - `pnpm test` — unit tests (Vitest) for `shared`, `api` and the framework-free logic in `apps/web/src/lib`.
 - `pnpm test:e2e` — API e2e tests against a separate database `<POSTGRES_DB>_test` on the same PostgreSQL (created and migrated automatically; override with `TEST_DATABASE_URL`). OpenAI and the evaluation provider are replaced by fakes, so no API key is needed.
+- `pnpm test:ui` — Playwright browser tests (`apps/web/e2e`): candidate consent → microphone check (Chromium's fake microphone) → conversation screen, login, creating an assessment, reading a report and recording a decision. Starts a fresh API build on port 3101 with its own database `<POSTGRES_DB>_ui` and a production build of the web app on port 3100; no AI provider is called (keys are blanked). First time: `pnpm --filter @clientready/web exec playwright install chromium`. Needs `pnpm db:up`.
 - `pnpm test:eval` — sends scripted transcripts for every role (backend developer and business analyst: strong B2+/C1, medium B1/B2 struggling under pressure, weak A2/B1) to the configured evaluation provider and checks that they get READY / READY_WITH_CONCERNS / NOT_READY, sensible CEFR levels and verified evidence. Uses real API calls (a few cents); skipped without a key.
 
 ## Database

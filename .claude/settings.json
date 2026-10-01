@@ -10,6 +10,7 @@
       "Bash(pnpm format:check)",
       "Bash(pnpm test)",
       "Bash(pnpm test:e2e)",
+      "Bash(pnpm test:ui)",
       "Bash(pnpm build)",
       "Bash(pnpm db:up)",
       "Bash(pnpm db:generate)",

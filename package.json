@@ -22,6 +22,7 @@
     "test": "pnpm --filter @clientready/shared build && pnpm -r test",
     "create-assessment": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api create-assessment",
     "test:e2e": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api test:e2e",
+    "test:ui": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/web test:ui",
     "purge-data": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api purge-data",
     "test:eval": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api test:eval",
     "simulate": "pnpm --filter @clientready/shared build && pnpm --filter @clientready/api simulate"

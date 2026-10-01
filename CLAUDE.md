@@ -124,7 +124,7 @@ The goal is code a newcomer can follow in one read. Prefer the obvious solution 
 - Prompts live in versioned files (`apps/api/src/prompts/`), with a `promptVersion` stored on each report.
 - Small, focused commits with clear messages. Keep the README run instructions up to date.
 - Windows dev machine: scripts must work in PowerShell (avoid bash-only npm scripts).
-- Before every commit: `pnpm verify` (format check, lint, typecheck, unit tests) and, when the API changed, `pnpm test:e2e`. The `/verify` skill runs the full set.
+- Before every commit: `pnpm verify` (format check, lint, typecheck, unit tests) and, when the API changed, `pnpm test:e2e`; for UI changes also `pnpm test:ui` (Playwright). CI runs all of them. The `/verify` skill runs the full set.
 
 ## AI tooling (Claude Code)
 

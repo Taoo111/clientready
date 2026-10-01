@@ -15,8 +15,8 @@ moving on. Never commit while a gate is red, and never "fix" a gate by weakening
      (see "Engineering principles" in CLAUDE.md), do not raise the limit.
 2. If anything under `apps/api` or `packages/shared` changed: `pnpm test:e2e`
    (needs Postgres: `pnpm db:up`, Docker Desktop must be running).
-3. If anything under `apps/web` changed: `pnpm --filter @clientready/web build`
-   (catches Next.js-only errors the typecheck misses).
+3. If anything under `apps/web` (or an API endpoint the web uses) changed: `pnpm test:ui`
+   (Playwright; builds API and web, so it also catches Next.js-only build errors).
 
 Do not run `pnpm test:eval` or `pnpm simulate` unless asked: they call paid AI APIs.
 

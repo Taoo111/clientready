@@ -1,4 +1,4 @@
-# Quality gates on every push and pull request: the same checks as `pnpm verify` + e2e + web build.
+# Quality gates on every push and pull request: `pnpm verify`, API e2e and browser (UI) tests.
 # No secrets needed: AI providers are faked in tests.
 name: CI
 
@@ -54,5 +54,17 @@ jobs:
       - name: API e2e tests
         run: pnpm test:e2e
 
-      - name: Web build
-        run: pnpm --filter @clientready/web build
+      - name: Install Playwright browser
+        run: pnpm --filter @clientready/web exec playwright install --with-deps chromium
+
+      # Builds the API and the web app, starts both and runs the browser tests.
+      - name: UI tests (Playwright)
+        run: pnpm --filter @clientready/web test:ui
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
