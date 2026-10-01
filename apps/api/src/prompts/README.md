@@ -23,7 +23,7 @@ Rules:
   same text and schema.
 - Do not edit the text of a version once it has been used for real conversations or reports.
   Copy it to a new file, bump the version string and switch `currentClientPrompt` (client) or
-  the import in `evaluation/evaluate.ts` (evaluation).
+  the re-export in `evaluation/index.ts` (evaluation).
 
 ## Tuning workflow
 

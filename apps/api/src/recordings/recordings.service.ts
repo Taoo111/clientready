@@ -1,12 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { RecordingUploadResult } from '@clientready/shared';
-import { acceptsSessionData, isFinished } from '../assessments/assessment-rules';
-import { Clock } from '../common/clock';
-import { PublicError } from '../common/public-error';
-import { PrismaService } from '../prisma/prisma.service';
-import { Storage } from '../storage/storage';
-import { PublicAssessmentsService } from './public-assessments.service';
+import { CandidateAccessService } from '../conversation/candidate-access.service';
+import type { Recording } from '../generated/prisma/client';
+import { PrismaService } from '../infra/prisma/prisma.service';
+import { Storage } from '../infra/storage/storage';
 
 const EXTENSIONS: Record<string, string> = {
   'audio/webm': 'webm',
@@ -20,15 +18,15 @@ export interface UploadedAudio {
   size: number;
 }
 
+/** Conversation audio: uploaded by the candidate's browser, played back in the panel. */
 @Injectable()
 export class RecordingsService {
   private readonly logger = new Logger(RecordingsService.name);
 
   constructor(
-    private readonly assessments: PublicAssessmentsService,
+    private readonly access: CandidateAccessService,
     private readonly prisma: PrismaService,
     private readonly storage: Storage,
-    private readonly clock: Clock,
   ) {}
 
   async save(
@@ -36,11 +34,8 @@ export class RecordingsService {
     file: UploadedAudio | undefined,
     durationMs: number | undefined,
   ): Promise<RecordingUploadResult> {
-    const assessment = await this.assessments.findByToken(token);
-    if (!acceptsSessionData(assessment, this.clock.now())) {
-      if (isFinished(assessment.status)) throw new PublicError('ALREADY_COMPLETED');
-      throw new ConflictException('Conversation has not started');
-    }
+    const assessment = await this.access.findByToken(token);
+    this.access.assertAcceptsSessionData(assessment);
     if (!file || file.size === 0) throw new BadRequestException('Missing audio file');
 
     // e.g. "audio/webm;codecs=opus" -> "audio/webm"
@@ -62,5 +57,17 @@ export class RecordingsService {
       `Assessment ${assessment.id}: recording ${recording.id} stored (${file.size} bytes)`,
     );
     return { id: recording.id };
+  }
+
+  /** The recording row and its audio bytes; 404 when either is missing. */
+  async load(assessmentId: string, recordingId: string): Promise<[Recording, Buffer]> {
+    const recording = await this.prisma.recording.findFirst({
+      where: { id: recordingId, assessmentId },
+    });
+    if (!recording) throw new NotFoundException();
+    const data = await this.storage.get(recording.storageKey).catch(() => {
+      throw new NotFoundException('Recording file is missing');
+    });
+    return [recording, data];
   }
 }

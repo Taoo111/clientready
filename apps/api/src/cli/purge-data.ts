@@ -3,27 +3,19 @@
  *
  *   pnpm purge-data [--dry-run]
  */
-import { config as loadDotenv } from 'dotenv';
-import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { validateEnv } from '../config/env';
-import { PrismaClient } from '../generated/prisma/client';
-import { pgOptions } from '../prisma/pg-options';
+import { createPrismaClient } from '../infra/prisma/create-prisma-client';
+import { createStorage } from '../infra/storage/create-storage';
 import { purgeExpiredData } from '../retention/purge';
-import { createStorage } from '../storage/create-storage';
-
-loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
+import { cliArgs, loadEnv, runCli } from './cli';
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    args: process.argv.slice(2).filter((arg) => arg !== '--'),
+    args: cliArgs(),
     options: { 'dry-run': { type: 'boolean', default: false } },
   });
-  const env = validateEnv(process.env);
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg(pgOptions(env.DATABASE_URL, 2, env.DATABASE_SSL_CA)),
-  });
+  const env = loadEnv();
+  const prisma = createPrismaClient(env);
   try {
     const result = await purgeExpiredData(prisma, createStorage(env), {
       now: new Date(),
@@ -40,7 +32,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+runCli(main);

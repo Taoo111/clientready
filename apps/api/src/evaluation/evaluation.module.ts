@@ -1,13 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AssessmentsModule } from '../assessments/assessments.module';
 import type { Env } from '../config/env';
+import { EvaluationScheduler } from './evaluation-scheduler.service';
+import { EvaluationController } from './evaluation.controller';
 import { EvaluationService } from './evaluation.service';
-import { EvaluationProvider } from './provider';
-import { createEvaluationProvider } from './provider-factory';
+import { EvaluationProvider } from './providers/provider';
+import { createEvaluationProvider } from './providers/provider-factory';
 
 @Module({
+  imports: [AssessmentsModule],
+  controllers: [EvaluationController],
   providers: [
     EvaluationService,
+    EvaluationScheduler,
     {
       provide: EvaluationProvider,
       inject: [ConfigService],
@@ -21,6 +27,6 @@ import { createEvaluationProvider } from './provider-factory';
         }),
     },
   ],
-  exports: [EvaluationService],
+  exports: [EvaluationScheduler],
 })
 export class EvaluationModule {}

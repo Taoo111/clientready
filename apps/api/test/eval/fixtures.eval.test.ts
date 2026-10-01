@@ -8,7 +8,7 @@ import path from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { validateEnv } from '../../src/config/env';
 import { evaluateConversation, type EvaluationResult } from '../../src/evaluation/evaluate';
-import { createEvaluationProvider } from '../../src/evaluation/provider-factory';
+import { createEvaluationProvider } from '../../src/evaluation/providers/provider-factory';
 import { transcriptFixtures, type TranscriptFixture } from '../fixtures/transcripts';
 
 loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });

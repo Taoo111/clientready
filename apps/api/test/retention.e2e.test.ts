@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { purgeExpiredData } from '../src/retention/purge';
-import { Storage } from '../src/storage/storage';
+import { Storage } from '../src/infra/storage/storage';
 import { createTestApp, resetDatabase, type TestContext } from './test-app';
 
 let ctx: TestContext;

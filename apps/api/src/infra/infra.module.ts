@@ -1,12 +1,20 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env';
-import { createStorage } from './create-storage';
-import { Storage } from './storage';
+import { Clock, SystemClock } from './clock';
+import { PrismaService } from './prisma/prisma.service';
+import { createStorage } from './storage/create-storage';
+import { Storage } from './storage/storage';
 
+/**
+ * Technical building blocks every feature may inject: time, database, file storage.
+ * Global, so feature modules import only the features they depend on.
+ */
 @Global()
 @Module({
   providers: [
+    { provide: Clock, useClass: SystemClock },
+    PrismaService,
     {
       provide: Storage,
       inject: [ConfigService],
@@ -20,6 +28,6 @@ import { Storage } from './storage';
         }),
     },
   ],
-  exports: [Storage],
+  exports: [Clock, PrismaService, Storage],
 })
-export class StorageModule {}
+export class InfraModule {}

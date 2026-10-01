@@ -1,4 +1,4 @@
-import type { Env } from '../config/env';
+import type { Env } from '../../config/env';
 import { LocalDiskStorage } from './local-disk.storage';
 import type { Storage } from './storage';
 import { SupabaseStorage } from './supabase.storage';

@@ -1,5 +1,5 @@
 import type { PrismaClient } from '../generated/prisma/client';
-import type { Storage } from '../storage/storage';
+import type { Storage } from '../infra/storage/storage';
 
 export interface PurgeOptions {
   now: Date;

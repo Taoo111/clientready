@@ -1,20 +1,20 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { Clock } from '../src/common/clock';
+import { Clock } from '../src/infra/clock';
 import {
   EvaluationProvider,
   EvaluationProviderError,
   type EvaluationRequest,
-} from '../src/evaluation/provider';
+} from '../src/evaluation/providers/provider';
 import type { z } from 'zod';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { PrismaService } from '../src/infra/prisma/prisma.service';
 import {
   RealtimeSecretProvider,
   RealtimeUnavailableError,
   type RealtimeSecret,
   type RealtimeSecretRequest,
-} from '../src/realtime/realtime-secret.provider';
+} from '../src/conversation/realtime/realtime-secret.provider';
 
 export class FakeClock extends Clock {
   private offsetMs = 0;

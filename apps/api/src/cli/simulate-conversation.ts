@@ -6,74 +6,25 @@
  *   pnpm simulate --role business-analyst --persona medium [--level B2] [--prompt client-v2]
  *                 [--runs 2] [--evaluate]
  */
-import { config as loadDotenv } from 'dotenv';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { getRoleTemplate, listRoleTemplates, TargetLevelSchema } from '@clientready/shared';
-import { validateEnv } from '../config/env';
 import { evaluateConversation, type EvaluationResult } from '../evaluation/evaluate';
-import { createEvaluationProvider } from '../evaluation/provider-factory';
+import { createEvaluationProvider } from '../evaluation/providers/provider-factory';
 import { clientPrompts, currentClientPrompt } from '../prompts/client';
 import { formatClock } from '../prompts/client/v2';
-import { checkAiTurn, summarise, type AiTurnCheck } from '../simulation/metrics';
+import { checkAiTurn, summarise } from '../simulation/metrics';
 import { PERSONAS, type PersonaId } from '../simulation/personas';
-import { simulateConversation, type SimulatedTurn } from '../simulation/simulate';
+import { report } from '../simulation/report';
+import { simulateConversation } from '../simulation/simulate';
+import { cliArgs, loadEnv, REPO_ROOT, runCli } from './cli';
 
-loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
-const OUT_DIR = path.resolve(__dirname, '../../../../simulations');
-
-function report(
-  meta: Record<string, string>,
-  turns: SimulatedTurn[],
-  checks: AiTurnCheck[],
-  evaluation: EvaluationResult | undefined,
-): string {
-  const metrics = summarise(checks);
-  const flagged = checks.filter((c) => c.flags.length);
-  let aiIndex = 0;
-  return [
-    `# Simulation — ${meta.role} / ${meta.persona} / ${meta.prompt}`,
-    '',
-    Object.entries(meta)
-      .map(([k, v]) => `- **${k}**: ${v}`)
-      .join('\n'),
-    '',
-    '## Client turn checks',
-    '',
-    `- AI turns: ${metrics.aiTurns}, avg words: ${metrics.avgWords}, max words: ${metrics.maxWords}`,
-    `- multi-question turns: ${Math.round(metrics.multiQuestionShare * 100)}%`,
-    ...Object.entries(metrics.flagCounts).map(([flag, n]) => `- ${flag}: ${n}`),
-    '',
-    flagged.length
-      ? flagged.map((c) => `- AI #${c.index} [${c.flags.join(', ')}]: ${c.text}`).join('\n')
-      : '_No flagged turns._',
-    '',
-    ...(evaluation
-      ? [
-          '## Evaluation',
-          '',
-          `- ${evaluation.provider}/${evaluation.model}, ${evaluation.promptVersion}`,
-          `- status: ${evaluation.report.status}, recommendation: ${evaluation.report.recommendation}`,
-          `- CEFR: speaking ${evaluation.report.cefr?.speaking.level}, listening ${evaluation.report.cefr?.listening.level}`,
-          `- scores: ${evaluation.report.criteria.map((c) => `${c.key}=${c.score}`).join(', ')}`,
-          '',
-          evaluation.report.summary,
-          '',
-        ]
-      : []),
-    '## Transcript',
-    '',
-    ...turns.map((t) => {
-      const label = t.speaker === 'AI' ? `**Client #${aiIndex++}**` : '**Candidate**';
-      return `${label} (${formatClock(t.startedAtMs)}): ${t.text}\n`;
-    }),
-  ].join('\n');
-}
+const OUT_DIR = path.join(REPO_ROOT, 'simulations');
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    args: process.argv.slice(2).filter((arg) => arg !== '--'),
+    args: cliArgs(),
     options: {
       role: { type: 'string', default: 'backend-developer' },
       level: { type: 'string', default: 'B2' },
@@ -97,7 +48,7 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  const env = validateEnv(process.env);
+  const env = loadEnv();
   if (!env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set');
   const persona = values.persona as PersonaId;
   await mkdir(OUT_DIR, { recursive: true });
@@ -173,7 +124,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+runCli(main);

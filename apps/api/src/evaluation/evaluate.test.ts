@@ -1,9 +1,13 @@
 import { getRoleTemplate, type RoleTemplate } from '@clientready/shared';
 import { describe, expect, it, vi } from 'vitest';
 import type { z } from 'zod';
-import type { EvaluationOutput } from '../prompts/evaluation/v2';
+import type { EvaluationOutput } from '../prompts/evaluation';
 import { evaluateConversation } from './evaluate';
-import { EvaluationProvider, EvaluationProviderError, type EvaluationRequest } from './provider';
+import {
+  EvaluationProvider,
+  EvaluationProviderError,
+  type EvaluationRequest,
+} from './providers/provider';
 import type { EvalTurn } from './transcript';
 
 const template = getRoleTemplate('backend-developer') as RoleTemplate;

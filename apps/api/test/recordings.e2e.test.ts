@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { Storage } from '../src/storage/storage';
+import { Storage } from '../src/infra/storage/storage';
 import { TEST_ADMIN_KEY } from './test-env';
 import { createTestApp, resetDatabase, type TestContext } from './test-app';
 

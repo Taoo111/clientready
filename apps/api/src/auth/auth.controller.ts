@@ -15,7 +15,7 @@ import {
   type LoginResult,
   type Recruiter,
 } from '@clientready/shared';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
+import { ZodValidationPipe } from '../infra/http/zod-validation.pipe';
 import { AdminAuthGuard, bearerToken, type AuthenticatedRequest } from './admin-auth.guard';
 import { AuthService } from './auth.service';
 

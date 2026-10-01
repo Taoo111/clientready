@@ -1,7 +1,7 @@
 import { getRoleTemplate, type AssessmentStatus, type RoleTemplate } from '@clientready/shared';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { EvaluationProviderError } from '../src/evaluation/provider';
+import { EvaluationProviderError } from '../src/evaluation/providers/provider';
 import { TEST_ADMIN_KEY } from './test-env';
 import { createTestApp, resetDatabase, type TestContext } from './test-app';
 

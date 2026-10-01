@@ -3,18 +3,12 @@
  *
  *   pnpm create-assessment --name "Jan Kowalski" [--role backend-developer] [--level B2] [--email jan@example.com]
  */
-import { config as loadDotenv } from 'dotenv';
-import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { CreateAssessmentInputSchema, listRoleTemplates } from '@clientready/shared';
 import { z } from 'zod';
 import { createAssessment } from '../assessments/create-assessment';
-import { validateEnv } from '../config/env';
-import { PrismaClient } from '../generated/prisma/client';
-import { pgOptions } from '../prisma/pg-options';
-
-loadDotenv({ path: path.resolve(__dirname, '../../../../.env'), quiet: true });
+import { createPrismaClient } from '../infra/prisma/create-prisma-client';
+import { cliArgs, loadEnv, runCli } from './cli';
 
 const USAGE = `Usage: pnpm create-assessment --name "<candidate name>" [--role <id>] [--level B1|B2|C1] [--email <email>]
 Roles: ${listRoleTemplates()
@@ -23,8 +17,7 @@ Roles: ${listRoleTemplates()
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    // pnpm forwards a literal "--" when the script is called as `pnpm create-assessment -- ...`.
-    args: process.argv.slice(2).filter((arg) => arg !== '--'),
+    args: cliArgs(),
     options: {
       name: { type: 'string' },
       role: { type: 'string', default: 'backend-developer' },
@@ -51,10 +44,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const env = validateEnv(process.env);
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg(pgOptions(env.DATABASE_URL, 2, env.DATABASE_SSL_CA)),
-  });
+  const env = loadEnv();
+  const prisma = createPrismaClient(env);
   try {
     const result = await createAssessment(prisma, parsed.data, env.WEB_ORIGIN);
     console.log(`Assessment created: ${result.id}`);
@@ -67,7 +58,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+runCli(main);

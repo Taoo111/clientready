@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
-import type { Env } from '../config/env';
+import type { Env } from '../../config/env';
 import {
   RealtimeSecretProvider,
   RealtimeUnavailableError,

@@ -1,4 +1,4 @@
-import { DEFAULT_EVAL_MODELS, type Env } from '../config/env';
+import { DEFAULT_EVAL_MODELS, type Env } from '../../config/env';
 import { AnthropicEvaluationProvider } from './anthropic-evaluation.provider';
 import { OpenAiEvaluationProvider } from './openai-evaluation.provider';
 import type { EvaluationProvider } from './provider';

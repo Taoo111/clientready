@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { hash, verify } from '@node-rs/argon2';
 import { createHash, randomBytes } from 'node:crypto';
 import type { LoginResult, Recruiter } from '@clientready/shared';
-import { Clock } from '../common/clock';
+import { Clock } from '../infra/clock';
 import type { Env } from '../config/env';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../infra/prisma/prisma.service';
 
 /** Verified against when the email is unknown, so both cases take the same time. */
 const DUMMY_HASH_PASSWORD = 'clientready-dummy-password';

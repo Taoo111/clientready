@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { AdminModule } from './admin/admin.module';
+import { AssessmentsModule } from './assessments/assessments.module';
 import { AuthModule } from './auth/auth.module';
-import { CommonModule } from './common/common.module';
 import { validateEnv } from './config/env';
+import { ConversationModule } from './conversation/conversation.module';
+import { EvaluationModule } from './evaluation/evaluation.module';
 import { HealthController } from './health/health.controller';
-import { PrismaModule } from './prisma/prisma.module';
-import { PublicModule } from './public/public.module';
-import { RetentionService } from './retention/retention.service';
-import { StorageModule } from './storage/storage.module';
+import { InfraModule } from './infra/infra.module';
+import { RecordingsModule } from './recordings/recordings.module';
+import { RetentionModule } from './retention/retention.module';
 
 @Module({
   imports: [
@@ -25,14 +25,15 @@ import { StorageModule } from './storage/storage.module';
       throttlers: [{ name: 'default', ttl: 60_000, limit: 300 }],
       skipIf: () => process.env.NODE_ENV === 'test',
     }),
-    CommonModule,
-    PrismaModule,
-    StorageModule,
+    InfraModule,
     AuthModule,
-    AdminModule,
-    PublicModule,
+    AssessmentsModule,
+    ConversationModule,
+    RecordingsModule,
+    EvaluationModule,
+    RetentionModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, RetentionService],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

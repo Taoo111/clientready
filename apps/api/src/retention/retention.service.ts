@@ -5,10 +5,10 @@ import {
   type OnApplicationShutdown,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Clock } from '../common/clock';
+import { Clock } from '../infra/clock';
 import type { Env } from '../config/env';
-import { PrismaService } from '../prisma/prisma.service';
-import { Storage } from '../storage/storage';
+import { PrismaService } from '../infra/prisma/prisma.service';
+import { Storage } from '../infra/storage/storage';
 import { purgeExpiredData } from './purge';
 
 /**
