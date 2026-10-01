@@ -30,6 +30,20 @@ export default tseslint.config(
     },
   },
   {
+    // A file over this size almost always does more than one thing: split it by responsibility.
+    files: ['**/*.{ts,tsx,mjs}'],
+    ignores: [
+      '**/*.test.ts',
+      '**/test/**',
+      'apps/web/src/components/ui/**',
+      'apps/api/src/prompts/**',
+      'packages/shared/roles/**',
+    ],
+    rules: {
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+    },
+  },
+  {
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { '@next/next': nextPlugin },
     languageOptions: {

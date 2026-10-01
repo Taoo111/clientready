@@ -5,11 +5,15 @@ AI voice assessment that checks whether a candidate can handle a real conversati
 ## Repository layout
 
 ```
-apps/api          NestJS REST API (Prisma + PostgreSQL)
+apps/api          NestJS REST API (Prisma + PostgreSQL), one folder per feature
 apps/web          Next.js (App Router) — candidate flow + recruiter panel
 packages/shared   Shared types, zod schemas, role templates (packages/shared/roles/*.ts)
 docker-compose.yml  Local PostgreSQL
+.claude/          Claude Code project settings, Prettier hook, /verify skill
 ```
+
+Code structure and engineering principles: CLAUDE.md ("Engineering principles", "Code map") and
+`apps/api/CLAUDE.md`, `apps/web/CLAUDE.md`.
 
 ## Prerequisites
 
@@ -38,23 +42,24 @@ Stop the dev servers with `Ctrl+C`; stop the database with `pnpm db:down` (data 
 
 ## Scripts (root)
 
-| Command                              | What it does                                                        |
-| ------------------------------------ | ------------------------------------------------------------------- |
-| `pnpm dev`                           | Build `shared`, then run all packages in watch/dev mode             |
-| `pnpm build`                         | Production build of all packages                                    |
-| `pnpm typecheck`                     | TypeScript check across the workspace                               |
-| `pnpm lint` / `pnpm lint:fix`        | ESLint                                                              |
-| `pnpm format` / `pnpm format:check`  | Prettier                                                            |
-| `pnpm db:up` / `pnpm db:down`        | Start / stop PostgreSQL (docker compose)                            |
-| `pnpm db:migrate`                    | Create/apply migrations in development (`prisma migrate dev`)       |
-| `pnpm db:generate`                   | Regenerate the Prisma client (`apps/api/src/generated`, gitignored) |
-| `pnpm db:studio`                     | Open Prisma Studio                                                  |
-| `pnpm test`                          | Unit tests (role templates, prompts, evaluation rules, storage)     |
-| `pnpm test:e2e`                      | API end-to-end tests (needs `pnpm db:up`)                           |
-| `pnpm test:eval`                     | Live evaluation of the fixture transcripts (real provider, costs ¢) |
-| `pnpm simulate --role … --persona …` | Simulated AI-client conversation for prompt tuning (costs ¢)        |
-| `pnpm create-assessment --name "…"`  | Create an assessment; prints the candidate link and report link     |
-| `pnpm purge-data [--dry-run]`        | Delete assessments older than `DATA_RETENTION_DAYS`                 |
+| Command                              | What it does                                                         |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| `pnpm dev`                           | Build `shared`, then run all packages in watch/dev mode              |
+| `pnpm build`                         | Production build of all packages                                     |
+| `pnpm typecheck`                     | TypeScript check across the workspace                                |
+| `pnpm lint` / `pnpm lint:fix`        | ESLint                                                               |
+| `pnpm format` / `pnpm format:check`  | Prettier                                                             |
+| `pnpm verify`                        | Format check + lint + typecheck + unit tests (run before committing) |
+| `pnpm db:up` / `pnpm db:down`        | Start / stop PostgreSQL (docker compose)                             |
+| `pnpm db:migrate`                    | Create/apply migrations in development (`prisma migrate dev`)        |
+| `pnpm db:generate`                   | Regenerate the Prisma client (`apps/api/src/generated`, gitignored)  |
+| `pnpm db:studio`                     | Open Prisma Studio                                                   |
+| `pnpm test`                          | Unit tests (role templates, prompts, evaluation rules, storage)      |
+| `pnpm test:e2e`                      | API end-to-end tests (needs `pnpm db:up`)                            |
+| `pnpm test:eval`                     | Live evaluation of the fixture transcripts (real provider, costs ¢)  |
+| `pnpm simulate --role … --persona …` | Simulated AI-client conversation for prompt tuning (costs ¢)         |
+| `pnpm create-assessment --name "…"`  | Create an assessment; prints the candidate link and report link      |
+| `pnpm purge-data [--dry-run]`        | Delete assessments older than `DATA_RETENTION_DAYS`                  |
 
 ## Configuration
 
@@ -117,7 +122,7 @@ Microphone access requires a secure context: `http://localhost` works, a LAN add
 
 How it works:
 
-- The AI client's instructions are built only on the server (`apps/api/src/prompts/client/v2.ts`, from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
+- The AI client's instructions are built only on the server (`apps/api/src/prompts/client/`, current version selected in `index.ts`; built from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
 - Transcript turns (candidate input transcription + AI audio transcript) are sent to the API as they finish and stored in `TranscriptTurn`.
 - The conversation is hard-stopped after 12 minutes, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
 - Audio (candidate + AI mixed) is recorded per connection segment and uploaded to `apps/api/storage/recordings/<assessmentId>/` (`Recording` rows).
@@ -128,7 +133,7 @@ How it works:
 - When a session ends, the API evaluates it automatically in the background (after `EVAL_START_DELAY_MS`), retries transient provider errors and sets the status to `EVALUATED` or `FAILED`. Pending evaluations are resumed after an API restart.
 - Too short or interrupted conversations (defaults: under 7 min, or under 3 min of candidate speech) get an "insufficient data" report without calling the model.
 - The model scores only the candidate's turns (the AI's turns are context), gives 1–3 quotes per criterion and CEFR speaking/listening. Every quote is checked against the transcript after normalisation; quotes that are not found are dropped and logged. The recommendation (`READY` / `READY_WITH_CONCERNS` / `NOT_READY`) is computed by a fixed rule relative to the target level (`apps/api/src/evaluation/recommendation.ts`).
-- Prompt: `apps/api/src/prompts/evaluation/v1.ts` (`evaluation-v1`), the same for every provider. Each report stores provider, model and prompt version.
+- Prompt: `apps/api/src/prompts/evaluation/` (current version re-exported from `index.ts`), the same for every provider. Each report stores provider, model and prompt version.
 - Report page (Polish): `http://localhost:3000/admin/assessments/<id>` in the recruiter panel. `pnpm create-assessment` prints this link.
 - Re-run for calibration: the button on the report page, or `POST /admin/assessments/:id/evaluate` (session or `x-admin-key`). Earlier reports are kept.
 
@@ -140,7 +145,8 @@ How it works:
 
 ## Tests
 
-- `pnpm test` — unit tests (Vitest).
+- `pnpm verify` — everything below except e2e/eval, plus format, lint and typecheck. Run it before every commit.
+- `pnpm test` — unit tests (Vitest) for `shared`, `api` and the framework-free logic in `apps/web/src/lib`.
 - `pnpm test:e2e` — API e2e tests against a separate database `<POSTGRES_DB>_test` on the same PostgreSQL (created and migrated automatically; override with `TEST_DATABASE_URL`). OpenAI and the evaluation provider are replaced by fakes, so no API key is needed.
 - `pnpm test:eval` — sends scripted transcripts for every role (backend developer and business analyst: strong B2+/C1, medium B1/B2 struggling under pressure, weak A2/B1) to the configured evaluation provider and checks that they get READY / READY_WITH_CONCERNS / NOT_READY, sensible CEFR levels and verified evidence. Uses real API calls (a few cents); skipped without a key.
 

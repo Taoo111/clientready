@@ -27,3 +27,6 @@ Thumbs.db
 
 # prompt-tuning simulation reports
 /simulations/
+
+# Claude Code personal settings
+.claude/settings.local.json
