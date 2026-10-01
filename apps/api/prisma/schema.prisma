@@ -27,6 +27,12 @@ enum Speaker {
   CANDIDATE
 }
 
+enum Recommendation {
+  READY
+  READY_WITH_CONCERNS
+  NOT_READY
+}
+
 model Assessment {
   id                 String           @id @default(cuid())
   roleTemplateId     String
@@ -55,6 +61,7 @@ model Assessment {
   turns      TranscriptTurn[]
   recordings Recording[]
   reports    Report[]
+  decisions  RecruiterDecision[]
 
   @@index([status])
   @@index([createdAt])
@@ -100,7 +107,28 @@ model Report {
   promptVersion String
   createdAt     DateTime   @default(now())
 
+  decisions RecruiterDecision[]
+
   /// Re-runs (calibration) add reports; the newest one is current.
+  @@index([assessmentId, createdAt])
+}
+
+/// The recruiter's own verdict on a report (human oversight, EU AI Act). Every change adds a
+/// row (audit trail); the newest one is current. Deleted together with the report.
+model RecruiterDecision {
+  id           String         @id @default(cuid())
+  assessmentId String
+  assessment   Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  reportId     String
+  report       Report         @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  verdict      Recommendation
+  /// The verdict equals the report's recommendation (calibration data).
+  agreesWithAi Boolean
+  comment      String?
+  /// E-mail of the recruiter, or "admin key" for scripts.
+  decidedBy    String
+  createdAt    DateTime       @default(now())
+
   @@index([assessmentId, createdAt])
 }
 

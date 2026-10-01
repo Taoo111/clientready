@@ -6,6 +6,7 @@ import { AssessmentsModule } from './assessments/assessments.module';
 import { AuthModule } from './auth/auth.module';
 import { validateEnv } from './config/env';
 import { ConversationModule } from './conversation/conversation.module';
+import { DecisionsModule } from './decisions/decisions.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 import { HealthController } from './health/health.controller';
 import { InfraModule } from './infra/infra.module';
@@ -31,6 +32,7 @@ import { RetentionModule } from './retention/retention.module';
     ConversationModule,
     RecordingsModule,
     EvaluationModule,
+    DecisionsModule,
     RetentionModule,
   ],
   controllers: [HealthController],

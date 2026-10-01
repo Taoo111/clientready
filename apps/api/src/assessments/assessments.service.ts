@@ -66,6 +66,7 @@ export class AssessmentsService {
         turns: { orderBy: [{ startedAtMs: 'asc' }, { seq: 'asc' }] },
         recordings: { orderBy: { createdAt: 'asc' } },
         reports: { orderBy: { createdAt: 'desc' }, take: 1 },
+        decisions: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
     });
     if (!assessment) throw new NotFoundException();
@@ -77,6 +78,7 @@ export class AssessmentsService {
     return toDetail({
       assessment,
       latestReport: assessment.reports[0],
+      latestDecision: assessment.decisions[0],
       turns: assessment.turns,
       recordings: await Promise.all(
         assessment.recordings.map(async (recording) => ({

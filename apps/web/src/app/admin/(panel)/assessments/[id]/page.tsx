@@ -5,6 +5,7 @@ import { AutoRefresh } from '@/components/admin/report/auto-refresh';
 import { InviteCard } from '@/components/admin/invite-card';
 import { CefrCard } from '@/components/admin/report/cefr-card';
 import { CriteriaList } from '@/components/admin/report/criteria-list';
+import { DecisionCard } from '@/components/admin/report/decision-card';
 import { Recordings } from '@/components/admin/report/recordings';
 import { ReportHeader } from '@/components/admin/report/report-header';
 import { ReportMeta } from '@/components/admin/report/report-meta';
@@ -85,6 +86,14 @@ export default async function ReportPage({
         (detail.status === 'IN_PROGRESS' || detail.status === 'COMPLETED') && <AutoRefresh />}
 
       {report && <Verdict report={report} />}
+
+      {report?.recommendation && !deleted && (
+        <DecisionCard
+          assessmentId={detail.id}
+          aiRecommendation={report.recommendation}
+          decision={detail.decision}
+        />
+      )}
 
       {report?.language.nonEnglishDetected && (
         <Notice tone="warning" icon={Languages} title={t.languageTitle}>

@@ -6,6 +6,7 @@ import {
   type AdminAssessmentList,
   type CreateAssessmentInput,
   type CreateAssessmentResult,
+  type RecruiterDecisionInput,
 } from '@clientready/shared';
 import { apiFetch, ApiUnavailableError } from './session';
 
@@ -62,6 +63,16 @@ export const adminApi = {
     const res = await apiFetch(`${assessmentPath(id)}/evaluate`, { method: 'POST' }, 240_000).catch(
       nullIfUnavailable,
     );
+    return res?.ok ?? false;
+  },
+
+  /** The recruiter's verdict on the current report; true when stored. */
+  async recordDecision(id: string, input: RecruiterDecisionInput): Promise<boolean> {
+    const res = await apiFetch(`${assessmentPath(id)}/decision`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    }).catch(nullIfUnavailable);
     return res?.ok ?? false;
   },
 

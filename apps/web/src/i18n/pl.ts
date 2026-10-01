@@ -152,7 +152,8 @@ export const pl = {
     waiting: {
       CREATED: 'Kandydat jeszcze nie rozpoczął rozmowy.',
       IN_PROGRESS: 'Kandydat jest w trakcie rozmowy albo rozmowa została przerwana.',
-      COMPLETED: 'Rozmowa zakończona - ocena jest przygotowywana. Odśwież stronę za chwilę.',
+      COMPLETED:
+        'Rozmowa zakończona - ocena jest przygotowywana. Raport pojawi się tu automatycznie.',
     },
     failed: 'Automatyczna ocena nie powiodła się',
     insufficientTitle: 'Za mało danych do oceny',
@@ -161,6 +162,26 @@ export const pl = {
     recommendationLabel: 'Rekomendacja',
     modelDisagrees: (label: string) =>
       `Model oceniający sugerował „${label}”. Rekomendacja wynika ze stałej reguły względem poziomu docelowego.`,
+    decision: {
+      title: 'Twoja decyzja',
+      question: (label: string) => `Czy zgadzasz się z rekomendacją AI: „${label}”?`,
+      agree: 'Zgadzam się',
+      disagree: 'Nie zgadzam się',
+      ownVerdict: 'Twoja ocena',
+      comment: 'Uzasadnienie',
+      commentHint: 'Krótko: co przesądziło? Pomaga kalibrować ocenę AI.',
+      commentRequired: 'Opisz w kilku słowach, dlaczego oceniasz inaczej niż AI (min. 10 znaków).',
+      save: 'Zapisz decyzję',
+      cancel: 'Anuluj',
+      change: 'Zmień decyzję',
+      saved: 'Decyzja zapisana',
+      failed: 'Nie udało się zapisać decyzji',
+      agrees: 'Zgodna z rekomendacją AI',
+      differs: 'Inna niż rekomendacja AI',
+      by: (who: string, date: string) => `${who}, ${date}`,
+      outdated:
+        'Twoja poprzednia decyzja dotyczyła wcześniejszego raportu (ocena została powtórzona). Zapisz decyzję dla aktualnego raportu.',
+    },
     cefrTitle: 'Szacowany poziom CEFR',
     speaking: 'Mówienie',
     listening: 'Rozumienie',

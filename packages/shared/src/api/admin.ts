@@ -70,6 +70,32 @@ export const AdminAssessmentListSchema = z.object({
 });
 export type AdminAssessmentList = z.infer<typeof AdminAssessmentListSchema>;
 
+/** Longest allowed comment on a recruiter decision. */
+export const DECISION_COMMENT_MAX = 2000;
+/** A verdict that differs from the AI must be explained in at least this many characters. */
+export const DECISION_COMMENT_MIN = 10;
+
+/**
+ * The recruiter's own verdict on the current report. A comment is required when it differs
+ * from the AI recommendation (checked by the API, which knows the recommendation).
+ */
+export const RecruiterDecisionInputSchema = z.object({
+  verdict: RecommendationSchema,
+  comment: z.string().trim().max(DECISION_COMMENT_MAX).optional(),
+});
+export type RecruiterDecisionInput = z.infer<typeof RecruiterDecisionInputSchema>;
+
+export const RecruiterDecisionSchema = z.object({
+  verdict: RecommendationSchema,
+  agreesWithAi: z.boolean(),
+  comment: z.string().nullable(),
+  decidedBy: z.string(),
+  decidedAt: z.string(),
+  /** False when the evaluation was re-run after the decision (it refers to an older report). */
+  forCurrentReport: z.boolean(),
+});
+export type RecruiterDecision = z.infer<typeof RecruiterDecisionSchema>;
+
 export const AdminAssessmentDetailSchema = z.object({
   id: z.string(),
   candidateName: z.string(),
@@ -95,6 +121,8 @@ export const AdminAssessmentDetailSchema = z.object({
       data: ReportSchema,
     })
     .nullable(),
+  /** The newest recruiter decision, if any. */
+  decision: RecruiterDecisionSchema.nullable(),
   turns: z.array(AdminTranscriptTurnSchema),
   recordings: z.array(AdminRecordingSchema),
 });

@@ -4,7 +4,13 @@ import {
   type AdminAssessmentDetail,
   type AdminAssessmentListItem,
 } from '@clientready/shared';
-import type { Assessment, Recording, Report, TranscriptTurn } from '../generated/prisma/client';
+import type {
+  Assessment,
+  Recording,
+  RecruiterDecision,
+  Report,
+  TranscriptTurn,
+} from '../generated/prisma/client';
 
 /** Database rows -> recruiter-panel DTOs. Pure: no I/O, no Nest. */
 
@@ -37,6 +43,7 @@ export function toListItem(
 export interface DetailParts {
   assessment: Assessment;
   latestReport: Report | undefined;
+  latestDecision: RecruiterDecision | undefined;
   turns: TranscriptTurn[];
   recordings: (Recording & { playbackUrl: string | null })[];
   /** Null when the link can no longer be used (finished, data deleted). */
@@ -46,6 +53,7 @@ export interface DetailParts {
 export function toDetail({
   assessment,
   latestReport,
+  latestDecision,
   turns,
   recordings,
   candidateLink,
@@ -72,6 +80,16 @@ export function toDetail({
           promptVersion: latestReport.promptVersion,
           createdAt: latestReport.createdAt.toISOString(),
           data: ReportSchema.parse(latestReport.json),
+        }
+      : null,
+    decision: latestDecision
+      ? {
+          verdict: latestDecision.verdict,
+          agreesWithAi: latestDecision.agreesWithAi,
+          comment: latestDecision.comment,
+          decidedBy: latestDecision.decidedBy,
+          decidedAt: latestDecision.createdAt.toISOString(),
+          forCurrentReport: latestDecision.reportId === latestReport?.id,
         }
       : null,
     turns: turns.map((turn) => ({

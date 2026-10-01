@@ -4,6 +4,8 @@ import {
   CreateAssessmentInputSchema,
   LoginInputSchema,
   LoginResultSchema,
+  RecruiterDecisionInputSchema,
+  type RecruiterDecisionInput,
 } from '@clientready/shared';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -103,6 +105,17 @@ export interface ActionResult {
 
 export async function rerunEvaluationAction(id: string): Promise<ActionResult> {
   const ok = await adminApi.rerunEvaluation(id);
+  revalidatePath(`/admin/assessments/${id}`);
+  return { ok };
+}
+
+export async function recordDecisionAction(
+  id: string,
+  input: RecruiterDecisionInput,
+): Promise<ActionResult> {
+  const parsed = RecruiterDecisionInputSchema.safeParse(input);
+  if (!parsed.success) return { ok: false };
+  const ok = await adminApi.recordDecision(id, parsed.data);
   revalidatePath(`/admin/assessments/${id}`);
   return { ok };
 }
