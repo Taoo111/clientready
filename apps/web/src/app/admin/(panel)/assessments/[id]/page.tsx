@@ -1,6 +1,7 @@
 import { Languages, Trash2, TriangleAlert } from 'lucide-react';
 import type { Metadata } from 'next';
 import { BackLink } from '@/components/admin/back-link';
+import { AutoRefresh } from '@/components/admin/report/auto-refresh';
 import { InviteCard } from '@/components/admin/invite-card';
 import { CefrCard } from '@/components/admin/report/cefr-card';
 import { CriteriaList } from '@/components/admin/report/criteria-list';
@@ -79,6 +80,9 @@ export default async function ReportPage({
       {!report && !deleted && isWaitingStatus(detail.status) && (
         <WaitingNotice status={detail.status} />
       )}
+      {!report &&
+        !deleted &&
+        (detail.status === 'IN_PROGRESS' || detail.status === 'COMPLETED') && <AutoRefresh />}
 
       {report && <Verdict report={report} />}
 

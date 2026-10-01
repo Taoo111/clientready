@@ -1,0 +1,58 @@
+# Quality gates on every push and pull request: the same checks as `pnpm verify` + e2e + web build.
+# No secrets needed: AI providers are faked in tests.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: clientready
+          POSTGRES_PASSWORD: clientready
+          POSTGRES_DB: clientready
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U clientready -d clientready"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # e2e tests create and migrate `<db>_test` next to this database.
+      DATABASE_URL: postgresql://clientready:clientready@localhost:5432/clientready
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Format, lint, typecheck, unit tests
+        run: pnpm verify
+
+      - name: API e2e tests
+        run: pnpm test:e2e
+
+      - name: Web build
+        run: pnpm --filter @clientready/web build

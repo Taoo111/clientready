@@ -173,6 +173,7 @@ Pushing to `main` deploys both the web (Vercel) and the API (Render, only when A
 **Free-tier behaviour.**
 
 - Render puts the API to sleep after 15 minutes without traffic; waking takes up to ~1 minute. The login page, the panel and the candidate page wake it via `/health` and show "Uruchamiamy serwer…" / "Preparing your conversation…" meanwhile; the candidate page keeps it awake while open.
+- **Keep-alive (recommended)**: an external monitor calling `/health` every 5 minutes keeps the API awake, so nobody waits for the wake-up (checklist step 6). One service running 24/7 fits Render's 750 free instance hours per month (if the workspace has no other free services). `/health` also queries the database, which keeps the Supabase project from being paused.
 - Render's disk is ephemeral: nothing is stored locally (recordings go to Supabase Storage).
 - The evaluation queue lives in memory; after a restart, sessions in `COMPLETED` (no report yet) are evaluated again automatically.
 - Supabase pauses free projects after about a week without activity — unpause it in the Supabase dashboard before a demo.
@@ -200,3 +201,5 @@ Pushing to `main` deploys both the web (Vercel) and the API (Render, only when A
    - Redeploy (the `NEXT_PUBLIC_*` value is built into the bundle).
 4. **OpenAI**: check the realtime rate limits of your usage tier (see CLAUDE.md) and set a monthly budget limit.
 5. **Smoke test**: open `https://<vercel-url>/admin` (first time: wake-up message) → log in → create an assessment → open the candidate link (HTTPS, so the microphone works also on other devices) → short conversation → end → report with recording within a minute.
+6. **Keep-alive monitor** (optional, recommended): e.g. [UptimeRobot](https://uptimerobot.com) (free) → New monitor → HTTP(s), URL `https://<service>.onrender.com/health`, interval 5 minutes. It also e-mails you when the API is down.
+7. **CI gate**: GitHub Actions (`.github/workflows/ci.yml`) runs `pnpm verify`, the API e2e tests and the web build on every push. Render deploys only after the checks pass (`autoDeployTrigger: checksPass` in `render.yaml`; for an existing service also set Settings → Auto-Deploy → _After CI Checks Pass_). Vercel deploys independently; to make it wait too, enable the CI check under Vercel → Settings → Deployment Checks if your plan offers it.

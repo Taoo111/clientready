@@ -9,7 +9,8 @@ services:
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     healthCheckPath: /health
-    autoDeployTrigger: commit
+    # Deploy only after the GitHub Actions CI checks on the commit have passed.
+    autoDeployTrigger: checksPass
     buildFilter:
       paths:
         - apps/api/**
