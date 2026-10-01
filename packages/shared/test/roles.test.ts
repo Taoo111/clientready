@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { roleTemplates } from '../roles/index.js';
-import { SESSION_HARD_LIMIT_MS, WRAP_UP_AT_MS } from '../src/api/assessments.js';
+import { SESSION_HARD_LIMIT_MS, WRAP_UP_AT_MS } from '../src/api/candidate.js';
 import {
   DEFAULT_CRITERIA_KEYS,
   RoleTemplateSchema,
