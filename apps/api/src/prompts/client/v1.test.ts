@@ -20,7 +20,7 @@ describe('buildClientInstructions', () => {
 
   it('includes the persona', () => {
     const prompt = build();
-    for (const value of Object.values(template.persona)) {
+    for (const value of Object.values(template.persona).filter((v) => typeof v === 'string')) {
       expect(prompt).toContain(value);
     }
   });

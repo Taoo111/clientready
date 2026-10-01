@@ -7,7 +7,9 @@ import { Spinner } from '@/components/common/spinner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { en } from '@/i18n/en';
+import { brand } from '@/lib/brand';
 import { CandidateCard } from './CandidateShell';
+import { ClientPortrait } from './ClientPortrait';
 
 const pointIcons = [Bot, Mic, UserCheck, ShieldCheck];
 
@@ -27,7 +29,24 @@ export function ConsentStep({
     <CandidateCard className="space-y-7">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-balance">{t.title(firstName)}</h1>
-        <p className="text-pretty text-muted-foreground">{t.intro(view.roleName)}</p>
+        <p className="text-pretty text-muted-foreground">
+          {t.intro(view.roleName, brand.customerName)}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4 rounded-2xl border bg-background/60 p-4">
+        <ClientPortrait client={view.client} size="sm" />
+        <div className="min-w-0 space-y-0.5">
+          <p className="text-xs text-muted-foreground">{t.talkingTo}</p>
+          <p className="font-medium">
+            {view.client.name}
+            <span className="font-normal text-muted-foreground">
+              {' '}
+              · {view.client.title}, {view.client.company}
+            </span>
+          </p>
+          <p className="text-xs text-muted-foreground">{t.aiCharacter}</p>
+        </div>
       </div>
 
       <ul className="space-y-4">

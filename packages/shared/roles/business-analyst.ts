@@ -6,6 +6,12 @@ export const businessAnalyst: RoleTemplate = {
   description:
     'Client conversation for a business analyst joining a client team: eliciting and clarifying requirements, working with stakeholders and handling a realistic client situation.',
   persona: {
+    card: {
+      name: 'Lukas Brenner',
+      title: 'Head of Claims Operations',
+      company: 'Veldmark Insurance',
+      location: 'Rotterdam',
+    },
     role: 'Head of Claims Operations, called Lukas Brenner',
     company:
       'Veldmark Insurance, a fictional mid-sized insurer based in Rotterdam (about 900 people) that is modernising its claims handling with an external delivery team',

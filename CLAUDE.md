@@ -46,6 +46,8 @@ Volume at the pilot customer: a few to a dozen+ candidates per month. Optimize f
 - **States**: every async view has a skeleton, every list an empty state with a next step, errors use `Notice` with an icon and a concrete instruction; focus rings use `--ring` (brand); buttons show a spinner while pending.
 - **Layout**: mobile-first, works from 360 px. Candidate flow: single centred column, one task per screen, reassuring tone (it should not feel like an exam). Recruiter panel: top bar + content up to ~72rem.
 - **Print**: the report has a print stylesheet (`print:` utilities, `.print-hidden`) so "Drukuj / PDF" produces a clean A4 PDF for the ATS.
+- **Client presence (conversation screen)**: the AI client is shown as a name card from the role template (`persona.card`: name, title, company) with a monogram portrait — deliberately not a photo-realistic face — and an always-visible **AI** badge (transparency, EU AI Act art. 50). States: listening / thinking (between the candidate's turn and the reply) / speaking, plus "you're speaking" and a segmented progress bar of the conversation parts. A video avatar was researched (Anam, HeyGen LiveAvatar, Simli) and postponed: ~1 s extra latency per reply, more moving parts, possible uncanny-valley stress.
+- **White-label for customer demos**: `NEXT_PUBLIC_CUSTOMER_NAME`, `NEXT_PUBLIC_CUSTOMER_LOGO_URL`, `NEXT_PUBLIC_BRAND_COLOR` (set on the hosting platform only). Candidates then see the customer's name/logo with "Powered by ClientReady"; the panel shows "dla <customer>"; one colour drives all brand shades. Never commit a customer's name, logo or colours to the repository.
 - `/design` (development only) shows tokens and components.
 
 ## Role templates

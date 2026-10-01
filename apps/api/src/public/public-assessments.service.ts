@@ -67,10 +67,18 @@ export class PublicAssessmentsService {
 
   toView(assessment: Assessment): PublicAssessmentView {
     const now = this.clock.now();
+    const template = getRoleTemplate(assessment.roleTemplateId);
+    if (!template) throw new InternalServerErrorException('Unknown role template');
     return {
       status: assessment.status,
       candidateName: assessment.candidateName,
-      roleName: getRoleTemplate(assessment.roleTemplateId)?.name ?? assessment.roleTemplateId,
+      roleName: template.name,
+      client: template.persona.card,
+      phases: template.phases.map((p) => ({
+        id: p.id,
+        name: p.name,
+        durationSec: p.targetDurationSec,
+      })),
       consentGiven: assessment.consentAt !== null,
       durationLimitMs: SESSION_HARD_LIMIT_MS,
       elapsedMs: elapsedMs(assessment, now),

@@ -6,6 +6,12 @@ export const backendDeveloper: RoleTemplate = {
   description:
     'Client conversation for a backend developer joining a client team: talking about past projects, explaining technical decisions and handling a realistic client situation.',
   persona: {
+    card: {
+      name: 'Emma Visser',
+      title: 'Product Owner',
+      company: 'Northbeam Payments',
+      location: 'Amsterdam',
+    },
     role: 'Product Owner and former tech lead, called Emma Visser',
     company:
       'Northbeam Payments, a fictional fintech scale-up based in Amsterdam (about 200 people) that is extending its team with external developers',

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { AssessmentStatusSchema, SpeakerSchema, TargetLevelSchema } from '../enums.js';
+import { PersonaCardSchema } from '../roles/schema.js';
 
 /** The conversation is hard-stopped after this long (measured from the first connect). */
 export const SESSION_HARD_LIMIT_MS = 12 * 60_000;
@@ -39,6 +40,10 @@ export const PublicAssessmentViewSchema = z.object({
   canStart: z.boolean(),
   /** An interrupted conversation can be resumed (status IN_PROGRESS with time left). */
   canResume: z.boolean(),
+  /** Who the candidate will talk to (the AI client's name card). */
+  client: PersonaCardSchema,
+  /** Parts of the conversation, for the progress indicator. */
+  phases: z.array(z.object({ id: z.string(), name: z.string(), durationSec: z.number().int() })),
 });
 export type PublicAssessmentView = z.infer<typeof PublicAssessmentViewSchema>;
 

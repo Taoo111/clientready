@@ -9,7 +9,16 @@ export const DEFAULT_CRITERIA_KEYS = [
   'fluency_coherence',
 ] as const;
 
+/** What the candidate sees about the AI client (name card on the conversation screen). */
+export const PersonaCardSchema = z.object({
+  name: z.string().min(1),
+  title: z.string().min(1),
+  company: z.string().min(1),
+  location: z.string().min(1).optional(),
+});
+
 export const PersonaSchema = z.object({
+  card: PersonaCardSchema,
   /** Who the AI client is, e.g. "Head of Product at a logistics SaaS". */
   role: z.string().min(1),
   company: z.string().min(1),
@@ -69,6 +78,7 @@ export const RoleTemplateSchema = z
   });
 
 export type Persona = z.infer<typeof PersonaSchema>;
+export type PersonaCard = z.infer<typeof PersonaCardSchema>;
 export type Phase = z.infer<typeof PhaseSchema>;
 export type RubricCriterion = z.infer<typeof RubricCriterionSchema>;
 export type RoleTemplate = z.infer<typeof RoleTemplateSchema>;

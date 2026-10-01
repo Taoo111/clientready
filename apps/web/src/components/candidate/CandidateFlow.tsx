@@ -23,7 +23,7 @@ type Step =
   | { kind: 'error'; error: ErrorKind }
   | { kind: 'consent'; view: PublicAssessmentView }
   | { kind: 'mic'; view: PublicAssessmentView; resume: boolean }
-  | { kind: 'live'; controller: ConversationController };
+  | { kind: 'live'; controller: ConversationController; view: PublicAssessmentView };
 
 const errorScreens: Record<
   ErrorKind,
@@ -183,7 +183,7 @@ export function CandidateFlow({ token }: { token: string }) {
               // runs exactly once (an effect could run twice in development).
               const controller = new ConversationController(token, mic);
               void controller.connect();
-              setStep({ kind: 'live', controller });
+              setStep({ kind: 'live', controller, view: step.view });
             }}
           />
         </CandidateShell>
@@ -192,7 +192,7 @@ export function CandidateFlow({ token }: { token: string }) {
     case 'live':
       return (
         <CandidateShell step={2}>
-          <LiveStep controller={step.controller} />
+          <LiveStep controller={step.controller} view={step.view} />
         </CandidateShell>
       );
   }

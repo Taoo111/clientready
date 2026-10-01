@@ -8,9 +8,11 @@
  */
 :root {
   /* Brand */
+  /* One accent colour; the darker and the soft variant are derived from it, so a customer
+     brand (NEXT_PUBLIC_BRAND_COLOR) only needs to set --brand. */
   --brand: oklch(0.47 0.085 192); /* deep teal */
-  --brand-strong: oklch(0.39 0.075 195);
-  --brand-soft: oklch(0.955 0.025 185);
+  --brand-strong: color-mix(in oklch, var(--brand) 80%, black);
+  --brand-soft: color-mix(in oklch, var(--brand) 9%, white);
   --brand-foreground: oklch(0.99 0.004 85);
 
   /* Surfaces: warm off-white page, white cards */

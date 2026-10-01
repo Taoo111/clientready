@@ -1,7 +1,9 @@
 import { Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
+import { CustomerBrand } from '@/components/brand/customer-brand';
 import { Logo } from '@/components/brand/logo';
+import { brand } from '@/lib/brand';
 import { en } from '@/i18n/en';
 import { cn } from '@/lib/utils';
 
@@ -10,7 +12,7 @@ export function CandidateShell({ step, children }: { step?: number; children: Re
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-xl items-center justify-between gap-4 px-4 pt-6 sm:pt-10">
-        <Logo />
+        {brand.customerName || brand.customerLogoUrl ? <CustomerBrand /> : <Logo />}
         {step !== undefined && <Stepper current={step} />}
       </header>
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 py-6 sm:py-10">
@@ -18,6 +20,11 @@ export function CandidateShell({ step, children }: { step?: number; children: Re
       </main>
       <footer className="mx-auto w-full max-w-xl px-4 pb-6 text-center text-xs text-muted-foreground">
         {en.footer}
+        {(brand.customerName || brand.customerLogoUrl) && (
+          <span className="mt-2 flex items-center justify-center gap-1.5">
+            {en.poweredBy} <Logo className="scale-75" />
+          </span>
+        )}
       </footer>
     </div>
   );

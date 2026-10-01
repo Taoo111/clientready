@@ -12,6 +12,7 @@ export const pl = {
     newAssessment: 'Nowa ocena',
     logout: 'Wyloguj',
     account: 'Konto',
+    forCustomer: 'dla',
   },
 
   login: {
@@ -134,10 +135,10 @@ export const pl = {
     copyMessage: 'Kopiuj wiadomość',
     polish: 'Po polsku',
     english: 'Po angielsku',
-    messagePl: (name: string, role: string, link: string) =>
-      `Cześć ${name},\n\nw ramach rekrutacji na stanowisko ${role} zapraszamy Cię na krótką rozmowę po angielsku (ok. 12 minut). Porozmawiasz z asystentem AI, który odgrywa rolę klienta — zapyta o Twoje doświadczenie i omówi z Tobą typową sytuację projektową. Rozmowa jest nagrywana, a jej wynik przegląda rekruter.\n\nWystarczy przeglądarka (najlepiej Chrome lub Edge na komputerze), mikrofon i ciche miejsce — najlepiej ze słuchawkami. Link możesz użyć raz:\n${link}\n\nPowodzenia!`,
-    messageEn: (name: string, role: string, link: string) =>
-      `Hi ${name},\n\nAs part of the recruitment process for the ${role} role, we'd like to invite you to a short conversation in English (about 12 minutes). You'll talk to an AI assistant playing a client — it will ask about your experience and discuss a typical project situation with you. The conversation is recorded and reviewed by a recruiter.\n\nAll you need is a browser (ideally Chrome or Edge on a computer), a microphone and a quiet place — headphones help. The link can be used once:\n${link}\n\nGood luck!`,
+    messagePl: (name: string, role: string, link: string, company?: string) =>
+      `Cześć ${name},\n\nw ramach rekrutacji na stanowisko ${role}${company ? ` w ${company}` : ''} zapraszamy Cię na krótką rozmowę po angielsku (ok. 12 minut). Porozmawiasz z asystentem AI, który odgrywa rolę klienta — zapyta o Twoje doświadczenie i omówi z Tobą typową sytuację projektową. Rozmowa jest nagrywana, a jej wynik przegląda rekruter.\n\nWystarczy przeglądarka (najlepiej Chrome lub Edge na komputerze), mikrofon i ciche miejsce — najlepiej ze słuchawkami. Link możesz użyć raz:\n${link}\n\nPowodzenia!`,
+    messageEn: (name: string, role: string, link: string, company?: string) =>
+      `Hi ${name},\n\nAs part of the recruitment process for the ${role} role${company ? ` at ${company}` : ''}, we'd like to invite you to a short conversation in English (about 12 minutes). You'll talk to an AI assistant playing a client — it will ask about your experience and discuss a typical project situation with you. The conversation is recorded and reviewed by a recruiter.\n\nAll you need is a browser (ideally Chrome or Edge on a computer), a microphone and a quiet place — headphones help. The link can be used once:\n${link}\n\nGood luck!`,
   },
 
   report: {

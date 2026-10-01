@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { pl } from '@/i18n/pl';
+import { brand } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 export function PanelHeader({ email }: { email: string }) {
@@ -27,6 +28,12 @@ export function PanelHeader({ email }: { email: string }) {
         <Link href="/admin" className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50">
           <Logo />
         </Link>
+        {brand.customerName && (
+          <span className="hidden items-center gap-1.5 rounded-full border bg-card px-2.5 py-0.5 text-xs text-muted-foreground md:inline-flex">
+            {pl.nav.forCustomer}{' '}
+            <span className="font-medium text-foreground">{brand.customerName}</span>
+          </span>
+        )}
         <nav className="ml-4 hidden items-center gap-1 sm:flex" aria-label="Główna">
           <Link
             href="/admin"

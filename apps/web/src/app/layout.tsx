@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { brand } from '@/lib/brand';
 import './globals.css';
 
 const geistSans = Geist({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-sans' });
@@ -16,6 +17,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      {/* Customer accent colour (validated in lib/brand); the other brand shades derive from it. */}
+      {brand.color && <style>{`:root{--brand:${brand.color}}`}</style>}
       <body>
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <Toaster position="top-center" />

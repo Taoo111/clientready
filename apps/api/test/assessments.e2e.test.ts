@@ -94,6 +94,18 @@ describe('GET /public/assessments/:token', () => {
       elapsedMs: 0,
       canStart: true,
       canResume: false,
+      client: {
+        name: 'Emma Visser',
+        title: 'Product Owner',
+        company: 'Northbeam Payments',
+        location: 'Amsterdam',
+      },
+      phases: [
+        { id: 'warm-up', name: 'Warm-up', durationSec: 90 },
+        { id: 'project-deep-dive', name: 'Project deep-dive', durationSec: 300 },
+        { id: 'client-situation', name: 'Client situation', durationSec: 240 },
+        { id: 'closing', name: 'Closing', durationSec: 30 },
+      ],
     });
   });
 

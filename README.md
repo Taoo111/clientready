@@ -172,6 +172,7 @@ Pushing to `main` deploys both the web (Vercel) and the API (Render, only when A
 - Supabase pauses free projects after about a week without activity — unpause it in the Supabase dashboard before a demo.
 - Data older than `DATA_RETENTION_DAYS` is purged by the API when it runs (daily while awake) and on demand with `pnpm purge-data`.
 - Vercel Hobby is meant for non-commercial use; move to Pro (or another host) before real paid usage.
+- Some ad blockers (seen with uBlock Origin) block requests to `*.onrender.com`: the page then stays on "Uruchamiamy serwer…" (DevTools: `health` requests without a response). Fix for the user: disable the blocker for the site; long-term fix: a custom domain for the API.
 
 ### Checklist — manual steps
 
@@ -189,6 +190,7 @@ Pushing to `main` deploys both the web (Vercel) and the API (Render, only when A
 3. **Vercel** (your existing project):
    - Settings → General → **Root Directory** `apps/web` (framework Next.js, Node.js 22.x). Install/build commands and the `fra1` region come from `apps/web/vercel.json`.
    - Settings → Environment Variables (Production): `NEXT_PUBLIC_API_URL` and `API_URL` = `https://<service>.onrender.com`.
+   - Optional co-branding for a customer demo: `NEXT_PUBLIC_CUSTOMER_NAME`, `NEXT_PUBLIC_CUSTOMER_LOGO_URL` (https URL of their logo), `NEXT_PUBLIC_BRAND_COLOR` (e.g. `#0b5cab`). These live only in Vercel — the repository stays free of customer branding.
    - Redeploy (the `NEXT_PUBLIC_*` value is built into the bundle).
 4. **OpenAI**: check the realtime rate limits of your usage tier (see CLAUDE.md) and set a monthly budget limit.
 5. **Smoke test**: open `https://<vercel-url>/admin` (first time: wake-up message) → log in → create an assessment → open the candidate link (HTTPS, so the microphone works also on other devices) → short conversation → end → report with recording within a minute.

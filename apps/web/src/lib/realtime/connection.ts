@@ -13,6 +13,8 @@ export interface FinalTurn {
   durationMs?: number;
 }
 
+export type ConversationActivity = 'candidate-started' | 'candidate-stopped' | 'response-done';
+
 export interface RealtimeConnectionOptions {
   clientSecret: string;
   mic: MediaStream;
@@ -23,6 +25,8 @@ export interface RealtimeConnectionOptions {
   onTurn: (turn: FinalTurn) => void;
   /** The connection was lost unexpectedly (not via `close()`). */
   onDrop: (reason: string) => void;
+  /** Turn-taking signals for the UI ("thinking" between the candidate's turn and the reply). */
+  onActivity?: (activity: ConversationActivity) => void;
 }
 
 type ServerEvent = { type: string } & Record<string, unknown>;
@@ -163,10 +167,12 @@ export class RealtimeConnection {
     switch (event.type) {
       case 'input_audio_buffer.speech_started':
         this.speechStarts.set(str(event.item_id), now);
+        this.options.onActivity?.('candidate-started');
         break;
 
       case 'input_audio_buffer.speech_stopped':
         this.speechStops.set(str(event.item_id), now);
+        this.options.onActivity?.('candidate-stopped');
         break;
 
       case 'conversation.item.input_audio_transcription.completed':
@@ -221,6 +227,7 @@ export class RealtimeConnection {
       }
 
       case 'response.done': {
+        this.options.onActivity?.('response-done');
         // A response rejected by the rate limit leaves the client silent: ask again shortly.
         const response = event.response as
           { status?: string; status_details?: { error?: { code?: string } } } | undefined;

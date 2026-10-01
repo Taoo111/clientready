@@ -6,6 +6,7 @@ export const en = {
   loading: 'Loading…',
   retry: 'Try again',
   footer: 'Your recording is only shared with the recruiter who invited you.',
+  poweredBy: 'Powered by',
 
   steps: ['Consent', 'Microphone', 'Conversation'] as const,
 
@@ -38,9 +39,11 @@ export const en = {
   },
 
   consent: {
+    talkingTo: 'You will talk to',
+    aiCharacter: 'An AI character playing a client — not a real person.',
     title: (name: string) => `Hi ${name}, welcome`,
-    intro: (role: string) =>
-      `This is a relaxed, 12-minute conversation in English for the ${role} role — like a first call with a new client.`,
+    intro: (role: string, company?: string) =>
+      `This is a relaxed, 12-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} — like a first call with a new client.`,
     points: [
       {
         title: 'You’ll talk to an AI',
@@ -106,12 +109,23 @@ export const en = {
     },
   },
 
+  /** Candidate-friendly names of the conversation parts (by template phase id). */
+  phases: {
+    'warm-up': 'Introductions',
+    'project-deep-dive': 'Your recent project',
+    'client-situation': 'A client situation',
+    closing: 'Wrap-up',
+  } as Record<string, string>,
+
   live: {
     connecting: 'Connecting you to the client…',
     reconnecting: 'Reconnecting…',
     aiSpeaking: 'The client is speaking',
     youSpeaking: 'You’re speaking',
     listening: 'Listening…',
+    thinking: 'Thinking…',
+    clientSpeaking: 'Speaking',
+    progress: 'Conversation progress',
     hint: 'Speak naturally. Take a moment to think if you need to.',
     timeLeft: 'left',
     end: 'End conversation',

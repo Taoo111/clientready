@@ -1,8 +1,8 @@
 import { SESSION_HARD_LIMIT_MS, type RealtimeSessionResult } from '@clientready/shared';
-import { LevelMeter } from '../audio/level-meter';
+import { LevelMeter, SPEAKING_THRESHOLD } from '../audio/level-meter';
 import { ConversationRecorder } from '../audio/recorder';
 import { ApiError, candidateApi } from '../candidate-api';
-import { RealtimeConnection } from './connection';
+import { RealtimeConnection, type ConversationActivity } from './connection';
 import { TranscriptUploader } from './transcript-uploader';
 
 export type ConversationPhase = 'connecting' | 'live' | 'dropped' | 'finishing' | 'ended';
@@ -18,11 +18,15 @@ export interface ConversationState {
   remainingMs: number;
   micLevel: number;
   aiLevel: number;
+  /** The candidate has finished speaking and the client's reply has not started yet. */
+  aiThinking: boolean;
   endReason?: 'candidate' | 'timeUp';
   upload: UploadStatus;
 }
 
 const TICK_MS = 100;
+/** Stop showing "thinking" if no reply came (e.g. the speech detector reacted to noise). */
+const MAX_THINKING_MS = 8_000;
 const UPLOAD_RETRIES = 3;
 
 /**
@@ -37,6 +41,7 @@ export class ConversationController {
     remainingMs: SESSION_HARD_LIMIT_MS,
     micLevel: 0,
     aiLevel: 0,
+    aiThinking: false,
     upload: 'idle',
   };
   private readonly context: AudioContext | undefined;
@@ -48,6 +53,7 @@ export class ConversationController {
   private recorder: ConversationRecorder | undefined;
   private readonly recordingUploads: Promise<boolean>[] = [];
   private sessionStartEpochMs: number | undefined;
+  private thinkingSince: number | undefined;
   private readonly ticker: ReturnType<typeof setInterval>;
   private readonly listeners = new Set<() => void>();
 
@@ -81,11 +87,26 @@ export class ConversationController {
     for (const listener of this.listeners) listener();
   }
 
+  private handleActivity(activity: ConversationActivity): void {
+    const thinking = activity === 'candidate-stopped';
+    this.thinkingSince = thinking ? Date.now() : undefined;
+    if (this.state.aiThinking !== thinking) this.update({ aiThinking: thinking });
+  }
+
   private tick(): void {
+    const aiLevel = this.aiMeter?.level() ?? 0;
     const patch: Partial<ConversationState> = {
       micLevel: this.micMeter?.level() ?? 0,
-      aiLevel: this.aiMeter?.level() ?? 0,
+      aiLevel,
     };
+    // "Thinking" ends when the client starts talking (or after a while, e.g. background noise).
+    if (
+      this.state.aiThinking &&
+      (aiLevel > SPEAKING_THRESHOLD || Date.now() - (this.thinkingSince ?? 0) > MAX_THINKING_MS)
+    ) {
+      patch.aiThinking = false;
+      this.thinkingSince = undefined;
+    }
     if (this.sessionStartEpochMs !== undefined) {
       patch.remainingMs = Math.max(
         0,
@@ -140,6 +161,7 @@ export class ConversationController {
           turn.durationMs,
         ),
       onDrop: (reason) => this.handleDrop(reason),
+      onActivity: (activity) => this.handleActivity(activity),
     });
     this.connection = connection;
 

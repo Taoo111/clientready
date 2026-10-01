@@ -1,6 +1,10 @@
 'use client';
 
-import { WRAP_UP_AT_MS, SESSION_HARD_LIMIT_MS } from '@clientready/shared';
+import {
+  SESSION_HARD_LIMIT_MS,
+  WRAP_UP_AT_MS,
+  type PublicAssessmentView,
+} from '@clientready/shared';
 import { Clock, PhoneOff, RotateCw, WifiOff } from 'lucide-react';
 import { useEffect, useSyncExternalStore } from 'react';
 import { Notice } from '@/components/common/notice';
@@ -26,23 +30,20 @@ import type {
 import { cn } from '@/lib/utils';
 import { CandidateCard, StatusScreen } from './CandidateShell';
 import { EndedStep } from './EndedStep';
-import { VoiceOrb, type OrbMode } from './VoiceOrb';
+import { ClientPresence, type PresenceState } from './ClientPresence';
+import { PhaseProgress } from './PhaseProgress';
 
 function formatTime(ms: number): string {
   const totalSec = Math.ceil(ms / 1000);
   return `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, '0')}`;
 }
 
-function orbState(state: ConversationState): { mode: OrbMode; level: number; label: string } {
-  if (state.phase === 'connecting')
-    return { mode: 'connecting', level: 0, label: en.live.connecting };
-  if (state.aiLevel > SPEAKING_THRESHOLD) {
-    return { mode: 'ai', level: state.aiLevel, label: en.live.aiSpeaking };
-  }
-  if (state.micLevel > SPEAKING_THRESHOLD) {
-    return { mode: 'you', level: state.micLevel, label: en.live.youSpeaking };
-  }
-  return { mode: 'listening', level: 0, label: en.live.listening };
+function presenceState(state: ConversationState): PresenceState {
+  if (state.phase === 'connecting') return 'connecting';
+  if (state.aiLevel > SPEAKING_THRESHOLD) return 'speaking';
+  if (state.micLevel > SPEAKING_THRESHOLD) return 'you';
+  if (state.aiThinking) return 'thinking';
+  return 'listening';
 }
 
 /** Warn before closing the tab while the conversation is running. */
@@ -111,7 +112,13 @@ function EndButton({ onConfirm, disabled }: { onConfirm: () => void; disabled?: 
   );
 }
 
-export function LiveStep({ controller }: { controller: ConversationController }) {
+export function LiveStep({
+  controller,
+  view,
+}: {
+  controller: ConversationController;
+  view: PublicAssessmentView;
+}) {
   const state = useSyncExternalStore(
     controller.subscribe,
     controller.getState,
@@ -165,21 +172,25 @@ export function LiveStep({ controller }: { controller: ConversationController })
     );
   }
 
-  const orb = orbState(state);
   const elapsed = SESSION_HARD_LIMIT_MS - state.remainingMs;
 
   return (
-    <CandidateCard className="flex flex-1 flex-col items-center justify-between gap-8 py-8 text-center sm:min-h-[30rem]">
-      <Timer remainingMs={state.remainingMs} />
+    <CandidateCard className="flex flex-1 flex-col items-center justify-between gap-8 py-6 text-center sm:min-h-[34rem] sm:py-8">
+      <div className="flex w-full flex-col items-center gap-4">
+        <Timer remainingMs={state.remainingMs} />
+        <PhaseProgress phases={view.phases} elapsedMs={elapsed} />
+      </div>
 
-      <div className="flex flex-col items-center gap-6">
-        <VoiceOrb mode={orb.mode} level={orb.level * 1.6} />
-        <div className="space-y-1.5" aria-live="polite">
-          <p className="text-lg font-medium">{orb.label}</p>
-          <p className="text-sm text-muted-foreground">
-            {elapsed >= WRAP_UP_AT_MS ? t.wrapUp : t.hint}
-          </p>
-        </div>
+      <div className="flex flex-col items-center gap-4">
+        <ClientPresence
+          client={view.client}
+          state={presenceState(state)}
+          aiLevel={state.aiLevel}
+          micLevel={state.micLevel}
+        />
+        <p className="max-w-xs text-sm text-pretty text-muted-foreground">
+          {elapsed >= WRAP_UP_AT_MS ? t.wrapUp : t.hint}
+        </p>
       </div>
 
       <EndButton

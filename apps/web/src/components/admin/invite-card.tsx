@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { pl } from '@/i18n/pl';
+import { brand } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 async function copy(text: string): Promise<boolean> {
@@ -61,8 +62,8 @@ export function InviteCard({
   const firstName = candidateName.trim().split(/\s+/)[0] ?? candidateName;
   const message =
     language === 'pl'
-      ? t.messagePl(firstName, roleName, link)
-      : t.messageEn(firstName, roleName, link);
+      ? t.messagePl(firstName, roleName, link, brand.customerName)
+      : t.messageEn(firstName, roleName, link, brand.customerName);
 
   return (
     <section
