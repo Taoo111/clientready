@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { withSentryConfig } from '@sentry/nextjs/config';
 import type { NextConfig } from 'next';
 
 // The single .env for the monorepo lives at the repo root; Next only reads apps/web/.env*.
@@ -26,4 +27,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Error monitoring (see src/lib/monitoring.ts). Source maps are uploaded only when
+// SENTRY_AUTH_TOKEN (+ SENTRY_ORG, SENTRY_PROJECT) is set on the build machine (Vercel).
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  telemetry: false,
+  widenClientFileUpload: true,
+  // Events go through our own domain, so ad blockers do not drop candidates' errors.
+  tunnelRoute: '/monitoring',
+});

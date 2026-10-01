@@ -1,7 +1,9 @@
 import type { Speaker, TranscriptTurnInput } from '@clientready/shared';
 import { candidateApi } from '../candidate-api';
+import { reportProblem } from '../monitoring';
 
 const RETRY_DELAYS_MS = [1_000, 2_000, 5_000, 10_000];
+const REPORT_AFTER_ATTEMPTS = 3;
 
 /**
  * Queues finished transcript turns and sends them to the API. Sequence numbers are
@@ -59,7 +61,9 @@ export class TranscriptUploader {
         this.pending = this.pending.filter((t) => !sent.has(t.seq));
         this.attempt = 0;
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        // Retries continue in the background; report once when it keeps failing.
+        if (this.attempt === REPORT_AFTER_ATTEMPTS) reportProblem('transcript', error, 'warning');
         const delay = RETRY_DELAYS_MS[Math.min(this.attempt++, RETRY_DELAYS_MS.length - 1)];
         clearTimeout(this.retryTimer);
         this.retryTimer = setTimeout(() => void this.send(), delay);

@@ -1,3 +1,4 @@
+import { reportProblem } from '../monitoring';
 import { ConversationRecorder } from './recorder';
 
 const UPLOAD_RETRIES = 3;
@@ -23,6 +24,7 @@ export class SegmentRecorder {
       recorder.start();
     } catch (error) {
       console.warn('[recording] could not start', error);
+      reportProblem('recording', error, 'warning');
     }
   }
 
@@ -55,14 +57,17 @@ export class SegmentRecorder {
   }
 
   private async uploadWithRetry(blob: Blob, durationMs: number): Promise<boolean> {
+    let lastError: unknown;
     for (let attempt = 0; attempt < UPLOAD_RETRIES; attempt++) {
       try {
         await this.upload(blob, durationMs);
         return true;
-      } catch {
+      } catch (error) {
+        lastError = error;
         await new Promise((resolve) => setTimeout(resolve, 2_000 * (attempt + 1)));
       }
     }
+    reportProblem('recording', lastError);
     return false;
   }
 }

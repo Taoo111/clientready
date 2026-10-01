@@ -7,6 +7,7 @@ Read the root CLAUDE.md first (product, guardrails, engineering principles). Thi
 ```
 src/
   main.ts, app.module.ts   bootstrap (CORS, proxy, throttling) and the module list
+  instrument.ts            Sentry init; must stay the first import of main.ts (reads SENTRY_* directly)
   config/env.ts            zod schema of every env variable (the only place that reads process.env)
   infra/                   plumbing, global InfraModule: Clock, PrismaService, Storage (local | supabase),
                            http/ (ZodValidationPipe, PublicError)

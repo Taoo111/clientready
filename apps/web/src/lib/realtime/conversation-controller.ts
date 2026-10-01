@@ -2,6 +2,7 @@ import { SESSION_HARD_LIMIT_MS, type RealtimeSessionResult } from '@clientready/
 import { LevelMeter, SPEAKING_THRESHOLD } from '../audio/level-meter';
 import { SegmentRecorder } from '../audio/segment-recorder';
 import { ApiError, candidateApi } from '../candidate-api';
+import { reportProblem } from '../monitoring';
 import { RealtimeConnection, type ConversationActivity } from './connection';
 import { TranscriptUploader } from './transcript-uploader';
 
@@ -164,6 +165,7 @@ export class ConversationController {
       await connection.connect();
     } catch (error) {
       console.warn('[conversation] connect failed', error);
+      reportProblem('realtime', error);
       connection.close();
       if (this.state.phase !== 'connecting') return;
       this.stopSegment();
@@ -201,16 +203,20 @@ export class ConversationController {
     if (code === 'TIME_UP' || code === 'ALREADY_COMPLETED') {
       void this.finish('timeUp');
     } else if (code === 'TOO_MANY_CONNECTIONS') {
+      reportProblem('realtime', 'too many connections for one assessment', 'warning');
       this.update({ phase: 'dropped', error: 'tooManyConnections', canReconnect: false });
     } else if (code === 'REALTIME_UNAVAILABLE') {
+      reportProblem('realtime', 'realtime service unavailable');
       this.update({ phase: 'dropped', error: 'unavailable', canReconnect: true });
     } else {
+      reportProblem('realtime', error);
       this.update({ phase: 'dropped', error: 'connectFailed', canReconnect: true });
     }
   }
 
   private handleDrop(reason: string): void {
     console.warn('[conversation] connection dropped:', reason);
+    reportProblem('realtime', `connection dropped: ${reason}`, 'warning');
     if (this.state.phase !== 'live' && this.state.phase !== 'connecting') return;
     this.connection = undefined;
     this.stopSegment();

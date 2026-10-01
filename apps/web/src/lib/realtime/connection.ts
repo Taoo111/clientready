@@ -1,4 +1,5 @@
 import type { TimeCue } from '@clientready/shared';
+import { reportProblem } from '../monitoring';
 import {
   TurnTracker,
   type ConversationActivity,
@@ -172,6 +173,7 @@ export class RealtimeConnection {
 
       case 'error':
         console.warn('[realtime] error event', event.error);
+        reportProblem('realtime', `error event: ${JSON.stringify(event.error)}`, 'warning');
         break;
 
       default:

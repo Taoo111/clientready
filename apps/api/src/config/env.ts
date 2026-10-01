@@ -48,6 +48,10 @@ const EnvSchema = z
     /** Lifetime of signed playback URLs for recordings. */
     RECORDING_URL_TTL_SEC: z.coerce.number().int().positive().default(3600),
     MAX_RECORDING_MB: z.coerce.number().positive().default(50),
+    // Error monitoring (read early by instrument.ts; declared here for validation and docs)
+    /** Sentry DSN (EU region recommended); unset = monitoring off. */
+    SENTRY_DSN: z.url().optional(),
+    SENTRY_ENVIRONMENT: z.string().optional(),
     // Evaluation (provider-independent)
     EVAL_PROVIDER: z.enum(EVALUATION_PROVIDERS).default('openai'),
     /** Defaults per provider: see DEFAULT_EVAL_MODELS. */
