@@ -19,8 +19,9 @@ src/
   evaluation/              EvaluationScheduler (queue, retries) -> EvaluationService (evaluate + store)
                            -> evaluate.ts (pure pipeline) ; providers/ (OpenAI, Anthropic)
   retention/               periodic purge of old data
+  usage/                   token prices and cost summaries (pure; rows stored by conversation + evaluation)
   prompts/                 versioned client and evaluation prompts (see prompts/README.md)
-  cli/, simulation/        tsx scripts: create-assessment, purge-data, simulate (no Nest)
+  cli/, simulation/        tsx scripts: create-assessment, purge-data, simulate, usage-report (no Nest)
   generated/               Prisma client (generated, gitignored)
 test/                      e2e (supertest, separate <db>_test database, fakes in test-app.ts), fixtures, eval
 ```

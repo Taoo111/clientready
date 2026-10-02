@@ -1,4 +1,4 @@
-import { getRoleTemplate, type RoleTemplate } from '@clientready/shared';
+import { EMPTY_USAGE, getRoleTemplate, type RoleTemplate } from '@clientready/shared';
 import { describe, expect, it, vi } from 'vitest';
 import type { z } from 'zod';
 import type { EvaluationOutput } from '../prompts/evaluation';
@@ -7,6 +7,7 @@ import {
   EvaluationProvider,
   EvaluationProviderError,
   type EvaluationRequest,
+  type EvaluationResponse,
 } from './providers/provider';
 import type { EvalTurn } from './transcript';
 
@@ -20,10 +21,15 @@ class FakeProvider extends EvaluationProvider {
   constructor(private readonly output: EvaluationOutput) {
     super();
   }
-  async generate<T extends z.ZodType>(request: EvaluationRequest<T>): Promise<z.infer<T>> {
+  async generate<T extends z.ZodType>(
+    request: EvaluationRequest<T>,
+  ): Promise<EvaluationResponse<T>> {
     this.requests.push(request);
     // Validate like the real providers do.
-    return request.schema.parse(this.output) as z.infer<T>;
+    return {
+      output: request.schema.parse(this.output) as z.infer<T>,
+      usage: { ...EMPTY_USAGE, inputTextTokens: 5000, outputTextTokens: 2000 },
+    };
   }
 }
 

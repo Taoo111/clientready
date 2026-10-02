@@ -24,6 +24,7 @@ src/
     admin/admin-api.ts       typed recruiter API (server only) - pages/actions never build URLs
     realtime/                ConversationController (state for the live screen) -> RealtimeConnection
                              (WebRTC) + TurnTracker (events -> transcript turns) + TranscriptUploader
+                             + UsageMeter / UsageUploader (token usage per connection, cost tracking)
     audio/                   LevelMeter, ConversationRecorder, SegmentRecorder (per-connection uploads)
     monitoring.ts            Sentry options + reportProblem() for failures the UI handles itself
     api-wake.ts, brand.ts, format.ts

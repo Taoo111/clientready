@@ -5,6 +5,7 @@ import { ApiError, candidateApi } from '../candidate-api';
 import { reportProblem } from '../monitoring';
 import { RealtimeConnection, type ConversationActivity } from './connection';
 import { TranscriptUploader } from './transcript-uploader';
+import { UsageUploader } from './usage-uploader';
 
 export type ConversationPhase = 'connecting' | 'live' | 'dropped' | 'finishing' | 'ended';
 export type ConversationError = 'tooManyConnections' | 'unavailable' | 'connectFailed';
@@ -49,6 +50,7 @@ export class ConversationController {
   private aiMeter: LevelMeter | undefined;
   private readonly remoteAudio: HTMLAudioElement;
   private readonly uploader: TranscriptUploader;
+  private readonly usage: UsageUploader;
   private readonly recorder: SegmentRecorder;
   private connection: RealtimeConnection | undefined;
   private sessionStartEpochMs: number | undefined;
@@ -70,6 +72,7 @@ export class ConversationController {
     this.remoteAudio = new Audio();
     this.remoteAudio.autoplay = true;
     this.uploader = new TranscriptUploader(token);
+    this.usage = new UsageUploader(token);
     this.recorder = new SegmentRecorder(this.context, mic, (blob, durationMs) =>
       candidateApi.uploadRecording(token, blob, durationMs),
     );
@@ -143,6 +146,7 @@ export class ConversationController {
 
     this.recorder.startSegment();
 
+    const connectionId = crypto.randomUUID();
     const connection = new RealtimeConnection({
       clientSecret: session.clientSecret,
       mic: this.mic,
@@ -158,6 +162,7 @@ export class ConversationController {
         ),
       onDrop: (reason) => this.handleDrop(reason),
       onActivity: (activity) => this.handleActivity(activity),
+      onUsage: (usage) => this.usage.update(connectionId, usage),
     });
     this.connection = connection;
 
@@ -222,6 +227,7 @@ export class ConversationController {
     this.stopSegment();
     this.update({ phase: 'dropped', error: undefined, canReconnect: true });
     void this.uploader.flush();
+    void this.usage.flush();
   }
 
   /** Ends the current connection segment: its recording is uploaded in the background. */
@@ -238,7 +244,7 @@ export class ConversationController {
     this.connection?.close();
     this.connection = undefined;
     this.stopSegment();
-    await this.uploader.flush();
+    await Promise.all([this.uploader.flush(), this.usage.flush()]);
     try {
       await candidateApi.end(this.token);
     } catch {

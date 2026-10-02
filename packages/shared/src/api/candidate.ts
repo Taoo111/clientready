@@ -2,6 +2,7 @@
 import { z } from 'zod';
 import { AssessmentStatusSchema, SpeakerSchema } from '../enums.js';
 import { PersonaCardSchema } from '../roles/schema.js';
+import { TokenUsageSchema } from '../usage.js';
 
 /** The conversation is hard-stopped after this long (measured from the first connect). */
 export const SESSION_HARD_LIMIT_MS = 12 * 60_000;
@@ -71,6 +72,18 @@ export const TranscriptTurnsInputSchema = z.object({
   turns: z.array(TranscriptTurnInputSchema).min(1).max(50),
 });
 export type TranscriptTurnsInput = z.infer<typeof TranscriptTurnsInputSchema>;
+
+/**
+ * Token usage of one realtime connection as running totals: the API overwrites the previous
+ * totals of the same connection, so the browser can resend them safely.
+ */
+export const UsageReportInputSchema = z.object({
+  /** Random id the browser picks per connection. */
+  connectionId: z.string().regex(/^[A-Za-z0-9-]{8,64}$/),
+  realtime: TokenUsageSchema,
+  transcription: TokenUsageSchema,
+});
+export type UsageReportInput = z.infer<typeof UsageReportInputSchema>;
 
 export const RecordingUploadResultSchema = z.object({ id: z.string() });
 export type RecordingUploadResult = z.infer<typeof RecordingUploadResultSchema>;

@@ -1,7 +1,13 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
+import { EMPTY_USAGE, type TokenUsage } from '@clientready/shared';
 import type { z } from 'zod';
-import { EvaluationProvider, EvaluationProviderError, type EvaluationRequest } from './provider';
+import {
+  EvaluationProvider,
+  EvaluationProviderError,
+  type EvaluationRequest,
+  type EvaluationResponse,
+} from './provider';
 
 export interface OpenAiEvaluationOptions {
   apiKey: string | undefined;
@@ -23,7 +29,9 @@ export class OpenAiEvaluationProvider extends EvaluationProvider {
       : undefined;
   }
 
-  async generate<T extends z.ZodType>(request: EvaluationRequest<T>): Promise<z.infer<T>> {
+  async generate<T extends z.ZodType>(
+    request: EvaluationRequest<T>,
+  ): Promise<EvaluationResponse<T>> {
     if (!this.client) throw new EvaluationProviderError('OPENAI_API_KEY is not set', false);
 
     let response;
@@ -55,8 +63,20 @@ export class OpenAiEvaluationProvider extends EvaluationProvider {
     if (response.output_parsed == null) {
       throw new EvaluationProviderError('No parsed output', true);
     }
-    return response.output_parsed as z.infer<T>;
+    return { output: response.output_parsed as z.infer<T>, usage: usageOf(response.usage) };
   }
+}
+
+/** Reasoning tokens are part of output_tokens; cached tokens are part of input_tokens. */
+function usageOf(usage: OpenAI.Responses.ResponseUsage | undefined): TokenUsage {
+  if (!usage) return EMPTY_USAGE;
+  const cached = usage.input_tokens_details.cached_tokens;
+  return {
+    ...EMPTY_USAGE,
+    inputTextTokens: Math.max(0, usage.input_tokens - cached),
+    cachedTextTokens: cached,
+    outputTextTokens: usage.output_tokens,
+  };
 }
 
 function mapOpenAiError(error: unknown): EvaluationProviderError {

@@ -71,6 +71,7 @@ Default criteria (can be overridden per role): understanding questions, technica
 - `TranscriptTurn` — assessmentId, speaker (`AI` | `CANDIDATE`), text, startedAtMs, seq
 - `Recording` — assessmentId, storageKey, durationMs, mimeType
 - `Report` — assessmentId, json (validated report), provider, model, promptVersion, createdAt (several per assessment: re-runs keep history, newest is current)
+- `UsageRecord` — assessmentId, source (`REALTIME` | `TRANSCRIPTION` | `EVALUATION`), model, ref (connection or report id), token counts (text/audio × uncached/cached/output) - cost tracking, see `pnpm usage-report`
 - `Recruiter` — minimal auth for the panel (MVP: seeded admin user, email + password, session cookie)
 
 Keep a data retention setting (env, default 90 days) and a job/command that purges old recordings and transcripts.

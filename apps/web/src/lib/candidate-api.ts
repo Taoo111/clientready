@@ -8,6 +8,7 @@ import {
   type RealtimeSessionResult,
   type RecordingUploadResult,
   type TranscriptTurnInput,
+  type UsageReportInput,
 } from '@clientready/shared';
 import { z } from 'zod';
 
@@ -75,6 +76,14 @@ export const candidateApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ turns }),
       // Lets the last transcript flush survive the page being closed.
+      keepalive: true,
+    }),
+
+  saveUsage: (token: string, usage: UsageReportInput): Promise<unknown> =>
+    request(`${base(token)}/usage`, z.unknown(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(usage),
       keepalive: true,
     }),
 

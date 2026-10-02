@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:e2e": "vitest run -c vitest.e2e.config.mts",
     "purge-data": "tsx src/cli/purge-data.ts",
+    "usage-report": "tsx src/cli/usage-report.ts",
     "test:eval": "vitest run -c vitest.eval.config.mts --silent=false",
     "simulate": "tsx src/cli/simulate-conversation.ts"
   },

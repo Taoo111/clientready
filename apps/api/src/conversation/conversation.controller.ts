@@ -2,9 +2,11 @@ import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   TranscriptTurnsInputSchema,
+  UsageReportInputSchema,
   type PublicAssessmentView,
   type RealtimeSessionResult,
   type TranscriptTurnsInput,
+  type UsageReportInput,
 } from '@clientready/shared';
 import { ZodValidationPipe } from '../infra/http/zod-validation.pipe';
 import { CandidateTokenPipe } from './candidate-token.pipe';
@@ -42,6 +44,15 @@ export class ConversationController {
     @Body(new ZodValidationPipe(TranscriptTurnsInputSchema)) body: TranscriptTurnsInput,
   ): Promise<{ saved: number }> {
     return this.conversation.saveTurns(token, body.turns);
+  }
+
+  @Post('usage')
+  @HttpCode(204)
+  usage(
+    @Param('token', CandidateTokenPipe) token: string,
+    @Body(new ZodValidationPipe(UsageReportInputSchema)) body: UsageReportInput,
+  ): Promise<void> {
+    return this.conversation.saveUsage(token, body);
   }
 
   @Post('end')

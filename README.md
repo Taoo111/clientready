@@ -61,6 +61,7 @@ Stop the dev servers with `Ctrl+C`; stop the database with `pnpm db:down` (data 
 | `pnpm simulate --role … --persona …` | Simulated AI-client conversation for prompt tuning (costs ¢)         |
 | `pnpm create-assessment --name "…"`  | Create an assessment; prints the candidate link and report link      |
 | `pnpm purge-data [--dry-run]`        | Delete assessments older than `DATA_RETENTION_DAYS`                  |
+| `pnpm usage-report [--days 30]`      | Estimated AI cost per assessment from the recorded token usage       |
 
 ## Configuration
 
@@ -142,7 +143,13 @@ How it works:
 
 - Role templates: **Backend Developer** (fintech client, Amsterdam), **Frontend Developer** (outdoor retail e-commerce, Manchester), **QA Engineer** (healthtech, Lyon), **Business Analyst** (insurance claims client, Rotterdam) and **Product Owner** (logistics customer portal, Gothenburg) in `packages/shared/roles/`. Adding a role = adding a template file and listing it in `roles/index.ts`; template tests check that every suggestion is a single question and that no evaluator framing ("see whether…", "clarifying questions") reaches the AI client.
 - `pnpm simulate --role business-analyst --persona medium [--prompt client-v3] [--runs 3] [--evaluate]` runs a text-mode conversation between the AI client and a scripted candidate and checks every client turn against the guardrails. Workflow and personas: `apps/api/src/prompts/README.md`.
+- Simulations print an estimated cost: the realtime part runs in text mode, so a voice call costs several times more; plus the evaluation.
 - Findings from the first real run and simulations are recorded in the prompt files (`client/v3.ts`, `evaluation/v2.ts`) and in CLAUDE.md (realtime model choice).
+
+## Cost tracking
+
+- Every realtime connection reports its token usage (the `usage` of each `response.done` and transcription event) from the browser to `POST /public/assessments/:token/usage` as running totals per connection; every evaluation stores the provider's token usage with its report. Rows live in `UsageRecord` (no personal data; removed with the assessment by the retention purge).
+- `pnpm usage-report [--days 30]` prices them with the list prices in `apps/api/src/usage/pricing.ts` (update it when prices or models change; unknown models are listed instead of guessed). Failed evaluation attempts are not counted.
 
 ## Tests
 

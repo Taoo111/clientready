@@ -1,7 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { EMPTY_USAGE, type TokenUsage } from '@clientready/shared';
 import type { z } from 'zod';
-import { EvaluationProvider, EvaluationProviderError, type EvaluationRequest } from './provider';
+import {
+  EvaluationProvider,
+  EvaluationProviderError,
+  type EvaluationRequest,
+  type EvaluationResponse,
+} from './provider';
 
 export interface AnthropicEvaluationOptions {
   apiKey: string | undefined;
@@ -23,7 +29,9 @@ export class AnthropicEvaluationProvider extends EvaluationProvider {
       : undefined;
   }
 
-  async generate<T extends z.ZodType>(request: EvaluationRequest<T>): Promise<z.infer<T>> {
+  async generate<T extends z.ZodType>(
+    request: EvaluationRequest<T>,
+  ): Promise<EvaluationResponse<T>> {
     if (!this.client) throw new EvaluationProviderError('ANTHROPIC_API_KEY is not set', false);
 
     let response;
@@ -50,8 +58,21 @@ export class AnthropicEvaluationProvider extends EvaluationProvider {
     if (response.parsed_output == null) {
       throw new EvaluationProviderError('No parsed output', true);
     }
-    return response.parsed_output as z.infer<T>;
+    return { output: response.parsed_output as z.infer<T>, usage: usageOf(response.usage) };
   }
+}
+
+/**
+ * input_tokens excludes cache reads and writes. Cache writes (1.25x price, only the system
+ * prompt) are counted as plain input: close enough for cost tracking.
+ */
+function usageOf(usage: Anthropic.Usage): TokenUsage {
+  return {
+    ...EMPTY_USAGE,
+    inputTextTokens: usage.input_tokens + (usage.cache_creation_input_tokens ?? 0),
+    cachedTextTokens: usage.cache_read_input_tokens ?? 0,
+    outputTextTokens: usage.output_tokens,
+  };
 }
 
 function mapAnthropicError(error: unknown): EvaluationProviderError {

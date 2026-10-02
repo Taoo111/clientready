@@ -4,6 +4,7 @@ import {
   type Report,
   type RoleTemplate,
   type TargetLevel,
+  type TokenUsage,
 } from '@clientready/shared';
 import {
   buildEvaluationOutputSchema,
@@ -36,6 +37,8 @@ export interface EvaluationResult {
   provider: string;
   model: string;
   promptVersion: string;
+  /** Tokens billed for the model call; null when no model was called. */
+  usage: TokenUsage | null;
 }
 
 export interface EvaluationLogger {
@@ -75,11 +78,12 @@ export async function evaluateConversation(
       provider: 'rules',
       model: 'none',
       promptVersion: EVALUATION_PROMPT_VERSION,
+      usage: null,
     };
   }
 
   const schema = buildEvaluationOutputSchema(input.template);
-  const output = await provider.generate({
+  const { output, usage } = await provider.generate({
     system: buildEvaluationSystemPrompt(input.template),
     user: buildEvaluationUserMessage({
       targetLevel: input.targetLevel,
@@ -93,6 +97,7 @@ export async function evaluateConversation(
     provider: provider.provider,
     model: provider.model,
     promptVersion: EVALUATION_PROMPT_VERSION,
+    usage,
   };
   const language = {
     nonEnglishDetected: output.languageUse.nonEnglishUsed,

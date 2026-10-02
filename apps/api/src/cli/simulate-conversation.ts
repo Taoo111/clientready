@@ -9,7 +9,13 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { getRoleTemplate, listRoleTemplates, TargetLevelSchema } from '@clientready/shared';
+import {
+  addUsage,
+  EMPTY_USAGE,
+  getRoleTemplate,
+  listRoleTemplates,
+  TargetLevelSchema,
+} from '@clientready/shared';
 import { evaluateConversation, type EvaluationResult } from '../evaluation/evaluate';
 import { createEvaluationProvider } from '../evaluation/providers/provider-factory';
 import { clientPrompts, currentClientPrompt } from '../prompts/client';
@@ -18,6 +24,7 @@ import { checkAiTurn, summarise } from '../simulation/metrics';
 import { PERSONAS, type PersonaId } from '../simulation/personas';
 import { report } from '../simulation/report';
 import { simulateConversation } from '../simulation/simulate';
+import { estimateCostUsd } from '../usage/pricing';
 import { cliArgs, loadEnv, REPO_ROOT, runCli } from './cli';
 
 const OUT_DIR = path.join(REPO_ROOT, 'simulations');
@@ -55,6 +62,7 @@ async function main(): Promise<void> {
 
   for (let run = 1; run <= Number(values.runs); run++) {
     console.log(`\n▶ ${template.id} / ${persona} / ${values.prompt} / ${level.data} — run ${run}`);
+    let realtimeUsage = EMPTY_USAGE;
     const turns = await simulateConversation({
       apiKey: env.OPENAI_API_KEY,
       realtimeModel: env.OPENAI_REALTIME_MODEL,
@@ -68,6 +76,7 @@ async function main(): Promise<void> {
       onWarning: (message) =>
         console.warn(`
   ! ${message}`),
+      onUsage: (usage) => (realtimeUsage = addUsage(realtimeUsage, usage)),
     });
     const checks = turns.filter((t) => t.speaker === 'AI').map((t, i) => checkAiTurn(t.text, i));
     const metrics = summarise(checks);
@@ -90,6 +99,10 @@ async function main(): Promise<void> {
       );
     }
 
+    const cost = formatCost(
+      estimateCostUsd(env.OPENAI_REALTIME_MODEL, realtimeUsage),
+      evaluation?.usage ? estimateCostUsd(evaluation.model, evaluation.usage) : 0,
+    );
     const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const file = path.join(
       OUT_DIR,
@@ -101,6 +114,7 @@ async function main(): Promise<void> {
       persona: `${persona} — ${PERSONAS[persona].description}`,
       prompt: values.prompt,
       model: `${env.OPENAI_REALTIME_MODEL} (text mode, reasoning ${env.OPENAI_REALTIME_REASONING_EFFORT})`,
+      'estimated cost': cost,
       'simulated length': formatClock(
         (turns.at(-1)?.startedAtMs ?? 0) + (turns.at(-1)?.durationMs ?? 0),
       ),
@@ -120,8 +134,16 @@ async function main(): Promise<void> {
           `(speaking ${evaluation.report.cefr?.speaking.level ?? '-'}, listening ${evaluation.report.cefr?.listening.level ?? '-'})`,
       );
     }
+    console.log(`  cost: ${cost}`);
     console.log(`  → ${path.relative(process.cwd(), file)}`);
   }
+}
+
+/** Text-mode realtime cost (a voice call costs several times more) + evaluation. */
+function formatCost(realtimeUsd: number | null, evaluationUsd: number | null): string {
+  const usd = (value: number | null) =>
+    value === null ? 'n/a (no price)' : `$${value.toFixed(3)}`;
+  return `realtime ${usd(realtimeUsd)} (text mode) + evaluation ${usd(evaluationUsd)}`;
 }
 
 runCli(main);

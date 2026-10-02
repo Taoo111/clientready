@@ -5,3 +5,4 @@ export * from './api/report.js';
 export * from './enums.js';
 export * from './privacy.js';
 export * from './roles/index.js';
+export * from './usage.js';

@@ -6,6 +6,7 @@ import {
   type FinalTurn,
   type ServerEvent,
 } from './turn-tracker';
+import { UsageMeter, type ConnectionUsage } from './usage-meter';
 
 export type { ConversationActivity, FinalTurn } from './turn-tracker';
 
@@ -25,6 +26,8 @@ export interface RealtimeConnectionOptions {
   onDrop: (reason: string) => void;
   /** Turn-taking signals for the UI ("thinking" between the candidate's turn and the reply). */
   onActivity?: (activity: ConversationActivity) => void;
+  /** Running token totals of this connection changed (cost tracking). */
+  onUsage?: (usage: ConnectionUsage) => void;
 }
 
 /**
@@ -39,6 +42,7 @@ export class RealtimeConnection {
   private disconnectTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly cueTimers: ReturnType<typeof setTimeout>[] = [];
   private readonly turns: TurnTracker;
+  private readonly usage = new UsageMeter();
   private rateLimitRetries = 0;
 
   constructor(private readonly options: RealtimeConnectionOptions) {
@@ -150,6 +154,7 @@ export class RealtimeConnection {
     } catch {
       return;
     }
+    if (this.usage.handle(event)) this.options.onUsage?.(this.usage.totals());
     if (this.turns.handle(event, Date.now())) return;
 
     switch (event.type) {

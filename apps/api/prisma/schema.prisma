@@ -62,6 +62,7 @@ model Assessment {
   recordings Recording[]
   reports    Report[]
   decisions  RecruiterDecision[]
+  usage      UsageRecord[]
 
   @@index([status])
   @@index([createdAt])
@@ -111,6 +112,36 @@ model Report {
 
   /// Re-runs (calibration) add reports; the newest one is current.
   @@index([assessmentId, createdAt])
+}
+
+enum UsageSource {
+  REALTIME
+  TRANSCRIPTION
+  EVALUATION
+}
+
+/// Tokens billed for one source of an assessment, for cost tracking (no personal data, kept
+/// after a GDPR data deletion). Realtime/transcription: one row per connection, overwritten
+/// with running totals from the browser; evaluation: one row per report.
+model UsageRecord {
+  id                String      @id @default(cuid())
+  assessmentId      String
+  assessment        Assessment  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  source            UsageSource
+  model             String
+  /// Connection id (realtime, transcription) or report id (evaluation).
+  ref               String
+  inputTextTokens   Int
+  inputAudioTokens  Int
+  cachedTextTokens  Int
+  cachedAudioTokens Int
+  outputTextTokens  Int
+  outputAudioTokens Int
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@unique([assessmentId, source, ref])
+  @@index([createdAt])
 }
 
 /// The recruiter's own verdict on a report (human oversight, EU AI Act). Every change adds a

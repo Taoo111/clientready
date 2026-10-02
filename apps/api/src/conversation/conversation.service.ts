@@ -14,6 +14,7 @@ import {
   type RealtimeSessionResult,
   type RoleTemplate,
   type TranscriptTurnInput,
+  type UsageReportInput,
 } from '@clientready/shared';
 import { elapsedMs, MIN_RESUME_REMAINING_MS, remainingMs } from '../assessments/assessment-rules';
 import type { Env } from '../config/env';
@@ -132,6 +133,35 @@ export class ConversationService {
       ),
     );
     return { saved: turns.length };
+  }
+
+  /** Running totals per connection: upserted, so resending replaces the previous totals. */
+  async saveUsage(token: string, input: UsageReportInput): Promise<void> {
+    const assessment = await this.access.findByToken(token);
+    this.access.assertAcceptsSessionData(assessment);
+    const rows = [
+      { source: 'REALTIME', model: assessment.realtimeModel ?? 'unknown', usage: input.realtime },
+      {
+        source: 'TRANSCRIPTION',
+        model: this.config.get('OPENAI_TRANSCRIBE_MODEL', { infer: true }),
+        usage: input.transcription,
+      },
+    ] as const;
+    await this.prisma.$transaction(
+      rows.map(({ source, model, usage }) =>
+        this.prisma.usageRecord.upsert({
+          where: {
+            assessmentId_source_ref: {
+              assessmentId: assessment.id,
+              source,
+              ref: input.connectionId,
+            },
+          },
+          create: { assessmentId: assessment.id, source, model, ref: input.connectionId, ...usage },
+          update: usage,
+        }),
+      ),
+    );
   }
 
   async end(token: string): Promise<PublicAssessmentView> {

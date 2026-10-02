@@ -1,3 +1,4 @@
+import { EMPTY_USAGE } from '@clientready/shared';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
@@ -6,6 +7,7 @@ import {
   EvaluationProvider,
   EvaluationProviderError,
   type EvaluationRequest,
+  type EvaluationResponse,
 } from '../src/evaluation/providers/provider';
 import type { z } from 'zod';
 import { PrismaService } from '../src/infra/prisma/prisma.service';
@@ -51,11 +53,21 @@ export class FakeEvaluation extends EvaluationProvider {
   failures: EvaluationProviderError[] = [];
   output: unknown = undefined;
 
-  async generate<T extends z.ZodType>(request: EvaluationRequest<T>): Promise<z.infer<T>> {
+  async generate<T extends z.ZodType>(
+    request: EvaluationRequest<T>,
+  ): Promise<EvaluationResponse<T>> {
     this.calls++;
     const failure = this.failures.shift();
     if (failure) throw failure;
-    return request.schema.parse(this.output) as z.infer<T>;
+    return {
+      output: request.schema.parse(this.output) as z.infer<T>,
+      usage: {
+        ...EMPTY_USAGE,
+        inputTextTokens: 6000,
+        cachedTextTokens: 1000,
+        outputTextTokens: 3000,
+      },
+    };
   }
 
   reset(): void {

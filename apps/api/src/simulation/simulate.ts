@@ -3,6 +3,8 @@ import {
   type RoleTemplate,
   type Speaker,
   type TargetLevel,
+  type TokenUsage,
+  usageFromRealtimeResponse,
 } from '@clientready/shared';
 import OpenAI from 'openai';
 import { OpenAIRealtimeWS } from 'openai/realtime/ws';
@@ -29,6 +31,8 @@ export interface SimulationOptions {
   maxAiTurns?: number;
   onTurn?: (turn: SimulatedTurn) => void;
   onWarning?: (message: string) => void;
+  /** Tokens of each finished realtime response (cost estimate). */
+  onUsage?: (usage: TokenUsage) => void;
 }
 
 // Speaking-time estimates for the simulated clock.
@@ -67,7 +71,12 @@ export async function simulateConversation(options: SimulationOptions): Promise<
 
   let lastStatus = '';
   rt.on('response.done', (event) => {
-    const response = event.response as { status?: string; status_details?: unknown };
+    const response = event.response as {
+      status?: string;
+      status_details?: unknown;
+      usage?: unknown;
+    };
+    if (response.usage) options.onUsage?.(usageFromRealtimeResponse(response.usage));
     lastStatus = `${response.status ?? '?'} ${JSON.stringify(response.status_details ?? '')}`;
     pending.shift()?.(event);
   });

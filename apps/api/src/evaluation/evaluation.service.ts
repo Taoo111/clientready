@@ -68,8 +68,8 @@ export class EvaluationService {
       { warn: (message) => this.logger.warn(`Assessment ${assessmentId}: ${message}`) },
     );
 
-    const [report] = await this.prisma.$transaction([
-      this.prisma.report.create({
+    const report = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.report.create({
         data: {
           assessmentId,
           json: result.report as unknown as Prisma.InputJsonValue,
@@ -77,12 +77,24 @@ export class EvaluationService {
           model: result.model,
           promptVersion: result.promptVersion,
         },
-      }),
-      this.prisma.assessment.update({
+      });
+      await tx.assessment.update({
         where: { id: assessmentId },
         data: { status: 'EVALUATED', evaluationError: null },
-      }),
-    ]);
+      });
+      if (result.usage) {
+        await tx.usageRecord.create({
+          data: {
+            assessmentId,
+            source: 'EVALUATION',
+            model: result.model,
+            ref: created.id,
+            ...result.usage,
+          },
+        });
+      }
+      return created;
+    });
     this.logger.log(
       `Assessment ${assessmentId}: evaluated (${result.report.status}, ${result.report.recommendation ?? '-'}) ` +
         `with ${result.provider}/${result.model}, ${result.promptVersion}, ${Date.now() - started} ms`,
