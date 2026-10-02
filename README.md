@@ -140,7 +140,7 @@ How it works:
 
 ## Roles and prompt tuning (milestone 5)
 
-- Role templates: **Backend Developer** (fintech client, Amsterdam) and **Business Analyst** (insurance claims client, Rotterdam) in `packages/shared/roles/`. Adding a role = adding a template file and listing it in `roles/index.ts`; template tests check that every suggestion is a single question and that no evaluator framing ("see whether…", "clarifying questions") reaches the AI client.
+- Role templates: **Backend Developer** (fintech client, Amsterdam), **Frontend Developer** (outdoor retail e-commerce, Manchester), **QA Engineer** (healthtech, Lyon), **Business Analyst** (insurance claims client, Rotterdam) and **Product Owner** (logistics customer portal, Gothenburg) in `packages/shared/roles/`. Adding a role = adding a template file and listing it in `roles/index.ts`; template tests check that every suggestion is a single question and that no evaluator framing ("see whether…", "clarifying questions") reaches the AI client.
 - `pnpm simulate --role business-analyst --persona medium [--prompt client-v3] [--runs 3] [--evaluate]` runs a text-mode conversation between the AI client and a scripted candidate and checks every client turn against the guardrails. Workflow and personas: `apps/api/src/prompts/README.md`.
 - Findings from the first real run and simulations are recorded in the prompt files (`client/v3.ts`, `evaluation/v2.ts`) and in CLAUDE.md (realtime model choice).
 

@@ -61,6 +61,32 @@ describe('role template registry', () => {
     },
   );
 
+  it('registers the QA, frontend and product owner templates', () => {
+    for (const id of ['qa-engineer', 'frontend-developer', 'product-owner']) {
+      expect(getRoleTemplate(id), id).toBeDefined();
+    }
+  });
+
+  it.each(roleTemplates.map((t) => [t.id, t] as const))(
+    '%s uses the default criteria and the standard phases',
+    (_id, t) => {
+      expect(t.rubric.map((c) => c.key)).toEqual([...DEFAULT_CRITERIA_KEYS]);
+      expect(t.phases.map((p) => p.id)).toEqual([
+        'warm-up',
+        'project-deep-dive',
+        'client-situation',
+        'closing',
+      ]);
+    },
+  );
+
+  it('gives every template its own client persona', () => {
+    const companies = roleTemplates.map((t) => t.persona.card.company);
+    const names = roleTemplates.map((t) => t.persona.card.name);
+    expect(new Set(companies).size).toBe(roleTemplates.length);
+    expect(new Set(names).size).toBe(roleTemplates.length);
+  });
+
   it('rejects duplicate template ids', () => {
     expect(() => loadTemplates([backend, backend])).toThrow(/Duplicate role template id/);
   });
