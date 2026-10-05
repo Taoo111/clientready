@@ -98,7 +98,7 @@ describe('evaluateConversation', () => {
     expect(result).toMatchObject({
       provider: 'openai',
       model: 'fake-model',
-      promptVersion: 'evaluation-v2',
+      promptVersion: 'evaluation-v3',
     });
     const { report } = result;
     expect(report.status).toBe('OK');
@@ -207,6 +207,9 @@ describe('evaluateConversation', () => {
     // evaluation-v2: fairness rules learned from a real run.
     expect(request?.system).toContain('treat consecutive candidate turns as one answer');
     expect(request?.system).toContain('answering the main question is normal');
+    // evaluation-v3: ASR artefacts and ideas the client already suggested.
+    expect(request?.system).toContain('recognition artefacts');
+    expect(request?.system).toContain('is not evidence of their own reasoning');
     for (const criterion of template.rubric) expect(request?.system).toContain(criterion.score5);
   });
 });

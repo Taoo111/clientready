@@ -1,7 +1,8 @@
 import type { CriterionResult } from '@clientready/shared';
 
 export interface KeyEvidence {
-  kind: 'weakest' | 'strongest';
+  /** `example` when every criterion scored the same: neither weakest nor strongest. */
+  kind: 'weakest' | 'strongest' | 'example';
   criterionKey: string;
   criterionName: string;
   score: number;
@@ -29,9 +30,9 @@ export function keyEvidence(criteria: readonly CriterionResult[]): KeyEvidence[]
     quote: c.evidence[0]!.quote,
     seq: c.evidence[0]!.seq,
   });
-  // One criterion, or all scored the same: a single quote says it all.
+  // One criterion, or all scored the same: a single quote, not called "strongest".
   if (weakest === strongest || weakest.score === strongest.score) {
-    return [pick('strongest', strongest)];
+    return [pick('example', strongest)];
   }
   return [pick('weakest', weakest), pick('strongest', strongest)];
 }
