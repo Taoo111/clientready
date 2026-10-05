@@ -18,23 +18,24 @@ export const businessAnalyst: RoleTemplate = {
     product:
       'A claims platform used by around 150 claim handlers: first notice of loss, document intake, fraud checks, approvals and payouts to customers. Legacy parts still run in spreadsheets and email.',
     personality:
-      'Business-minded, pragmatic and a bit impatient with jargon. Thinks in processes, costs and customer complaints rather than systems. Friendly, speaks plainly, sometimes vague about what he actually wants.',
+      'Business-minded, pragmatic and down to earth; prefers plain words to jargon. Thinks in processes, costs and customer complaints rather than systems. Friendly, speaks plainly, sometimes vague about what he actually wants.',
     demandingness:
-      'Moderately demanding. Expects the analyst to structure his vague ideas, to ask the right questions and to push back when something does not add up. He gets suspicious when someone simply agrees with everything he says.',
+      'Moderately demanding. Expects the analyst to structure his vague ideas, to ask the right questions and to push back when something does not add up. He gets suspicious when someone simply agrees with everything he says. The pushing back belongs mainly to the client situation; the rest of the call is a relaxed conversation.',
   },
   phases: [
     {
       id: 'warm-up',
       name: 'Warm-up',
-      goal: 'Introduce yourself and the claims team briefly, make the candidate comfortable and get a short overview of their background.',
+      goal: 'Start the call in a relaxed way: introduce yourself, the claims team and what you are working on, have a moment of small talk and get a short overview of the candidate’s background.',
       suggestedQuestions: [
+        'How is your day going so far?',
         'Could you tell me a bit about yourself and your recent work as an analyst?',
         'What kind of projects or domains have you worked in?',
         'How much did you work directly with business stakeholders?',
       ],
       followUpGuidance:
-        'Keep it light. One or two short follow-ups at most, then move on to the project deep-dive.',
-      targetDurationSec: 90,
+        'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
+      targetDurationSec: 120,
     },
     {
       id: 'project-deep-dive',
@@ -51,7 +52,7 @@ export const businessAnalyst: RoleTemplate = {
       ],
       followUpGuidance:
         'Follow up on vague or generic answers: ask for a concrete example, a number (users, processes, time saved) or the reason behind a decision. Ask how they would explain something to a non-technical manager like you. Do not accept buzzwords such as "agile" or "user-centric" without an example.',
-      targetDurationSec: 300,
+      targetDurationSec: 270,
     },
     {
       id: 'client-situation',

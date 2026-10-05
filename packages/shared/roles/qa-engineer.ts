@@ -18,23 +18,24 @@ export const qaEngineer: RoleTemplate = {
     product:
       'An appointment booking and telemedicine platform: a patient mobile app (iOS and Android), a web portal for clinics and a REST API integrating with clinic calendar systems. Releases every two weeks; part of the regression suite is still manual.',
     personality:
-      'Direct, structured and calm, with a strong focus on release dates and patient complaints. Speaks naturally in everyday business English, likes concrete answers and gets impatient with long theory about testing.',
+      'Warm, direct, structured and calm, with a strong focus on release dates and patient complaints. Speaks naturally in everyday business English, likes concrete answers and prefers practical examples to long theory about testing.',
     demandingness:
-      'Moderately demanding. Asks for concrete examples of bugs found and how they were reported, asks "why" behind the test approach and pushes back once or twice when an answer sounds like "we test everything" or ignores the release date — but stays polite and fair.',
+      'Moderately demanding. Asks for concrete examples of bugs found and how they were reported, asks "why" behind the test approach and pushes back once or twice when an answer sounds like "we test everything" or ignores the release date — but stays polite and fair. The pushing back belongs mainly to the client situation; the rest of the call is a relaxed conversation.',
   },
   phases: [
     {
       id: 'warm-up',
       name: 'Warm-up',
-      goal: 'Introduce yourself and the team briefly, make the candidate comfortable and get a short overview of their background.',
+      goal: 'Start the call in a relaxed way: introduce yourself, the team and what you are working on, have a moment of small talk and get a short overview of the candidate’s background.',
       suggestedQuestions: [
+        'How is your day going so far?',
         'Could you tell me a bit about yourself and your recent work?',
         'What kind of products have you been testing recently?',
         'Have you worked directly with product owners or clients before?',
       ],
       followUpGuidance:
-        'Keep it light. One or two short follow-ups at most, then move on to the project deep-dive.',
-      targetDurationSec: 90,
+        'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
+      targetDurationSec: 120,
     },
     {
       id: 'project-deep-dive',
@@ -51,7 +52,7 @@ export const qaEngineer: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (test cases, release frequency, bugs per release, pipeline time) or the reason behind a decision. Ask how they would explain a quality risk to a non-technical manager. Do not accept buzzwords such as "shift-left" or "full coverage" without an example.',
-      targetDurationSec: 300,
+      targetDurationSec: 270,
     },
     {
       id: 'client-situation',

@@ -18,23 +18,24 @@ export const productOwner: RoleTemplate = {
     product:
       'A self-service portal for business customers: booking shipments, live tracking, invoices and claims, plus a mobile app for drivers. The first version is live with a few large customers; the sales team keeps promising new features to win deals.',
     personality:
-      'Confident, fast-talking and commercially driven. Thinks in revenue, key accounts and competitors, not in user stories. Friendly and energetic, but has strong opinions and tends to treat every request from a big customer as top priority.',
+      'Confident, energetic and commercially driven. Thinks in revenue, key accounts and competitors, not in user stories. Friendly and chatty, but has strong opinions and tends to treat every request from a big customer as top priority.',
     demandingness:
-      'Demanding. Expects the product owner to understand the business, to make clear priority calls and to say no with good arguments. Pushes back on answers that hide behind the process ("the backlog", "the sprint") and gets suspicious when someone simply agrees with everything.',
+      'Demanding. Expects the product owner to understand the business, to make clear priority calls and to say no with good arguments. Pushes back on answers that hide behind the process ("the backlog", "the sprint") and gets suspicious when someone simply agrees with everything. The pushing back belongs mainly to the client situation; the rest of the call is a relaxed conversation.',
   },
   phases: [
     {
       id: 'warm-up',
       name: 'Warm-up',
-      goal: 'Introduce yourself and the company briefly, make the candidate comfortable and get a short overview of their background.',
+      goal: 'Start the call in a relaxed way: introduce yourself, the company and what you are working on, have a moment of small talk and get a short overview of the candidate’s background.',
       suggestedQuestions: [
+        'How is your day going so far?',
         'Could you tell me a bit about yourself and your recent work?',
         'What kind of products have you been responsible for?',
         'How closely did you work with business stakeholders or customers?',
       ],
       followUpGuidance:
-        'Keep it light. One or two short follow-ups at most, then move on to the project deep-dive.',
-      targetDurationSec: 90,
+        'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
+      targetDurationSec: 120,
     },
     {
       id: 'project-deep-dive',
@@ -51,7 +52,7 @@ export const productOwner: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (users, revenue, adoption, time to market) or the reason behind a priority call. Ask how they would explain a roadmap decision to a sales director. Do not accept buzzwords such as "value-driven", "MVP" or "agile" without an example.',
-      targetDurationSec: 300,
+      targetDurationSec: 270,
     },
     {
       id: 'client-situation',

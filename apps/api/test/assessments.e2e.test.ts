@@ -101,8 +101,8 @@ describe('GET /public/assessments/:token', () => {
         location: 'Amsterdam',
       },
       phases: [
-        { id: 'warm-up', name: 'Warm-up', durationSec: 90 },
-        { id: 'project-deep-dive', name: 'Project deep-dive', durationSec: 300 },
+        { id: 'warm-up', name: 'Warm-up', durationSec: 120 },
+        { id: 'project-deep-dive', name: 'Project deep-dive', durationSec: 270 },
         { id: 'client-situation', name: 'Client situation', durationSec: 240 },
         { id: 'closing', name: 'Closing', durationSec: 30 },
       ],
@@ -168,7 +168,7 @@ describe('conversation lifecycle', () => {
     expect(row).toMatchObject({
       status: 'IN_PROGRESS',
       realtimeModel: 'fake-realtime',
-      promptVersion: 'client-v3',
+      promptVersion: 'client-v4',
       connectCount: 1,
     });
     expect(row.startedAt).not.toBeNull();

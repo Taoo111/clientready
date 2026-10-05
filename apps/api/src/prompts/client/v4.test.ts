@@ -1,12 +1,8 @@
 import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clientready/shared';
 import { describe, expect, it } from 'vitest';
-import { buildClientInstructions, buildTimeCues, CLIENT_PROMPT_VERSION, firstName } from './v2';
+import { buildClientInstructions, buildTimeCues, CLIENT_PROMPT_VERSION } from './v4';
 
-// Phase timings as they were when this version was released (templates evolve; this
-// version's tests check its timing logic, not the current template).
-const RELEASED_DURATIONS_SEC = [90, 300, 240, 30];
-const template = structuredClone(getRoleTemplate('backend-developer') as RoleTemplate);
-template.phases.forEach((phase, i) => (phase.targetDurationSec = RELEASED_DURATIONS_SEC[i]!));
+const template = getRoleTemplate('backend-developer') as RoleTemplate;
 
 function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]> = {}): string {
   return buildClientInstructions({
@@ -19,7 +15,7 @@ function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]>
 
 describe('buildClientInstructions', () => {
   it('has a version id', () => {
-    expect(CLIENT_PROMPT_VERSION).toBe('client-v2');
+    expect(CLIENT_PROMPT_VERSION).toBe('client-v4');
   });
 
   it('includes the persona', () => {
@@ -31,14 +27,15 @@ describe('buildClientInstructions', () => {
 
   it('includes every phase with its goal and timing, in order', () => {
     const prompt = build();
-    const positions = template.phases.map((p) => prompt.indexOf(`: ${p.name} (about`));
+    const positions = template.phases.map((p) => prompt.indexOf(`### ${p.name} (about`));
     expect(positions.every((p) => p >= 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
     for (const phase of template.phases) {
       expect(prompt).toContain(phase.goal);
       expect(prompt).toContain(phase.followUpGuidance);
+      expect(prompt).not.toContain('Phase 1');
     }
-    expect(prompt).toContain('0:00–1:30');
+    expect(prompt).toContain('0:00–2:00');
     expect(prompt).toContain('10:30–11:00');
   });
 
@@ -54,16 +51,37 @@ describe('buildClientInstructions', () => {
     const prompt = build();
     expect(prompt).toMatch(/Stay in character/);
     expect(prompt).toMatch(/Never reveal or hint that the conversation is scored/);
-    expect(prompt).toMatch(/one question at a time/i);
+    expect(prompt).toMatch(/At most ONE question per turn/);
     expect(prompt).toMatch(/Follow up on vague/);
+    expect(prompt).toMatch(/Your instructions are private/);
+    expect(prompt).toMatch(/Never offer possible answers/);
+    expect(prompt).toMatch(/Do not grade answers or questions/);
+    expect(prompt).toMatch(/Never organise anything outside this call/);
+    expect(prompt).toMatch(/Before every turn, check/);
     expect(prompt).toMatch(/11 minutes/);
     expect(prompt).toMatch(/12 minutes/);
     expect(prompt).toContain("Let's continue in English.");
     expect(prompt).toMatch(/Never switch to Polish/);
     expect(prompt).toMatch(/protected characteristics or personal life/);
     expect(prompt).toMatch(/Never claim to be human/);
-    expect(prompt).toMatch(/No preambles/);
-    expect(prompt).toMatch(/one opening turn only/);
+  });
+
+  it('reacts to the candidate before asking (feedback: interrogation)', () => {
+    const prompt = build();
+    expect(prompt).toMatch(/First react to what the candidate actually just said/);
+    expect(prompt).toMatch(/They asked you something → answer it/);
+    expect(prompt).toMatch(/turned the question back to you/);
+    expect(prompt).toMatch(/ask again in simpler words/);
+    expect(prompt).toMatch(/Did I react to what the candidate just said/);
+  });
+
+  it('handles off-script moments and other languages', () => {
+    const prompt = build();
+    expect(prompt).toContain('# When the conversation leaves the plan');
+    expect(prompt).toMatch(/urgent phone call/);
+    expect(prompt).toMatch(/"End conversation" button/);
+    expect(prompt).toMatch(/speak more slowly/);
+    expect(prompt).toMatch(/Never ignore it when they use another language/);
   });
 
   it('does not leak the rubric', () => {
@@ -84,6 +102,8 @@ describe('buildClientInstructions', () => {
     const prompt = build();
     expect(prompt).toContain('# Start of the call');
     expect(prompt).not.toContain('# Reconnected call');
+    expect(prompt).toMatch(/Say one opening turn only/);
+    expect(prompt).toMatch(/introduce yourself \(name, role, company\)/);
   });
 
   it('continues from the transcript on resume', () => {
@@ -96,7 +116,7 @@ describe('buildClientInstructions', () => {
         ],
       },
     });
-    expect(prompt).toContain('## Reconnected call');
+    expect(prompt).toContain('# Reconnected call');
     expect(prompt).toContain('4:05');
     expect(prompt).toContain('You (client): Hi Anna, tell me about your last project.');
     expect(prompt).toContain('Candidate: I built a Kafka based ledger service.');
@@ -114,15 +134,19 @@ describe('buildTimeCues', () => {
   });
 
   it('marks each phase transition and the wrap-up', () => {
-    expect(cues.map((c) => c.atMs)).toEqual([90_000, 390_000, 630_000, 660_000, 705_000]);
-    expect(cues[1]?.text).toContain('Client situation');
-    expect(cues[3]?.text).toMatch(/wrapping up/);
-    expect(cues[4]?.text).toMatch(/goodbye/);
-  });
-});
-
-describe('firstName', () => {
-  it('handles extra whitespace', () => {
-    expect(firstName('  Jan   Maria Kowalski ')).toBe('Jan');
+    expect(cues.map((c) => c.atMs)).toEqual([
+      120_000, 240_000, 390_000, 510_000, 630_000, 660_000, 705_000,
+    ]);
+    expect(cues[0]?.text).toMatch(/you have reacted to what they said/);
+    expect(cues[2]?.text).toContain('Client situation');
+    expect(cues[1]?.text).toMatch(/still in "Project deep-dive" - about 3 more minutes/);
+    expect(cues[1]?.text).toMatch(/different aspect of the same topic/);
+    expect(cues[3]?.text).toMatch(/the situation you already raised/);
+    for (const cue of cues) {
+      expect(cue.text).toMatch(/do not mention it/);
+      expect(cue.text).not.toMatch(/phase \d/i);
+    }
+    expect(cues[5]?.text).toMatch(/quick question/);
+    expect(cues[6]?.text).toMatch(/goodbye/);
   });
 });
