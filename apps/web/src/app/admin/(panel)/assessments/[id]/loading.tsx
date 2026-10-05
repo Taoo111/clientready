@@ -9,12 +9,12 @@ export default function Loading() {
         <Skeleton className="h-9 w-72 max-w-full" />
         <Skeleton className="h-4 w-96 max-w-full" />
       </div>
-      <Skeleton className="h-44 w-full rounded-2xl" />
+      <Skeleton className="h-44 w-full rounded-xl" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Skeleton className="h-36 rounded-2xl" />
-        <Skeleton className="h-36 rounded-2xl" />
+        <Skeleton className="h-36 rounded-xl" />
+        <Skeleton className="h-36 rounded-xl" />
       </div>
-      <Skeleton className="h-72 w-full rounded-2xl" />
+      <Skeleton className="h-72 w-full rounded-xl" />
     </div>
   );
 }

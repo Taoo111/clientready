@@ -23,7 +23,7 @@ export function WakeScreen() {
   return (
     <main lang="pl" className="flex min-h-dvh flex-col items-center justify-center gap-8 px-4">
       <Logo />
-      <div className="w-full max-w-md space-y-4 rounded-2xl border bg-card p-6 text-center shadow-card sm:p-8">
+      <div className="w-full max-w-md space-y-4 rounded-xl border bg-card p-6 text-center shadow-card sm:p-8">
         <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand">
           {down ? (
             <ServerOff className="size-6" aria-hidden />

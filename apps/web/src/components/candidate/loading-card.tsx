@@ -8,7 +8,7 @@ export function LoadingCard({ waking }: { waking: boolean }) {
   return (
     <CandidateCard className="space-y-4" aria-busy="true">
       {waking && (
-        <div className="flex items-start gap-3 rounded-2xl bg-brand-soft/70 p-4 text-sm">
+        <div className="flex items-start gap-3 rounded-lg bg-muted p-4 text-sm">
           <Spinner className="mt-0.5 text-brand" />
           <div className="space-y-0.5">
             <p className="font-medium">{en.preparing.title}</p>

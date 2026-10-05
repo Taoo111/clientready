@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 
-/** "End conversation" with a confirmation dialog. */
+/** "End conversation" with a confirmation dialog. Neutral on purpose: no red in the call. */
 export function EndCallButton({
   onConfirm,
   disabled,
@@ -27,12 +27,7 @@ export function EndCallButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="lg"
-          disabled={disabled}
-          className="text-danger hover:bg-danger-soft hover:text-danger"
-        >
+        <Button variant="outline" size="lg" disabled={disabled}>
           <PhoneOff aria-hidden />
           {t.end}
         </Button>
@@ -44,9 +39,7 @@ export function EndCallButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t.endCancel}</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t.endAction}
-          </AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>{t.endAction}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

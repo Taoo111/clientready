@@ -9,6 +9,7 @@ export const en = {
   poweredBy: 'Powered by',
 
   steps: ['Consent', 'Microphone', 'Conversation'] as const,
+  stepOf: (step: number, total: number) => `Step ${step} of ${total}`,
 
   preparing: {
     title: 'Preparing your conversation…',
@@ -39,8 +40,8 @@ export const en = {
   },
 
   consent: {
-    talkingTo: 'You will talk to',
-    aiCharacter: 'An AI character playing a client - not a real person.',
+    callWith: (name: string) => `Call with ${name}`,
+    callFacts: ['About 12 minutes', 'Recorded', 'AI playing a client'],
     title: (name: string) => `Hi ${name}, welcome`,
     intro: (role: string, company?: string) =>
       `This is a relaxed, 12-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} - like a first call with a new client.`,
@@ -62,12 +63,7 @@ export const en = {
         body: 'It’s kept for a limited time and then deleted. You can ask your recruiter to delete it at any time.',
       },
     ],
-    tipsTitle: 'A few tips',
-    tips: [
-      'Find a quiet place - headphones help a lot.',
-      'Speak as you would with a real client. There are no trick questions.',
-      'It’s fine to ask the client to repeat or clarify.',
-    ],
+    tip: 'Tip: find a quiet place and use headphones. Speak as you would with a real client - it’s fine to ask them to repeat or slow down.',
     checkbox:
       'I understand that I will talk to an AI and that the conversation is recorded and transcribed. I agree to take part.',
     continue: 'Continue',

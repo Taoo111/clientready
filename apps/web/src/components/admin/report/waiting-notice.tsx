@@ -13,7 +13,7 @@ export function isWaitingStatus(status: string): status is WaitingStatus {
 export function WaitingNotice({ status }: { status: WaitingStatus }) {
   const Icon = icons[status];
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-dashed bg-card/60 p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-dashed bg-card/60 p-5">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
         <Icon className={cn('size-5', status === 'COMPLETED' && 'animate-pulse')} aria-hidden />
       </span>

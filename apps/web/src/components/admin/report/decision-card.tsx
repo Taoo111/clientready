@@ -54,7 +54,11 @@ export function DecisionCard({
     });
 
   return (
-    <ReportSection title={t.title} className={cn('print-avoid-break', !current && 'print-hidden')}>
+    <ReportSection
+      card
+      title={t.title}
+      className={cn('print-avoid-break', !current && 'print-hidden')}
+    >
       {current && !editing ? (
         <CurrentDecision decision={current} onChange={() => setEditing(true)} />
       ) : (

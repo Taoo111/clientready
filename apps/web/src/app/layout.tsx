@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { IBM_Plex_Mono, Schibsted_Grotesk } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { brand } from '@/lib/brand';
 import './globals.css';
 
-const geistSans = Geist({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-sans' });
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
+const sans = Schibsted_Grotesk({ subsets: ['latin', 'latin-ext'], variable: '--font-schibsted' });
+const mono = IBM_Plex_Mono({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500'],
+  variable: '--font-plex-mono',
+});
 
 export const metadata: Metadata = {
   title: 'ClientReady',
@@ -16,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       {/* Customer accent colour (validated in lib/brand); the other brand shades derive from it. */}
       {brand.color && <style>{`:root{--brand:${brand.color}}`}</style>}
       <body>

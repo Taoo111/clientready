@@ -8,7 +8,7 @@ export default function Loading() {
         <Skeleton className="h-4 w-80 max-w-full" />
       </div>
       <Skeleton className="h-10 w-full" />
-      <div className="space-y-2 rounded-2xl border bg-card p-4 shadow-card">
+      <div className="space-y-2 rounded-xl border bg-card p-4 shadow-card">
         {Array.from({ length: 6 }, (_, i) => (
           <Skeleton key={i} className="h-10 w-full" />
         ))}
