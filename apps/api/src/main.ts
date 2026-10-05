@@ -14,7 +14,9 @@ async function bootstrap(): Promise<void> {
   // Behind the hosting proxy (Render): real client IPs for rate limiting, no framework banner.
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
-  app.enableCors({ origin: config.get('WEB_ORIGIN', { infer: true }), credentials: true });
+  // Only the candidate's browser calls the API cross-origin, and it sends no cookies; the
+  // panel calls it server-side. So no credentials over CORS.
+  app.enableCors({ origin: config.get('WEB_ORIGIN', { infer: true }) });
   app.enableShutdownHooks();
 
   const port = config.get('PORT', { infer: true }) ?? config.get('API_PORT', { infer: true });

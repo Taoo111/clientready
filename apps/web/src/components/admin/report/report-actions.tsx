@@ -1,6 +1,7 @@
 'use client';
 
 import { Printer, RefreshCw, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { deleteCandidateDataAction, rerunEvaluationAction } from '@/app/admin/actions';
@@ -31,6 +32,7 @@ export function ReportActions({
   canDelete: boolean;
 }) {
   const t = pl.report.actions;
+  const router = useRouter();
   const [rerunning, startRerun] = useTransition();
   const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -83,8 +85,13 @@ export function ReportActions({
                   startDelete(async () => {
                     const result = await deleteCandidateDataAction(assessmentId);
                     setConfirmOpen(false);
-                    if (result.ok) toast.success(t.deleted);
-                    else toast.error(t.deleteFailed);
+                    if (!result.ok) {
+                      toast.error(t.deleteFailed);
+                      return;
+                    }
+                    toast.success(t.deleted);
+                    // The assessment no longer appears in the list; go back to it.
+                    router.push('/admin');
                   });
                 }}
               >

@@ -25,8 +25,12 @@ src/
     realtime/                ConversationController (state for the live screen) -> RealtimeConnection
                              (WebRTC) + TurnTracker (events -> transcript turns) + TranscriptUploader
                              + UsageMeter / UsageUploader (token usage per connection, cost tracking)
-    audio/                   LevelMeter, ConversationRecorder, SegmentRecorder (per-connection uploads)
+                             + PresenceSmoother (who is talking, for the label) + speaking-pace (tool)
+    audio/                   CallAudio (AudioContext, levels, client voice playback), LevelMeter,
+                             ConversationRecorder, SegmentRecorder (per-connection uploads)
+    report/                  pure report helpers: key evidence next to the verdict, quote highlights
     monitoring.ts            Sentry options + reportProblem() for failures the UI handles itself
+    api-url.ts               API base URLs (browser and server) - the only place that reads them
     api-wake.ts, brand.ts, format.ts
   i18n/en.ts, i18n/pl.ts     every user-facing string (candidate English, panel Polish)
 ```

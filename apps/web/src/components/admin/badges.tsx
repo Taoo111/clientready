@@ -85,7 +85,7 @@ export function DecisionBadge({
   item,
   className,
 }: {
-  item: Pick<AdminAssessmentListItem, 'decision' | 'recommendation' | 'dataDeleted'>;
+  item: Pick<AdminAssessmentListItem, 'decision' | 'recommendation'>;
   className?: string;
 }) {
   if (item.decision) {
@@ -101,7 +101,7 @@ export function DecisionBadge({
       </span>
     );
   }
-  if (item.recommendation && !item.dataDeleted) {
+  if (item.recommendation) {
     return (
       <span
         className={cn(

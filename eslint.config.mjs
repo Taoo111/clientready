@@ -2,6 +2,7 @@
 import js from '@eslint/js';
 import nextPlugin from '@next/eslint-plugin-next';
 import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -45,7 +46,7 @@ export default tseslint.config(
   },
   {
     files: ['apps/web/**/*.{ts,tsx}'],
-    plugins: { '@next/next': nextPlugin },
+    plugins: { '@next/next': nextPlugin, 'react-hooks': reactHooks },
     languageOptions: {
       globals: { ...globals.browser },
     },
@@ -54,6 +55,9 @@ export default tseslint.config(
     },
     rules: {
       ...nextPlugin.configs['core-web-vitals'].rules,
+      // The two classic hooks rules (the React Compiler rules of the plugin are not enabled).
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
   },
   prettier,

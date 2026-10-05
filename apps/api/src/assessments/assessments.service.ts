@@ -29,11 +29,15 @@ export class AssessmentsService {
     private readonly clock: Clock,
   ) {}
 
-  /** Newest first; search by candidate name, filter by status and role. */
+  /**
+   * Newest first; search by candidate name, filter by status and role. Assessments whose
+   * candidate data was deleted are hidden (the row stays for the audit trail and costs).
+   */
   async list(query: AdminAssessmentListQuery): Promise<AdminAssessmentList> {
     const [rows, total] = await Promise.all([
       this.prisma.assessment.findMany({
         where: {
+          dataDeletedAt: null,
           candidateName: query.q ? { contains: query.q, mode: 'insensitive' } : undefined,
           status: query.status,
           roleTemplateId: query.role,
@@ -49,7 +53,7 @@ export class AssessmentsService {
           },
         },
       }),
-      this.prisma.assessment.count(),
+      this.prisma.assessment.count({ where: { dataDeletedAt: null } }),
     ]);
     return { total, items: rows.map(toListItem) };
   }
