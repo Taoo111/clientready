@@ -24,8 +24,6 @@ export const PublicAssessmentViewSchema = z.object({
   canResume: z.boolean(),
   /** Who the candidate will talk to (the AI client's name card). */
   client: PersonaCardSchema,
-  /** Parts of the conversation, for the progress indicator. */
-  phases: z.array(z.object({ id: z.string(), name: z.string(), durationSec: z.number().int() })),
 });
 export type PublicAssessmentView = z.infer<typeof PublicAssessmentViewSchema>;
 

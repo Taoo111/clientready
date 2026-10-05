@@ -109,14 +109,6 @@ export const en = {
     },
   },
 
-  /** Candidate-friendly names of the conversation parts (by template phase id). */
-  phases: {
-    'warm-up': 'Introductions',
-    'project-deep-dive': 'Your recent project',
-    'client-situation': 'A client situation',
-    closing: 'Wrap-up',
-  } as Record<string, string>,
-
   live: {
     connecting: 'Connecting you to the client…',
     reconnecting: 'Reconnecting…',
@@ -125,7 +117,6 @@ export const en = {
     listening: 'Listening…',
     thinking: 'Thinking…',
     clientSpeaking: 'Speaking',
-    progress: 'Conversation progress',
     hint: 'Speak naturally. You can ask the client to repeat or to slow down.',
     slower: 'Slower speech',
     timeLeft: 'left',

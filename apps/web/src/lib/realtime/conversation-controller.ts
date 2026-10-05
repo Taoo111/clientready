@@ -8,6 +8,7 @@ import { SegmentRecorder } from '../audio/segment-recorder';
 import { ApiError, candidateApi } from '../candidate-api';
 import { reportProblem } from '../monitoring';
 import { RealtimeConnection, type ConversationActivity } from './connection';
+import { PresenceSmoother, type PresenceState } from './presence';
 import { TranscriptUploader } from './transcript-uploader';
 import { UsageUploader } from './usage-uploader';
 
@@ -24,8 +25,8 @@ export interface ConversationState {
   remainingMs: number;
   micLevel: number;
   aiLevel: number;
-  /** The candidate has finished speaking and the client's reply has not started yet. */
-  aiThinking: boolean;
+  /** Who is talking, smoothed for the label on the screen. */
+  presence: PresenceState;
   endReason?: 'candidate' | 'timeUp';
   upload: UploadStatus;
   /** How fast the client speaks (button, or the client itself when asked by voice). */
@@ -48,7 +49,7 @@ export class ConversationController {
     remainingMs: SESSION_HARD_LIMIT_MS,
     micLevel: 0,
     aiLevel: 0,
-    aiThinking: false,
+    presence: 'connecting',
     upload: 'idle',
     pace: 'normal',
   };
@@ -61,7 +62,11 @@ export class ConversationController {
   private readonly recorder: SegmentRecorder;
   private connection: RealtimeConnection | undefined;
   private sessionStartEpochMs: number | undefined;
+  /** The candidate has finished speaking and the client's reply has not started yet. */
   private thinkingSince: number | undefined;
+  /** Between the speech detector's start and stop of the candidate's turn. */
+  private candidateSpeaking = false;
+  private readonly presence = new PresenceSmoother();
   private readonly ticker: ReturnType<typeof setInterval>;
   private readonly listeners = new Set<() => void>();
 
@@ -100,25 +105,31 @@ export class ConversationController {
   }
 
   private handleActivity(activity: ConversationActivity): void {
-    const thinking = activity === 'candidate-stopped';
-    this.thinkingSince = thinking ? Date.now() : undefined;
-    if (this.state.aiThinking !== thinking) this.update({ aiThinking: thinking });
+    this.candidateSpeaking = activity === 'candidate-started';
+    this.thinkingSince = activity === 'candidate-stopped' ? Date.now() : undefined;
   }
 
   private tick(): void {
+    const now = Date.now();
     const aiLevel = this.aiMeter?.level() ?? 0;
+    // "Thinking" ends when the client starts talking (or after a while, e.g. background noise).
+    if (
+      this.thinkingSince !== undefined &&
+      (aiLevel > SPEAKING_THRESHOLD || now - this.thinkingSince > MAX_THINKING_MS)
+    ) {
+      this.thinkingSince = undefined;
+    }
     const patch: Partial<ConversationState> = {
       micLevel: this.micMeter?.level() ?? 0,
       aiLevel,
+      presence: this.presence.update({
+        now,
+        connecting: this.state.phase === 'connecting',
+        aiLevel,
+        candidateSpeaking: this.candidateSpeaking,
+        aiThinking: this.thinkingSince !== undefined,
+      }),
     };
-    // "Thinking" ends when the client starts talking (or after a while, e.g. background noise).
-    if (
-      this.state.aiThinking &&
-      (aiLevel > SPEAKING_THRESHOLD || Date.now() - (this.thinkingSince ?? 0) > MAX_THINKING_MS)
-    ) {
-      patch.aiThinking = false;
-      this.thinkingSince = undefined;
-    }
     if (this.sessionStartEpochMs !== undefined) {
       patch.remainingMs = Math.max(
         0,
@@ -136,6 +147,8 @@ export class ConversationController {
   async connect(): Promise<void> {
     if (this.state.phase !== 'connecting' && this.state.phase !== 'dropped') return;
     this.update({ phase: 'connecting', error: undefined });
+    this.candidateSpeaking = false;
+    this.thinkingSince = undefined;
 
     // Everything said before a drop must be stored before the server builds the resume prompt.
     await this.uploader.flush();
