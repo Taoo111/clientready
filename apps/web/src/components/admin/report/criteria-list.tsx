@@ -1,7 +1,7 @@
 'use client';
 
 import type { CriterionResult } from '@clientready/shared';
-import { ChevronDown, CircleAlert, Quote } from 'lucide-react';
+import { ChevronDown, CircleAlert } from 'lucide-react';
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { pl } from '@/i18n/pl';
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 function scoreTone(score: number): string {
   if (score >= 4) return 'bg-success';
-  if (score === 3) return 'bg-brand';
+  if (score === 3) return 'bg-ink/70';
   if (score === 2) return 'bg-warning';
   return 'bg-danger';
 }
@@ -67,13 +67,11 @@ function Criterion({ criterion }: { criterion: CriterionResult }) {
           <CollapsibleContent forceMount className="data-[state=closed]:hidden print:!block">
             <ul className="mt-3 space-y-2">
               {criterion.evidence.map((e) => (
-                <li
-                  key={`${e.seq}-${e.quote}`}
-                  className="flex gap-3 rounded-lg border-l-2 border-brand/50 bg-muted/50 py-2 pr-3 pl-3"
-                >
-                  <Quote className="mt-0.5 size-3.5 shrink-0 text-brand/70" aria-hidden />
-                  <div className="min-w-0 flex-1 text-sm">
-                    <q className="italic">{e.quote}</q>{' '}
+                <li key={`${e.seq}-${e.quote}`} className="text-sm leading-relaxed">
+                  <div className="min-w-0">
+                    <mark className="rounded-[2px] bg-marker px-0.5 text-foreground">
+                      „{e.quote}”
+                    </mark>{' '}
                     <a
                       href={`#turn-${e.seq}`}
                       className="print-hidden ml-1 text-xs whitespace-nowrap text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

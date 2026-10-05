@@ -11,7 +11,7 @@ const t = pl.list;
 export function AssessmentList({ items }: { items: AdminAssessmentListItem[] }) {
   return (
     <>
-      <div className="hidden overflow-hidden rounded-2xl border bg-card shadow-card md:block">
+      <div className="hidden overflow-hidden rounded-xl border bg-card shadow-card md:block">
         <table className="w-full text-left">
           <thead className="border-b bg-muted/50 text-xs font-medium tracking-wide text-muted-foreground uppercase">
             <tr>

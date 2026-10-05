@@ -4,30 +4,20 @@ import type {
   Recommendation,
   ReportStatus,
 } from '@clientready/shared';
-import {
-  CircleCheck,
-  CircleDashed,
-  CircleX,
-  Clock,
-  Hourglass,
-  Mic,
-  Trash2,
-  TriangleAlert,
-  UserCheck,
-  UserSearch,
-} from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 import { pl } from '@/i18n/pl';
 import { cn } from '@/lib/utils';
 
-const pill =
-  'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap [&_svg]:size-3.5';
+/** Status as a small dot + text: readable in a dense list, colour only reinforces the label. */
+const label = 'inline-flex items-center gap-2 text-sm whitespace-nowrap';
+const dotBase = 'size-2 shrink-0 rounded-full';
 
-const statusStyles: Record<AssessmentStatus, { className: string; icon: typeof Clock }> = {
-  CREATED: { className: 'border-border bg-muted text-muted-foreground', icon: Clock },
-  IN_PROGRESS: { className: 'border-info/20 bg-info-soft text-info', icon: Mic },
-  COMPLETED: { className: 'border-warning/25 bg-warning-soft text-warning', icon: Hourglass },
-  EVALUATED: { className: 'border-success/20 bg-success-soft text-success', icon: CircleCheck },
-  FAILED: { className: 'border-danger/20 bg-danger-soft text-danger', icon: CircleX },
+const statusDot: Record<AssessmentStatus, string> = {
+  CREATED: 'border border-muted-foreground/60',
+  IN_PROGRESS: 'bg-info',
+  COMPLETED: 'bg-warning',
+  EVALUATED: 'bg-success',
+  FAILED: 'bg-danger',
 };
 
 export function StatusBadge({
@@ -41,34 +31,24 @@ export function StatusBadge({
 }) {
   if (deleted) {
     return (
-      <span className={cn(pill, 'border-border bg-muted text-muted-foreground', className)}>
-        <Trash2 aria-hidden />
+      <span className={cn(label, 'text-muted-foreground', className)}>
+        <span className={cn(dotBase, 'bg-muted-foreground/40')} aria-hidden />
         {pl.dataDeleted}
       </span>
     );
   }
-  const { className: tone, icon: Icon } = statusStyles[status];
   return (
-    <span className={cn(pill, tone, className)}>
-      <Icon aria-hidden />
+    <span className={cn(label, className)}>
+      <span className={cn(dotBase, statusDot[status])} aria-hidden />
       {pl.status[status]}
     </span>
   );
 }
 
-export const recommendationTone: Record<Recommendation, 'success' | 'warning' | 'danger'> = {
-  READY: 'success',
-  READY_WITH_CONCERNS: 'warning',
-  NOT_READY: 'danger',
-};
-
-const recommendationStyles: Record<Recommendation, { className: string; icon: typeof Clock }> = {
-  READY: { className: 'border-success/25 bg-success-soft text-success', icon: CircleCheck },
-  READY_WITH_CONCERNS: {
-    className: 'border-warning/30 bg-warning-soft text-warning',
-    icon: TriangleAlert,
-  },
-  NOT_READY: { className: 'border-danger/25 bg-danger-soft text-danger', icon: CircleX },
+const recommendationDot: Record<Recommendation, string> = {
+  READY: 'bg-success',
+  READY_WITH_CONCERNS: 'bg-warning',
+  NOT_READY: 'bg-danger',
 };
 
 export function RecommendationBadge({
@@ -82,17 +62,16 @@ export function RecommendationBadge({
 }) {
   if (reportStatus === 'INSUFFICIENT_DATA') {
     return (
-      <span className={cn(pill, 'border-border bg-muted text-muted-foreground', className)}>
-        <CircleDashed aria-hidden />
+      <span className={cn(label, 'text-muted-foreground', className)}>
+        <span className={cn(dotBase, 'border border-muted-foreground/60')} aria-hidden />
         {pl.insufficientShort}
       </span>
     );
   }
   if (!recommendation) return <span className="text-sm text-muted-foreground">-</span>;
-  const { className: tone, icon: Icon } = recommendationStyles[recommendation];
   return (
-    <span className={cn(pill, tone, className)}>
-      <Icon aria-hidden />
+    <span className={cn(label, className)}>
+      <span className={cn(dotBase, recommendationDot[recommendation])} aria-hidden />
       {pl.recommendation[recommendation]}
     </span>
   );
@@ -113,19 +92,23 @@ export function DecisionBadge({
     const differs = !item.decision.agreesWithAi;
     return (
       <span
-        className={cn(pill, 'border-border bg-card text-foreground', className)}
+        className={cn(label, className)}
         title={differs ? pl.list.differsFromAiTitle : undefined}
       >
-        <UserCheck aria-hidden />
+        <UserCheck className="size-3.5 text-muted-foreground" aria-hidden />
         {pl.recommendation[item.decision.verdict]}
-        {differs && <span className="text-warning">{pl.list.differsFromAi}</span>}
+        {differs && <span className="font-medium text-warning">{pl.list.differsFromAi}</span>}
       </span>
     );
   }
   if (item.recommendation && !item.dataDeleted) {
     return (
-      <span className={cn(pill, 'border-warning/30 bg-warning-soft text-warning', className)}>
-        <UserSearch aria-hidden />
+      <span
+        className={cn(
+          'inline-flex items-center rounded-md bg-warning-soft px-2 py-0.5 text-sm font-medium whitespace-nowrap text-foreground',
+          className,
+        )}
+      >
         {pl.list.toReview}
       </span>
     );

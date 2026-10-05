@@ -12,7 +12,7 @@ export function EndedStep({ timeUp, upload }: { timeUp: boolean; upload: UploadS
       {timeUp && <p className="text-sm text-muted-foreground">{t.timeUp}</p>}
       <div
         className={cn(
-          'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm',
+          'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm',
           upload === 'failed'
             ? 'bg-warning-soft text-foreground'
             : 'bg-muted text-muted-foreground',

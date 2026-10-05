@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 const swatches = [
+  ['ink', 'bg-ink'],
   ['brand', 'bg-brand'],
   ['brand-strong', 'bg-brand-strong'],
   ['brand-soft', 'bg-brand-soft'],
@@ -30,6 +31,7 @@ const swatches = [
   ['warning', 'bg-warning'],
   ['danger', 'bg-danger'],
   ['info', 'bg-info'],
+  ['marker', 'bg-marker'],
 ] as const;
 
 /** Development-only overview of tokens and components (not available in production). */

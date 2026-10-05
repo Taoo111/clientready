@@ -19,7 +19,7 @@ export default function NewAssessmentPage() {
         <h1 className="text-2xl font-semibold tracking-tight">{pl.create.title}</h1>
         <p className="text-sm text-muted-foreground">{pl.create.subtitle}</p>
       </div>
-      <div className="rounded-2xl border bg-card p-5 shadow-card sm:p-8">
+      <div className="rounded-xl border bg-card p-5 shadow-card sm:p-8">
         <CreateAssessmentForm roles={roles} />
       </div>
     </div>

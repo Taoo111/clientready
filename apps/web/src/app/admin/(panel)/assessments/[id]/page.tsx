@@ -45,7 +45,10 @@ export default async function ReportPage({
   }
 
   const report = detail.report ? withPlainDashes(detail.report.data) : null;
-  const quoted = new Set(report?.criteria.flatMap((c) => c.evidence.map((e) => e.seq)));
+  const quotes = new Map<number, string[]>();
+  for (const e of report?.criteria.flatMap((c) => c.evidence) ?? []) {
+    quotes.set(e.seq, [...(quotes.get(e.seq) ?? []), e.quote]);
+  }
   const finished = ['COMPLETED', 'EVALUATED', 'FAILED'].includes(detail.status);
   const deleted = detail.dataDeletedAt !== null;
 
@@ -87,14 +90,6 @@ export default async function ReportPage({
 
       {report && <Verdict report={report} />}
 
-      {report?.recommendation && !deleted && (
-        <DecisionCard
-          assessmentId={detail.id}
-          aiRecommendation={report.recommendation}
-          decision={detail.decision}
-        />
-      )}
-
       {report?.language.nonEnglishDetected && (
         <Notice tone="warning" icon={Languages} title={t.languageTitle}>
           {report.language.notes}
@@ -116,6 +111,15 @@ export default async function ReportPage({
         </ReportSection>
       )}
 
+      {/* After the evidence, not before it: the recruiter decides having read the report. */}
+      {report?.recommendation && !deleted && (
+        <DecisionCard
+          assessmentId={detail.id}
+          aiRecommendation={report.recommendation}
+          decision={detail.decision}
+        />
+      )}
+
       {(detail.recordings.length > 0 || finished) && !deleted && (
         <ReportSection title={t.recordingTitle} className="print-hidden">
           <Recordings assessmentId={detail.id} recordings={detail.recordings} />
@@ -124,7 +128,7 @@ export default async function ReportPage({
 
       {(detail.turns.length > 0 || (finished && !deleted)) && (
         <ReportSection title={t.transcriptTitle} className="print:break-before-page">
-          <Transcript turns={detail.turns} quoted={quoted} />
+          <Transcript turns={detail.turns} quotes={quotes} />
         </ReportSection>
       )}
 

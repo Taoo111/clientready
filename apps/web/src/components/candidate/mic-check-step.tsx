@@ -95,7 +95,9 @@ export function MicCheckStep({
         <h1 className="text-2xl font-semibold tracking-tight text-balance">
           {resume ? t.resumeTitle : t.title}
         </h1>
-        <p className="text-pretty text-muted-foreground">{resume ? t.resumeBody : t.body}</p>
+        <p className="text-[1.05rem] text-pretty text-foreground/80">
+          {resume ? t.resumeBody : t.body}
+        </p>
       </div>
 
       <div className="flex flex-col items-center gap-4 py-2">
@@ -170,7 +172,7 @@ export function MicCheckStep({
             {resume ? t.resume : t.start}
             <ArrowRight aria-hidden />
           </Button>
-          {!resume && <p className="text-center text-xs text-muted-foreground">{t.startHint}</p>}
+          {!resume && <p className="text-center text-sm text-muted-foreground">{t.startHint}</p>}
         </div>
       )}
     </CandidateCard>

@@ -16,6 +16,7 @@ import { CandidateCard, StatusScreen } from './candidate-shell';
 import { EndedStep } from './ended-step';
 import { ClientPresence } from './client-presence';
 import { EndCallButton } from './end-call-button';
+import { MicLevel } from './mic-level';
 import { PaceToggle } from './pace-toggle';
 import { SessionTimer } from './session-timer';
 
@@ -95,30 +96,35 @@ export function LiveStep({
   const elapsed = SESSION_HARD_LIMIT_MS - state.remainingMs;
 
   return (
-    <CandidateCard className="flex flex-1 flex-col items-center justify-between gap-8 py-6 text-center sm:min-h-[34rem] sm:py-8">
-      <SessionTimer remainingMs={state.remainingMs} />
+    <CandidateCard className="flex flex-1 flex-col gap-4 p-4 sm:min-h-[32rem] sm:p-5">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <SessionTimer remainingMs={state.remainingMs} />
+        <MicLevel level={state.micLevel} />
+      </div>
 
-      <div className="flex flex-col items-center gap-4">
-        <ClientPresence
-          client={view.client}
-          state={state.presence}
-          aiLevel={state.aiLevel}
-          micLevel={state.micLevel}
-        />
-        <p className="max-w-xs text-sm text-pretty text-muted-foreground">
-          {elapsed >= WRAP_UP_AT_MS ? t.wrapUp : t.hint}
-        </p>
+      <ClientPresence
+        className="flex-1"
+        client={view.client}
+        state={state.presence}
+        aiLevel={state.aiLevel}
+      />
+
+      <p className="px-2 text-center text-sm text-pretty text-muted-foreground">
+        {elapsed >= WRAP_UP_AT_MS ? t.wrapUp : t.hint}
+      </p>
+
+      {/* Call controls, like the bottom bar of a video call. */}
+      <div className="grid gap-3 sm:flex sm:justify-center [&>button]:w-full sm:[&>button]:w-auto">
         <PaceToggle
           pace={state.pace}
           disabled={state.phase === 'connecting'}
           onChange={(pace) => controller.setPace(pace)}
         />
+        <EndCallButton
+          disabled={state.phase === 'connecting'}
+          onConfirm={() => void controller.endByCandidate()}
+        />
       </div>
-
-      <EndCallButton
-        disabled={state.phase === 'connecting'}
-        onConfirm={() => void controller.endByCandidate()}
-      />
     </CandidateCard>
   );
 }

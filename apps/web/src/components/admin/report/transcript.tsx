@@ -1,20 +1,22 @@
 import type { AdminAssessmentDetail } from '@clientready/shared';
 import { pl } from '@/i18n/pl';
 import { formatClock } from '@/lib/format';
+import { highlightQuotes } from '@/lib/report/highlight';
 import { cn } from '@/lib/utils';
 
 const t = pl.report;
 
 /**
- * The conversation as chat bubbles. Turns quoted as evidence are highlighted, and each
- * turn has an anchor (`#turn-<seq>`) the evidence quotes link to.
+ * The conversation as chat bubbles. Evidence quotes are highlighted like a marker on paper,
+ * and each turn has an anchor (`#turn-<seq>`) the quotes link to.
  */
 export function Transcript({
   turns,
-  quoted,
+  quotes,
 }: {
   turns: AdminAssessmentDetail['turns'];
-  quoted: Set<number>;
+  /** Evidence quotes by transcript turn (seq). */
+  quotes: ReadonlyMap<number, readonly string[]>;
 }) {
   if (turns.length === 0) return <p className="text-sm text-muted-foreground">{t.noTranscript}</p>;
   return (
@@ -29,9 +31,8 @@ export function Transcript({
           >
             <div
               className={cn(
-                'print-avoid-break max-w-[85%] rounded-2xl px-4 py-2.5 sm:max-w-[75%]',
-                ai ? 'rounded-tl-sm bg-muted' : 'rounded-tr-sm bg-brand-soft',
-                quoted.has(turn.seq) && 'ring-2 ring-brand/40',
+                'print-avoid-break max-w-[85%] rounded-lg px-4 py-2.5 sm:max-w-[75%]',
+                ai ? 'border bg-card' : 'bg-brand-soft',
                 'target:ring-2 target:ring-brand',
               )}
             >
@@ -39,9 +40,19 @@ export function Transcript({
                 <span className="font-medium text-foreground/70">
                   {ai ? t.speakerAi : t.speakerCandidate}
                 </span>{' '}
-                · <span className="tabular">{formatClock(turn.startedAtMs)}</span>
+                · <span className="font-mono tabular">{formatClock(turn.startedAtMs)}</span>
               </p>
-              <p className="text-sm leading-relaxed">{turn.text}</p>
+              <p className="text-sm leading-relaxed">
+                {highlightQuotes(turn.text, quotes.get(turn.seq) ?? []).map((segment, i) =>
+                  segment.marked ? (
+                    <mark key={i} className="rounded-[2px] bg-marker px-0.5 text-foreground">
+                      {segment.text}
+                    </mark>
+                  ) : (
+                    segment.text
+                  ),
+                )}
+              </p>
             </div>
           </li>
         );

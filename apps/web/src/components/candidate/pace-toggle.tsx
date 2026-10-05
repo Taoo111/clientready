@@ -20,11 +20,13 @@ export function PaceToggle({
   return (
     <Button
       variant="outline"
-      size="sm"
+      size="lg"
       aria-pressed={slower}
       disabled={disabled}
       onClick={() => onChange(slower ? 'normal' : 'slower')}
-      className={cn(slower && 'border-brand/40 bg-brand-soft text-brand-strong')}
+      className={cn(
+        slower && 'border-brand/50 bg-brand-soft text-brand-strong hover:bg-brand-soft',
+      )}
     >
       <Snail aria-hidden />
       {en.live.slower}

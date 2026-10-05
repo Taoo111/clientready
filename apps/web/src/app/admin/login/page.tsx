@@ -25,7 +25,7 @@ export default async function LoginPage({
             {brand.customerName && ` · ${pl.nav.forCustomer} ${brand.customerName}`}
           </p>
         </div>
-        <div className="rounded-2xl border bg-card p-6 shadow-card sm:p-8">
+        <div className="rounded-xl border bg-card p-6 shadow-card sm:p-8">
           <h1 className="mb-6 text-xl font-semibold tracking-tight">{pl.login.title}</h1>
           <LoginForm next={next ?? ''} expired={expired === '1'} />
         </div>

@@ -163,7 +163,11 @@ export const pl = {
     insufficientTitle: 'Za mało danych do oceny',
     humanDecision:
       'Rekomendacja AI na podstawie transkrypcji. Decyzję podejmuje rekruter - sprawdź cytaty, transkrypcję i nagranie.',
-    recommendationLabel: 'Rekomendacja',
+    recommendationLabel: 'Rekomendacja AI',
+    keyEvidence: {
+      weakest: 'Najsłabszy punkt',
+      strongest: 'Najmocniejszy punkt',
+    },
     modelDisagrees: (label: string) =>
       `Model oceniający sugerował „${label}”. Rekomendacja wynika ze stałej reguły względem poziomu docelowego.`,
     decision: {
@@ -190,6 +194,12 @@ export const pl = {
     speaking: 'Mówienie',
     listening: 'Rozumienie',
     vsTarget: (target: string) => `cel: ${target}`,
+    cefrDelta: (diff: number) =>
+      diff === 0
+        ? 'na poziomie celu'
+        : diff > 0
+          ? 'powyżej celu'
+          : `${-diff} ${diff === -1 ? 'poziom' : 'poziomy'} poniżej celu`,
     languageTitle: 'Kandydat używał innego języka',
     criteriaTitle: 'Kryteria',
     evidenceShow: (n: number) => `Pokaż cytaty (${n})`,

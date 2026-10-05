@@ -68,7 +68,7 @@ export function InviteCard({
   return (
     <section
       className={cn(
-        'print-hidden space-y-5 rounded-2xl border bg-card p-5 shadow-card sm:p-6',
+        'print-hidden space-y-5 rounded-xl border bg-card p-5 shadow-card sm:p-6',
         highlight && 'border-brand/40 ring-4 ring-brand/10',
       )}
     >

@@ -26,8 +26,7 @@ export function ClientPortrait({
   return (
     <span
       className={cn(
-        'relative inline-flex shrink-0 items-center justify-center rounded-full font-semibold tracking-tight text-brand-foreground shadow-raised transition-[filter,opacity] duration-300 select-none',
-        'bg-[linear-gradient(140deg,color-mix(in_oklch,var(--brand)_88%,white),var(--brand-strong))] ring-1 ring-black/5',
+        'relative inline-flex shrink-0 items-center justify-center rounded-full bg-brand-strong font-semibold tracking-tight text-brand-foreground transition-[filter,opacity] duration-300 select-none',
         size === 'lg' ? 'size-28 text-3xl sm:size-32 sm:text-4xl' : 'size-11 text-base',
         muted && 'opacity-60 grayscale',
       )}
@@ -36,7 +35,7 @@ export function ClientPortrait({
       {initials(client.name)}
       <span
         className={cn(
-          'absolute rounded-full border-2 border-card bg-foreground font-mono font-semibold text-background',
+          'absolute rounded-sm border-2 border-card bg-foreground font-mono font-medium text-background',
           size === 'lg'
             ? '-right-0.5 bottom-1 px-1.5 py-0.5 text-[0.65rem]'
             : '-right-1 -bottom-1 px-1 text-[0.55rem]',
