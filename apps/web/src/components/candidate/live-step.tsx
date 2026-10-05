@@ -20,6 +20,7 @@ import { CandidateCard, StatusScreen } from './candidate-shell';
 import { EndedStep } from './ended-step';
 import { ClientPresence, type PresenceState } from './client-presence';
 import { EndCallButton } from './end-call-button';
+import { PaceToggle } from './pace-toggle';
 import { PhaseProgress } from './phase-progress';
 import { SessionTimer } from './session-timer';
 
@@ -123,6 +124,11 @@ export function LiveStep({
         <p className="max-w-xs text-sm text-pretty text-muted-foreground">
           {elapsed >= WRAP_UP_AT_MS ? t.wrapUp : t.hint}
         </p>
+        <PaceToggle
+          pace={state.pace}
+          disabled={state.phase === 'connecting'}
+          onChange={(pace) => controller.setPace(pace)}
+        />
       </div>
 
       <EndCallButton

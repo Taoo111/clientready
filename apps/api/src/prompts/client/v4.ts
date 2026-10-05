@@ -1,9 +1,13 @@
 import {
   SESSION_HARD_LIMIT_MS,
+  SPEAKING_PACE_TOOL,
+  SpeakingPaceSchema,
   WRAP_UP_AT_MS,
   type RoleTemplate,
+  type SpeakingPace,
   type TimeCue,
 } from '@clientready/shared';
+import type { RealtimeFunctionTool } from '../../conversation/realtime/realtime-secret.provider';
 import { firstName, formatClock, type ClientPromptInput, type ResumeContext } from './v2';
 
 /**
@@ -15,7 +19,8 @@ import { firstName, formatClock, type ClientPromptInput, type ResumeContext } fr
  * - turn shape: react to what the candidate said first (answer their question, give an own
  *   view when asked, ask again when the answer missed the point), then at most one question;
  * - relaxed colleague tone: natural reactions allowed, grading praise still not;
- * - explicit handling of off-script moments, other languages and requests to slow down;
+ * - explicit handling of off-script moments and other languages; a `set_speaking_pace` tool
+ *   slows the voice down when the candidate asks (the browser applies it);
  * - warmer opening (the client introduces themselves and the project) and fewer, softer
  *   "stay in this part" notes that allow a different aspect of the same topic.
  * Do not edit the text of a released version - copy to a new vN.ts.
@@ -89,7 +94,7 @@ const OFF_SCRIPT = `# When the conversation leaves the plan
 React like a real person first; the plan can wait a moment.
 - The candidate has to go (urgent phone call, someone at the door, an emergency): be understanding and ask whether they need to go now. If yes, thank them, say a short goodbye and tell them they can end the call with the "End conversation" button on their screen. If not, carry on. You cannot pause the call.
 - They ask you to repeat or rephrase: do it gladly, in simpler words. This is normal in any call.
-- They ask you to speak more slowly or more simply: say "Sure" and do it for the rest of the call - shorter sentences, simpler words, a calmer pace - then repeat your last question in that simpler way.
+- They ask you to speak more slowly or more simply: call the ${SPEAKING_PACE_TOOL} tool with "slower" (it slows your voice down), then say "Sure" and, for the rest of the call, use shorter sentences and simpler words; repeat your last question in that simpler way. If they later say you can speak normally again, call it with "normal".
 - They say they don't know or have no experience with something: that's fine - react kindly and ask about something related that they have done.
 - They are nervous or apologise for their English: reassure them briefly as a person would ("No worries at all, take your time."), without commenting on their English.
 - They ask about you, the company, the team, the product or the project: answer in character with realistic details, briefly, then continue.`;
@@ -223,4 +228,31 @@ export function buildTimeCues(template: RoleTemplate): TimeCue[] {
     text: '(Private note - do not mention it.) The call ends in 15 seconds. Say a short, friendly goodbye now.',
   });
   return cues.sort((a, b) => a.atMs - b.atMs);
+}
+
+/** The pace tool: the browser changes the voice speed and returns the result to the model. */
+export function buildTools(): RealtimeFunctionTool[] {
+  return [
+    {
+      name: SPEAKING_PACE_TOOL,
+      description:
+        'Changes how fast your voice speaks for the rest of the call. Use "slower" when the candidate asks you to speak more slowly, "normal" when they say you can speak at your usual pace again.',
+      parameters: {
+        type: 'object',
+        properties: { pace: { type: 'string', enum: SpeakingPaceSchema.options } },
+        required: ['pace'],
+        additionalProperties: false,
+      },
+    },
+  ];
+}
+
+/** Sent as private notes when the candidate changes the pace with the button on the screen. */
+export function buildPaceNotes(): Record<SpeakingPace, string> {
+  return {
+    slower:
+      '(Private note - do not mention it.) The candidate switched your voice to a slower pace. From now on use shorter sentences and simpler words.',
+    normal:
+      '(Private note - do not mention it.) The candidate switched your voice back to the normal pace.',
+  };
 }

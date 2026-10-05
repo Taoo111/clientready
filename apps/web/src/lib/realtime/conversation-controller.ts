@@ -1,4 +1,8 @@
-import { SESSION_HARD_LIMIT_MS, type RealtimeSessionResult } from '@clientready/shared';
+import {
+  SESSION_HARD_LIMIT_MS,
+  type RealtimeSessionResult,
+  type SpeakingPace,
+} from '@clientready/shared';
 import { LevelMeter, SPEAKING_THRESHOLD } from '../audio/level-meter';
 import { SegmentRecorder } from '../audio/segment-recorder';
 import { ApiError, candidateApi } from '../candidate-api';
@@ -24,6 +28,8 @@ export interface ConversationState {
   aiThinking: boolean;
   endReason?: 'candidate' | 'timeUp';
   upload: UploadStatus;
+  /** How fast the client speaks (button, or the client itself when asked by voice). */
+  pace: SpeakingPace;
 }
 
 const TICK_MS = 100;
@@ -44,6 +50,7 @@ export class ConversationController {
     aiLevel: 0,
     aiThinking: false,
     upload: 'idle',
+    pace: 'normal',
   };
   private readonly context: AudioContext | undefined;
   private readonly micMeter: LevelMeter | undefined;
@@ -152,6 +159,8 @@ export class ConversationController {
       mic: this.mic,
       timeCues: session.timeCues,
       sessionStartEpochMs: this.sessionStartEpochMs,
+      initialPace: this.state.pace,
+      paceNotes: session.paceNotes,
       onRemoteStream: (stream) => this.attachRemote(stream),
       onTurn: (turn) =>
         this.uploader.add(
@@ -163,6 +172,7 @@ export class ConversationController {
       onDrop: (reason) => this.handleDrop(reason),
       onActivity: (activity) => this.handleActivity(activity),
       onUsage: (usage) => this.usage.update(connectionId, usage),
+      onPaceChange: (pace) => this.update({ pace }),
     });
     this.connection = connection;
 
@@ -178,6 +188,13 @@ export class ConversationController {
       return;
     }
     if (this.state.phase === 'connecting') this.update({ phase: 'live' });
+  }
+
+  /** The candidate changed the client's speaking pace with the button. */
+  setPace(pace: SpeakingPace): void {
+    if (pace === this.state.pace) return;
+    this.update({ pace });
+    this.connection?.setPace(pace);
   }
 
   /** The candidate chose to end the conversation. */

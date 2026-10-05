@@ -156,12 +156,14 @@ describe('conversation lifecycle', () => {
       nextSeq: 0,
     });
     expect(res.body.timeCues.length).toBeGreaterThan(0);
+    expect(res.body.paceNotes.slower).toMatch(/slower pace/);
     expect(res.body).not.toHaveProperty('instructions');
 
     const [req] = ctx.realtime.requests;
     expect(req?.instructions).toContain('Northbeam Payments');
     expect(req?.instructions).toContain('Anna');
     expect(req?.instructions).not.toContain('Nowak');
+    expect(req?.tools.map((t) => t.name)).toEqual(['set_speaking_pace']);
     expect(req?.safetyIdentifier).toMatch(/^[a-f0-9]{64}$/);
 
     const row = await ctx.prisma.assessment.findUniqueOrThrow({ where: { token } });

@@ -45,6 +45,12 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
         type: 'realtime',
         model,
         instructions: request.instructions,
+        ...(request.tools.length > 0
+          ? {
+              tools: request.tools.map((tool) => ({ type: 'function', ...tool })),
+              tool_choice: 'auto',
+            }
+          : {}),
         // Older non-reasoning models (e.g. gpt-realtime-mini) reject this option.
         ...(reasoningEffort === 'none' ? {} : { reasoning: { effort: reasoningEffort } }),
         output_modalities: ['audio'],

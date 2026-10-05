@@ -1,6 +1,17 @@
-import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clientready/shared';
+import {
+  getRoleTemplate,
+  SESSION_HARD_LIMIT_MS,
+  SPEAKING_PACE_TOOL,
+  type RoleTemplate,
+} from '@clientready/shared';
 import { describe, expect, it } from 'vitest';
-import { buildClientInstructions, buildTimeCues, CLIENT_PROMPT_VERSION } from './v4';
+import {
+  buildClientInstructions,
+  buildPaceNotes,
+  buildTimeCues,
+  buildTools,
+  CLIENT_PROMPT_VERSION,
+} from './v4';
 
 const template = getRoleTemplate('backend-developer') as RoleTemplate;
 
@@ -148,5 +159,22 @@ describe('buildTimeCues', () => {
     }
     expect(cues[5]?.text).toMatch(/quick question/);
     expect(cues[6]?.text).toMatch(/goodbye/);
+  });
+});
+
+describe('speaking pace', () => {
+  it('offers the pace tool and tells the client when to call it', () => {
+    const [tool] = buildTools();
+    expect(tool?.name).toBe(SPEAKING_PACE_TOOL);
+    expect(tool?.parameters).toMatchObject({
+      properties: { pace: { enum: ['normal', 'slower'] } },
+    });
+    expect(build()).toContain(`call the ${SPEAKING_PACE_TOOL} tool with "slower"`);
+  });
+
+  it('has a private note for each pace', () => {
+    const notes = buildPaceNotes();
+    expect(notes.slower).toMatch(/do not mention it.*slower pace/);
+    expect(notes.normal).toMatch(/do not mention it.*normal pace/);
   });
 });

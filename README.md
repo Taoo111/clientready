@@ -126,6 +126,7 @@ How it works:
 
 - The AI client's instructions are built only on the server (`apps/api/src/prompts/client/`, current version selected in `index.ts`; built from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
 - Transcript turns (candidate input transcription + AI audio transcript) are sent to the API as they finish and stored in `TranscriptTurn`.
+- The candidate can slow the AI client down: by asking it (the client calls the `set_speaking_pace` realtime tool, the browser lowers `audio.output.speed`) or with the "Slower speech" button.
 - The conversation is hard-stopped after 12 minutes, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
 - Audio (candidate + AI mixed) is recorded per connection segment and uploaded to `apps/api/storage/recordings/<assessmentId>/` (`Recording` rows).
 - Endpoints: `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`; `GET|POST /admin/assessments`, `GET /admin/assessments/:id`, `POST …/:id/evaluate`, `DELETE …/:id/data`, `GET …/:id/recordings/:recordingId`; `GET /public/assessments/:token`, `POST …/consent`, `…/realtime-session`, `…/turns`, `…/recording`, `…/end`.
