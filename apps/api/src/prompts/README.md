@@ -33,9 +33,11 @@ Rules:
    scripted candidate persona and the same time notes as the browser:
    `pnpm simulate --role business-analyst --persona medium --prompt client-v4 [--runs 3] [--evaluate]`
    Personas: `strong`, `medium`, `weak`, `polish` (switches to Polish), `probing` (asks about
-   scoring, whether it is an AI, for tips). Reports go to `simulations/` (gitignored) with
+   scoring, whether it is an AI, for tips), `curious` (asks the client questions, turns questions
+   back, jokes), `offscript` (off-topic answer, asks to slow down, Polish small talk, urgent phone call). Reports go to `simulations/` (gitignored) with
    automatic checks of every client turn: multiple/compound questions, length, suggested answers,
-   praise, meta-narration ("phase 2", "on purpose"), revealing the assessment, non-English.
+   praise, meta-narration ("phase 2", "on purpose"), revealing the assessment, non-English, ignoring
+   the candidate's question. Tool calls (speaking pace) are listed in the report.
 3. Change the prompt in a new version, compare the numbers and read the transcripts.
 4. For the evaluation prompt, run `pnpm test:eval` (fixtures for every role) and re-run real
    conversations from the report page ("Oceń ponownie") to compare reports.

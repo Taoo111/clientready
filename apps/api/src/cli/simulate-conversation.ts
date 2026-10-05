@@ -63,6 +63,7 @@ async function main(): Promise<void> {
   for (let run = 1; run <= Number(values.runs); run++) {
     console.log(`\n▶ ${template.id} / ${persona} / ${values.prompt} / ${level.data} — run ${run}`);
     let realtimeUsage = EMPTY_USAGE;
+    const toolCalls: string[] = [];
     const turns = await simulateConversation({
       apiKey: env.OPENAI_API_KEY,
       realtimeModel: env.OPENAI_REALTIME_MODEL,
@@ -77,8 +78,15 @@ async function main(): Promise<void> {
         console.warn(`
   ! ${message}`),
       onUsage: (usage) => (realtimeUsage = addUsage(realtimeUsage, usage)),
+      onToolCall: (call) => toolCalls.push(`${call.name}(${call.arguments}) at AI #${call.aiTurn}`),
     });
-    const checks = turns.filter((t) => t.speaker === 'AI').map((t, i) => checkAiTurn(t.text, i));
+    let aiIndex = 0;
+    const checks = turns.flatMap((t, i) => {
+      if (t.speaker !== 'AI') return [];
+      const previous = turns[i - 1];
+      const asked = previous?.speaker === 'CANDIDATE' ? previous.text : undefined;
+      return [checkAiTurn(t.text, aiIndex++, asked)];
+    });
     const metrics = summarise(checks);
 
     let evaluation: EvaluationResult | undefined;
@@ -115,6 +123,7 @@ async function main(): Promise<void> {
       prompt: values.prompt,
       model: `${env.OPENAI_REALTIME_MODEL} (text mode, reasoning ${env.OPENAI_REALTIME_REASONING_EFFORT})`,
       'estimated cost': cost,
+      'tool calls': toolCalls.join('; ') || 'none',
       'simulated length': formatClock(
         (turns.at(-1)?.startedAtMs ?? 0) + (turns.at(-1)?.durationMs ?? 0),
       ),

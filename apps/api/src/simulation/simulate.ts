@@ -33,6 +33,8 @@ export interface SimulationOptions {
   onWarning?: (message: string) => void;
   /** Tokens of each finished realtime response (cost estimate). */
   onUsage?: (usage: TokenUsage) => void;
+  /** The client called a tool (e.g. the speaking pace); `aiTurn` = AI turns so far. */
+  onToolCall?: (call: { name: string; arguments: string; aiTurn: number }) => void;
 }
 
 // Speaking-time estimates for the simulated clock.
@@ -56,6 +58,20 @@ function responseText(event: ResponseDoneEvent): string {
     )
     .join(' ')
     .trim();
+}
+
+interface ToolCall {
+  name: string;
+  call_id: string;
+  arguments: string;
+}
+
+/** Function calls in a finished response (the browser handles them in live calls). */
+function toolCalls(event: ResponseDoneEvent): ToolCall[] {
+  const output = (event.response as { output?: Array<Record<string, unknown>> }).output ?? [];
+  return output.filter((item): item is ToolCall & Record<string, unknown> => {
+    return item.type === 'function_call' && typeof item.call_id === 'string';
+  });
 }
 
 /**
@@ -87,15 +103,38 @@ export async function simulateConversation(options: SimulationOptions): Promise<
   });
 
   const send = (event: Record<string, unknown>) => rt.send(event as never);
-  const nextResponse = () =>
-    new Promise<string>((resolve, reject) => {
+  const oneResponse = () =>
+    new Promise<ResponseDoneEvent>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('Realtime response timed out')), 60_000);
       pending.push((event) => {
         clearTimeout(timer);
-        resolve(responseText(event));
+        resolve(event);
       });
       send({ type: 'response.create' });
     });
+  /** Like the browser: a tool call is answered ("done") and the client continues speaking. */
+  const nextResponse = async (): Promise<string> => {
+    const parts: string[] = [];
+    for (let round = 0; round < 3; round++) {
+      const event = await oneResponse();
+      parts.push(responseText(event));
+      const calls = toolCalls(event);
+      if (calls.length === 0) break;
+      for (const call of calls) {
+        options.onToolCall?.({
+          name: call.name,
+          arguments: call.arguments,
+          aiTurn: transcript.filter((t) => t.speaker === 'AI').length,
+        });
+        send({
+          type: 'conversation.item.create',
+          item: { type: 'function_call_output', call_id: call.call_id, output: 'done' },
+        });
+      }
+    }
+    return parts.filter(Boolean).join(' ');
+  };
+  const tools = options.prompt.buildTools?.() ?? [];
 
   send({
     type: 'session.update',
@@ -107,6 +146,9 @@ export async function simulateConversation(options: SimulationOptions): Promise<
         candidateName: 'Alex Morgan',
       }),
       output_modalities: ['text'],
+      ...(tools.length > 0
+        ? { tools: tools.map((tool) => ({ type: 'function', ...tool })), tool_choice: 'auto' }
+        : {}),
       ...(options.reasoningEffort === 'none'
         ? {}
         : { reasoning: { effort: options.reasoningEffort } }),
