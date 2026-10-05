@@ -1,4 +1,5 @@
 import { sessionToken } from '@/lib/admin/session';
+import { serverApiUrl } from '@/lib/api-url';
 
 /** Streams a recording from the API for the report's audio player (recruiter session required). */
 export async function GET(
@@ -8,9 +9,8 @@ export async function GET(
   const token = await sessionToken();
   if (!token) return new Response('Unauthorized', { status: 401 });
   const { id, recordingId } = await params;
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
   const upstream = await fetch(
-    `${apiUrl}/admin/assessments/${encodeURIComponent(id)}/recordings/${encodeURIComponent(recordingId)}`,
+    `${serverApiUrl()}/admin/assessments/${encodeURIComponent(id)}/recordings/${encodeURIComponent(recordingId)}`,
     { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store', signal: request.signal },
   );
   if (!upstream.ok || !upstream.body) {

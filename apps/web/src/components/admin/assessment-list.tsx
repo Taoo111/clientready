@@ -64,9 +64,7 @@ function Row({ item }: { item: AdminAssessmentListItem }) {
           href={href}
           className="font-medium after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
         >
-          <span className={item.dataDeleted ? 'text-muted-foreground italic' : undefined}>
-            {item.candidateName}
-          </span>
+          {item.candidateName}
         </Link>
       </td>
       <td className="px-4 py-3.5 text-sm text-muted-foreground">{item.roleName}</td>
@@ -76,7 +74,7 @@ function Row({ item }: { item: AdminAssessmentListItem }) {
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <StatusBadge status={item.status} deleted={item.dataDeleted} />
+        <StatusBadge status={item.status} />
       </td>
       <td className="px-4 py-3.5">
         <RecommendationBadge
@@ -109,13 +107,7 @@ function MobileCard({ item }: { item: AdminAssessmentListItem }) {
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p
-              className={
-                item.dataDeleted ? 'truncate text-muted-foreground italic' : 'truncate font-medium'
-              }
-            >
-              {item.candidateName}
-            </p>
+            <p className="truncate font-medium">{item.candidateName}</p>
             <p className="text-sm text-muted-foreground">
               {item.roleName} · <span className="font-mono text-xs">{item.targetLevel}</span>
             </p>
@@ -125,16 +117,14 @@ function MobileCard({ item }: { item: AdminAssessmentListItem }) {
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <StatusBadge status={item.status} deleted={item.dataDeleted} />
+          <StatusBadge status={item.status} />
           {(item.recommendation || item.reportStatus) && (
             <RecommendationBadge
               recommendation={item.recommendation}
               reportStatus={item.reportStatus}
             />
           )}
-          {(item.decision || item.recommendation) && !item.dataDeleted && (
-            <DecisionBadge item={item} />
-          )}
+          {(item.decision || item.recommendation) && <DecisionBadge item={item} />}
         </div>
       </Link>
     </li>

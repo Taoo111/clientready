@@ -98,7 +98,7 @@ Tailwind CSS v4 + shadcn/ui (Radix) + lucide-react; tokens (colours, radius, sha
 - `http://localhost:3000/admin` (Polish). Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`. The API hashes the password (argon2id) and issues a session token; the web app keeps it in an httpOnly cookie and calls the API server-side (`Authorization: Bearer …`). The browser never sees an API key.
 - **Oceny**: list with search by name, status and role filters, newest first.
 - **Nowa ocena**: candidate, optional e-mail, role (from the template registry) and target level → a page with the candidate link, "Kopiuj link" and a ready invitation message in Polish and English.
-- **Raport**: recommendation, CEFR, criteria with score bars and expandable evidence quotes, recording, transcript split by speaker. Actions: "Oceń ponownie", "Drukuj / PDF" (print stylesheet — save as PDF from the browser and attach it in the ATS) and "Usuń dane kandydata" (GDPR: deletes transcript, recordings and reports, anonymises the name and invalidates the link).
+- **Raport**: recommendation, CEFR, criteria with score bars and expandable evidence quotes, recording, transcript split by speaker. Actions: "Oceń ponownie", "Drukuj / PDF" (print stylesheet — save as PDF from the browser and attach it in the ATS) and "Usuń dane kandydata" (GDPR: deletes transcript, recordings and reports, anonymises the name, invalidates the link and hides the assessment from the list).
 - `ADMIN_API_KEY` remains only for scripts and the CLI.
 
 ## Running an assessment

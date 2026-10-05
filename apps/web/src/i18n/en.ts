@@ -1,9 +1,7 @@
 /** Candidate-facing strings (English). */
 export const en = {
   appName: 'ClientReady',
-  tagline: 'Can you handle a real conversation with a client in English?',
 
-  loading: 'Loading…',
   retry: 'Try again',
   footer: 'Your recording is only shared with the recruiter who invited you.',
   poweredBy: 'Powered by',
@@ -107,8 +105,6 @@ export const en = {
 
   live: {
     connecting: 'Connecting you to the client…',
-    reconnecting: 'Reconnecting…',
-    aiSpeaking: 'The client is speaking',
     youSpeaking: 'You’re speaking',
     listening: 'Listening…',
     thinking: 'Thinking…',

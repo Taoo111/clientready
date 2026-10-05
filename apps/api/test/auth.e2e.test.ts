@@ -138,7 +138,6 @@ describe('GET /admin/assessments', () => {
       targetLevel: 'B2',
       status: 'IN_PROGRESS',
       recommendation: null,
-      dataDeleted: false,
     });
 
     expect((await list({ q: 'nowak' }).expect(200)).body.items).toHaveLength(1);
@@ -193,6 +192,12 @@ describe('DELETE /admin/assessments/:id/data', () => {
       report: null,
     });
     expect(res.body.dataDeletedAt).not.toBeNull();
+    // Gone from the list (the report page still shows what happened).
+    const list = await http()
+      .get('/admin/assessments')
+      .set('Authorization', `Bearer ${auth}`)
+      .expect(200);
+    expect(list.body.items.map((i: { id: string }) => i.id)).not.toContain(created.id);
     expect(await ctx.prisma.transcriptTurn.count()).toBe(0);
     expect(await ctx.prisma.recording.count()).toBe(0);
     await expect(ctx.app.get(Storage).get(recording.storageKey)).rejects.toThrow();

@@ -45,7 +45,6 @@ export function toListItem(
       : null,
     createdAt: assessment.createdAt.toISOString(),
     endedAt: iso(assessment.endedAt),
-    dataDeleted: assessment.dataDeletedAt !== null,
   };
 }
 

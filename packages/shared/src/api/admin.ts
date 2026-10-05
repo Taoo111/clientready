@@ -61,7 +61,6 @@ export const AdminAssessmentListItemSchema = z.object({
   decision: z.object({ verdict: RecommendationSchema, agreesWithAi: z.boolean() }).nullable(),
   createdAt: z.string(),
   endedAt: z.string().nullable(),
-  dataDeleted: z.boolean(),
 });
 export type AdminAssessmentListItem = z.infer<typeof AdminAssessmentListItemSchema>;
 

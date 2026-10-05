@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+import { useCallback, useEffect, useState } from 'react';
+import { PUBLIC_API_URL } from './api-url';
 
 /** After this long without an answer we tell the user the server is starting. */
 const SHOW_WAKING_AFTER_MS = 2_500;
@@ -17,7 +16,7 @@ export type ApiWakeState = 'checking' | 'waking' | 'ready' | 'down';
 
 async function healthy(signal: AbortSignal): Promise<boolean> {
   try {
-    const res = await fetch(`${API_URL}/health`, {
+    const res = await fetch(`${PUBLIC_API_URL}/health`, {
       cache: 'no-store',
       signal: AbortSignal.any([signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]),
     });
@@ -38,14 +37,12 @@ export function useApiWake(options: { keepAlive?: boolean } = {}): {
 } {
   const [state, setState] = useState<ApiWakeState>('checking');
   const [attempt, setAttempt] = useState(0);
-  const mounted = useRef(true);
 
   useEffect(() => {
-    mounted.current = true;
     const controller = new AbortController();
     const started = Date.now();
     const wakingTimer = setTimeout(() => {
-      if (mounted.current) setState((s) => (s === 'checking' ? 'waking' : s));
+      if (!controller.signal.aborted) setState((s) => (s === 'checking' ? 'waking' : s));
     }, SHOW_WAKING_AFTER_MS);
 
     void (async () => {
@@ -63,7 +60,6 @@ export function useApiWake(options: { keepAlive?: boolean } = {}): {
     })();
 
     return () => {
-      mounted.current = false;
       controller.abort();
       clearTimeout(wakingTimer);
     };
@@ -72,7 +68,7 @@ export function useApiWake(options: { keepAlive?: boolean } = {}): {
   useEffect(() => {
     if (!options.keepAlive) return;
     const timer = setInterval(() => {
-      void fetch(`${API_URL}/health`, { cache: 'no-store' }).catch(() => undefined);
+      void fetch(`${PUBLIC_API_URL}/health`, { cache: 'no-store' }).catch(() => undefined);
     }, KEEP_ALIVE_EVERY_MS);
     return () => clearInterval(timer);
   }, [options.keepAlive]);

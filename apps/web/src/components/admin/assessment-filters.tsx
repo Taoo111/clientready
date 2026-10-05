@@ -3,7 +3,7 @@
 import type { AssessmentStatus } from '@clientready/shared';
 import { Search, X } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Spinner } from '@/components/common/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,19 +27,22 @@ export function AssessmentFilters({ roles }: { roles: { id: string; name: string
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState(params.get('q') ?? '');
 
-  function update(key: string, value: string) {
-    const next = new URLSearchParams(params);
-    if (value && value !== ALL) next.set(key, value);
-    else next.delete(key);
-    startTransition(() => router.replace(`${pathname}${next.size ? `?${next}` : ''}`));
-  }
+  const update = useCallback(
+    (key: string, value: string) => {
+      const next = new URLSearchParams(params);
+      if (value && value !== ALL) next.set(key, value);
+      else next.delete(key);
+      startTransition(() => router.replace(`${pathname}${next.size ? `?${next}` : ''}`));
+    },
+    [params, pathname, router],
+  );
 
-  // Debounced search.
+  // Debounced search; restarts when another filter changes meanwhile, so it is not lost.
   useEffect(() => {
     if (query === (params.get('q') ?? '')) return;
     const timer = setTimeout(() => update('q', query.trim()), 300);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, params, update]);
 
   const hasFilters = params.has('q') || params.has('status') || params.has('role');
 

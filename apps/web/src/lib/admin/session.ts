@@ -1,15 +1,14 @@
 import { RecruiterSchema, type Recruiter } from '@clientready/shared';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { serverApiUrl } from '../api-url';
+import { SESSION_COOKIE } from './session-cookie';
 
 /**
  * Recruiter session (server-side only). The API issues an opaque session token at login;
  * the web app keeps it in an httpOnly cookie and sends it as a Bearer token on every
  * server-side API call. The browser never talks to /admin endpoints directly.
  */
-export const SESSION_COOKIE = 'cr_session';
-
-const API_URL = () => process.env.API_URL ?? 'http://localhost:3001';
 
 export async function sessionToken(): Promise<string | undefined> {
   return (await cookies()).get(SESSION_COOKIE)?.value;
@@ -37,7 +36,7 @@ const DEFAULT_TIMEOUT_MS = 12_000;
 
 async function fetchApi(path: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   try {
-    return await fetch(`${API_URL()}${path}`, {
+    return await fetch(`${serverApiUrl()}${path}`, {
       ...init,
       cache: 'no-store',
       signal: init.signal ?? AbortSignal.timeout(timeoutMs),

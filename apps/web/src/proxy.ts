@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { SESSION_COOKIE } from '@/lib/admin/session-cookie';
 
 /**
  * Optimistic check only: panel pages without a session cookie go straight to the login
@@ -6,7 +7,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  * request made by the panel's server components.
  */
 export function proxy(request: NextRequest) {
-  if (request.cookies.has('cr_session')) return NextResponse.next();
+  if (request.cookies.has(SESSION_COOKIE)) return NextResponse.next();
   const login = new URL('/admin/login', request.url);
   login.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
   return NextResponse.redirect(login);

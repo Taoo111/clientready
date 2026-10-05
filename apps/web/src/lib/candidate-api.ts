@@ -11,8 +11,7 @@ import {
   type UsageReportInput,
 } from '@clientready/shared';
 import { z } from 'zod';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+import { PUBLIC_API_URL } from './api-url';
 
 export class ApiError extends Error {
   constructor(
@@ -36,7 +35,7 @@ async function request<T extends z.ZodType>(
 ): Promise<z.infer<T>> {
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...init });
+    res = await fetch(`${PUBLIC_API_URL}${path}`, { cache: 'no-store', ...init });
   } catch (error) {
     throw new NetworkError(error instanceof Error ? error.message : String(error));
   }
