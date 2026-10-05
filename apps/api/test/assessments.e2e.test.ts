@@ -100,12 +100,6 @@ describe('GET /public/assessments/:token', () => {
         company: 'Northbeam Payments',
         location: 'Amsterdam',
       },
-      phases: [
-        { id: 'warm-up', name: 'Warm-up', durationSec: 90 },
-        { id: 'project-deep-dive', name: 'Project deep-dive', durationSec: 300 },
-        { id: 'client-situation', name: 'Client situation', durationSec: 240 },
-        { id: 'closing', name: 'Closing', durationSec: 30 },
-      ],
     });
   });
 
@@ -156,19 +150,21 @@ describe('conversation lifecycle', () => {
       nextSeq: 0,
     });
     expect(res.body.timeCues.length).toBeGreaterThan(0);
+    expect(res.body.paceNotes.slower).toMatch(/slower pace/);
     expect(res.body).not.toHaveProperty('instructions');
 
     const [req] = ctx.realtime.requests;
     expect(req?.instructions).toContain('Northbeam Payments');
     expect(req?.instructions).toContain('Anna');
     expect(req?.instructions).not.toContain('Nowak');
+    expect(req?.tools.map((t) => t.name)).toEqual(['set_speaking_pace']);
     expect(req?.safetyIdentifier).toMatch(/^[a-f0-9]{64}$/);
 
     const row = await ctx.prisma.assessment.findUniqueOrThrow({ where: { token } });
     expect(row).toMatchObject({
       status: 'IN_PROGRESS',
       realtimeModel: 'fake-realtime',
-      promptVersion: 'client-v3',
+      promptVersion: 'client-v4',
       connectCount: 1,
     });
     expect(row.startedAt).not.toBeNull();

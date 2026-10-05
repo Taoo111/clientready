@@ -24,8 +24,6 @@ export const PublicAssessmentViewSchema = z.object({
   canResume: z.boolean(),
   /** Who the candidate will talk to (the AI client's name card). */
   client: PersonaCardSchema,
-  /** Parts of the conversation, for the progress indicator. */
-  phases: z.array(z.object({ id: z.string(), name: z.string(), durationSec: z.number().int() })),
 });
 export type PublicAssessmentView = z.infer<typeof PublicAssessmentViewSchema>;
 
@@ -35,6 +33,16 @@ export const TimeCueSchema = z.object({
   text: z.string().min(1),
 });
 export type TimeCue = z.infer<typeof TimeCueSchema>;
+
+/** How fast the AI client speaks. The candidate can ask for slower speech (button or by voice). */
+export const SpeakingPaceSchema = z.enum(['normal', 'slower']);
+export type SpeakingPace = z.infer<typeof SpeakingPaceSchema>;
+
+/** Realtime `audio.output.speed` per pace (OpenAI allows 0.25–1.5). */
+export const SPEAKING_SPEED: Record<SpeakingPace, number> = { normal: 1, slower: 0.85 };
+
+/** Realtime function tool the AI client calls when the candidate asks it to slow down. */
+export const SPEAKING_PACE_TOOL = 'set_speaking_pace';
 
 export const RealtimeSessionResultSchema = z.object({
   /** Short-lived OpenAI Realtime client secret. The real API key never reaches the browser. */
@@ -49,6 +57,11 @@ export const RealtimeSessionResultSchema = z.object({
   nextSeq: z.number().int().nonnegative(),
   /** Cues still ahead of `elapsedMs`. */
   timeCues: z.array(TimeCueSchema),
+  /**
+   * Private notes for the AI client when the candidate changes the pace with the button;
+   * null when the prompt version has no pace control.
+   */
+  paceNotes: z.record(SpeakingPaceSchema, z.string().min(1)).nullable(),
 });
 export type RealtimeSessionResult = z.infer<typeof RealtimeSessionResultSchema>;
 

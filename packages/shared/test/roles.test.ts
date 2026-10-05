@@ -119,8 +119,8 @@ describe('backend-developer template', () => {
 
   it('has the four planned phases in order', () => {
     expect(backend!.phases.map((p) => [p.id, p.targetDurationSec])).toEqual([
-      ['warm-up', 90],
-      ['project-deep-dive', 300],
+      ['warm-up', 120],
+      ['project-deep-dive', 270],
       ['client-situation', 240],
       ['closing', 30],
     ]);

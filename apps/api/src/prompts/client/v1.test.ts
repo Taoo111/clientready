@@ -2,7 +2,11 @@ import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clie
 import { describe, expect, it } from 'vitest';
 import { buildClientInstructions, buildTimeCues, CLIENT_PROMPT_VERSION, firstName } from './v1';
 
-const template = getRoleTemplate('backend-developer') as RoleTemplate;
+// Phase timings as they were when this version was released (templates evolve; this
+// version's tests check its timing logic, not the current template).
+const RELEASED_DURATIONS_SEC = [90, 300, 240, 30];
+const template = structuredClone(getRoleTemplate('backend-developer') as RoleTemplate);
+template.phases.forEach((phase, i) => (phase.targetDurationSec = RELEASED_DURATIONS_SEC[i]!));
 
 function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]> = {}): string {
   return buildClientInstructions({

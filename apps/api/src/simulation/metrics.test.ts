@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { checkAiTurn, summarise } from './metrics';
 
 describe('checkAiTurn', () => {
+  it('flags a client turn that ignores the candidate’s question', () => {
+    const asked = 'Before that, can I ask how big your team is?';
+    expect(
+      checkAiTurn('Okay. What was the hardest part of that project?', 0, asked).flags,
+    ).toContain('ignored-question');
+    expect(
+      checkAiTurn(
+        'Sure, we are eight people and two of them work remotely. How big was your last team?',
+        0,
+        asked,
+      ).flags,
+    ).not.toContain('ignored-question');
+    // No question from the candidate: nothing to ignore.
+    expect(checkAiTurn('Okay. Why?', 0, 'I used Kafka.').flags).not.toContain('ignored-question');
+  });
+
   it('passes a short single-question turn', () => {
     expect(checkAiTurn('Got it. Why did you pick Kafka there?', 0).flags).toEqual([]);
   });
@@ -24,6 +40,14 @@ describe('checkAiTurn', () => {
       'evaluative-praise',
     );
     expect(checkAiTurn('Dobrze, rozumiem. Let us continue.', 3).flags).toContain('non-english');
+    // Judging tucked into the reaction (client-v4 drafts).
+    expect(checkAiTurn("Okay. That's a sensible first move. What next?", 4).flags).toContain(
+      'evaluative-praise',
+    );
+    expect(checkAiTurn('Right. The outbox is a solid way to close it. Why?', 5).flags).toContain(
+      'evaluative-praise',
+    );
+    expect(checkAiTurn('Ouch. That sounds painful. What happened?', 6).flags).toEqual([]);
   });
 
   it('flags reading out stage directions and other patterns seen in simulations', () => {

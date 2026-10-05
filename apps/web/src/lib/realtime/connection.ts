@@ -1,5 +1,6 @@
-import type { TimeCue } from '@clientready/shared';
+import { SPEAKING_SPEED, type SpeakingPace, type TimeCue } from '@clientready/shared';
 import { reportProblem } from '../monitoring';
+import { findPaceRequest } from './speaking-pace';
 import {
   TurnTracker,
   type ConversationActivity,
@@ -20,6 +21,10 @@ export interface RealtimeConnectionOptions {
   /** Cues with offsets relative to `sessionStartEpochMs`. */
   timeCues: TimeCue[];
   sessionStartEpochMs: number;
+  /** Pace to restore right after connecting (the candidate slowed the client down earlier). */
+  initialPace: SpeakingPace;
+  /** Private notes for the model when the candidate changes the pace with the button. */
+  paceNotes: Record<SpeakingPace, string> | null;
   onRemoteStream: (stream: MediaStream) => void;
   onTurn: (turn: FinalTurn) => void;
   /** The connection was lost unexpectedly (not via `close()`). */
@@ -28,6 +33,8 @@ export interface RealtimeConnectionOptions {
   onActivity?: (activity: ConversationActivity) => void;
   /** Running token totals of this connection changed (cost tracking). */
   onUsage?: (usage: ConnectionUsage) => void;
+  /** The AI client changed its speaking pace itself (the candidate asked by voice). */
+  onPaceChange?: (pace: SpeakingPace) => void;
 }
 
 /**
@@ -44,9 +51,14 @@ export class RealtimeConnection {
   private readonly turns: TurnTracker;
   private readonly usage = new UsageMeter();
   private rateLimitRetries = 0;
+  /** A response is being generated: the voice speed can only change between turns. */
+  private responseActive = false;
+  private pace: SpeakingPace;
+  private paceUpdatePending = false;
 
   constructor(private readonly options: RealtimeConnectionOptions) {
     this.turns = new TurnTracker({ onTurn: options.onTurn, onActivity: options.onActivity });
+    this.pace = options.initialPace;
   }
 
   async connect(): Promise<void> {
@@ -89,9 +101,22 @@ export class RealtimeConnection {
     await pc.setRemoteDescription({ type: 'answer', sdp: await response.text() });
     await opened;
 
+    if (this.pace !== 'normal') this.setPace(this.pace);
     // The AI speaks first: greeting on a new call, "we got disconnected" on a resume.
     this.send({ type: 'response.create' });
     this.scheduleCues();
+  }
+
+  /**
+   * Changes the voice speed (the candidate's button). Applied now, or after the current
+   * response; the model gets a private note so it also simplifies its language.
+   */
+  setPace(pace: SpeakingPace): void {
+    this.pace = pace;
+    const note = this.options.paceNotes?.[pace];
+    if (note) this.addPrivateNote(note);
+    if (this.responseActive) this.paceUpdatePending = true;
+    else this.applyPace();
   }
 
   close(): void {
@@ -112,18 +137,40 @@ export class RealtimeConnection {
       if (delay < 0) continue;
       this.cueTimers.push(
         setTimeout(() => {
-          // A private note for the model; it does not trigger a response by itself.
-          this.send({
-            type: 'conversation.item.create',
-            item: {
-              type: 'message',
-              role: 'system',
-              content: [{ type: 'input_text', text: cue.text }],
-            },
-          });
+          this.addPrivateNote(cue.text);
         }, delay),
       );
     }
+  }
+
+  /** A note for the model only; it does not trigger a response by itself. */
+  private addPrivateNote(text: string): void {
+    this.send({
+      type: 'conversation.item.create',
+      item: { type: 'message', role: 'system', content: [{ type: 'input_text', text }] },
+    });
+  }
+
+  private applyPace(): void {
+    this.paceUpdatePending = false;
+    this.send({
+      type: 'session.update',
+      session: { type: 'realtime', audio: { output: { speed: SPEAKING_SPEED[this.pace] } } },
+    });
+  }
+
+  /** The model called the pace tool: apply it, return the result and let the model go on. */
+  private handlePaceRequest(response: unknown): void {
+    const request = findPaceRequest(response);
+    if (!request) return;
+    this.pace = request.pace;
+    this.applyPace();
+    this.send({
+      type: 'conversation.item.create',
+      item: { type: 'function_call_output', call_id: request.callId, output: 'done' },
+    });
+    this.send({ type: 'response.create' });
+    this.options.onPaceChange?.(request.pace);
   }
 
   private handleConnectionState(): void {
@@ -158,7 +205,14 @@ export class RealtimeConnection {
     if (this.turns.handle(event, Date.now())) return;
 
     switch (event.type) {
+      case 'response.created':
+        this.responseActive = true;
+        break;
+
       case 'response.done': {
+        this.responseActive = false;
+        if (this.paceUpdatePending) this.applyPace();
+        this.handlePaceRequest(event.response);
         this.options.onActivity?.('response-done');
         // A response rejected by the rate limit leaves the client silent: ask again shortly.
         const response = event.response as

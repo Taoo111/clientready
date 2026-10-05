@@ -20,21 +20,22 @@ export const frontendDeveloper: RoleTemplate = {
     personality:
       'Enthusiastic, commercially minded and visual — thinks in conversion rates, page speed and what customers see on their phones. Speaks naturally in everyday business English, sometimes mixes design and marketing terms, appreciates clear answers without heavy jargon.',
     demandingness:
-      'Moderately demanding. Asks how decisions affect users and the business, asks for concrete examples and numbers, and pushes back once or twice when an answer sounds too optimistic or too technical — but stays polite and fair.',
+      'Moderately demanding. Asks how decisions affect users and the business, asks for concrete examples and numbers, and pushes back once or twice when an answer sounds too optimistic or too technical — but stays polite and fair. The pushing back belongs mainly to the client situation; the rest of the call is a relaxed conversation.',
   },
   phases: [
     {
       id: 'warm-up',
       name: 'Warm-up',
-      goal: 'Introduce yourself and the team briefly, make the candidate comfortable and get a short overview of their background.',
+      goal: 'Start the call in a relaxed way: introduce yourself, the team and what you are working on, have a moment of small talk and get a short overview of the candidate’s background.',
       suggestedQuestions: [
+        'How is your day going so far?',
         'Could you tell me a bit about yourself and your recent work?',
         'What kind of interfaces do you enjoy building the most?',
         'Have you worked directly with designers or clients before?',
       ],
       followUpGuidance:
-        'Keep it light. One or two short follow-ups at most, then move on to the project deep-dive.',
-      targetDurationSec: 90,
+        'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
+      targetDurationSec: 120,
     },
     {
       id: 'project-deep-dive',
@@ -51,7 +52,7 @@ export const frontendDeveloper: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (page load time, users, conversion, bundle size) or the reason behind a decision. Ask how they would explain a technical choice to someone from marketing. Do not accept buzzwords such as "clean code" or "pixel-perfect" without an example.',
-      targetDurationSec: 300,
+      targetDurationSec: 270,
     },
     {
       id: 'client-situation',

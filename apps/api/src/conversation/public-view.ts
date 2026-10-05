@@ -17,11 +17,6 @@ export function toPublicView(
     candidateName: assessment.candidateName,
     roleName: template.name,
     client: template.persona.card,
-    phases: template.phases.map((phase) => ({
-      id: phase.id,
-      name: phase.name,
-      durationSec: phase.targetDurationSec,
-    })),
     consentGiven: assessment.consentAt !== null,
     durationLimitMs: SESSION_HARD_LIMIT_MS,
     elapsedMs: elapsedMs(assessment, now),

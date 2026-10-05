@@ -20,6 +20,7 @@ export const AI_TURN_FLAGS = [
   'suggests-answers',
   'evaluative-praise',
   'non-english',
+  'ignored-question',
 ] as const;
 export type AiTurnFlag = (typeof AI_TURN_FLAGS)[number];
 
@@ -35,7 +36,7 @@ const PATTERNS: Partial<Record<AiTurnFlag, RegExp>> = {
     /\b(phase \d|part \d|next phase|on purpose|to make it (more )?real|(a|one) (small )?complication|scenario|imagine (that )?you|role[- ]?play|i('ll| will) (push back|ask you for|have a final)|once you answer|stay in character)\b/i,
   // Judging the candidate's answer instead of reacting like a client.
   'evaluative-praise':
-    /\b(great|good|solid|excellent|perfect|reasonable|strong|nice|sensible|measured|smart) (answer|approach|start|point|job|response|question|example|plan|path|nuance|thinking|escalation)\b|\bwell (said|done|answered)\b|\bthanks for asking\b|\bi (really )?like (that|the|your)\b/i,
+    /\b(great|good|solid|excellent|perfect|reasonable|strong|nice|sensible|measured|smart) (answer|approach|start|point|job|response|question|example|plan|path|nuance|thinking|escalation)\b|\bwell (said|done|answered)\b|\bthanks for asking\b|\bi (really )?like (that|the|your)\b|\b(that|this)(['’]s| is| was| sounds like) an? (very |really )?(good|great|solid|sensible|clear|clean|calm|smart|practical|thoughtful|reasonable)\b|\bis an? (good|solid|sensible|smart) (way|move|call|choice)\b/i,
   'non-english': /[ąćęłńśźżĄĆĘŁŃŚŹŻ]|\b(dziękuję|proszę|dobrze|nie wiem)\b/i,
 };
 
@@ -64,7 +65,22 @@ export function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-export function checkAiTurn(text: string, index: number): AiTurnCheck {
+/**
+ * The candidate asked something, but the client only reacted with a word or two and asked its
+ * own question (client-v3 did this all the time). Asking the candidate to repeat is flagged
+ * too - read the turn.
+ */
+function ignoresQuestion(text: string, previousCandidateText: string | undefined): boolean {
+  if (!previousCandidateText?.includes('?')) return false;
+  const statements = text.replace(/[^.?!]*\?/g, ' ');
+  return countWords(statements) < 5;
+}
+
+export function checkAiTurn(
+  text: string,
+  index: number,
+  previousCandidateText?: string,
+): AiTurnCheck {
   const questions = (text.match(/\?/g) ?? []).length;
   const words = countWords(text);
   const flags: AiTurnFlag[] = [];
@@ -72,6 +88,7 @@ export function checkAiTurn(text: string, index: number): AiTurnCheck {
   if (compoundQuestion(text)) flags.push('compound-question');
   if (words > MAX_TURN_WORDS) flags.push('too-long');
   if (suggestsAnswers(text)) flags.push('suggests-answers');
+  if (ignoresQuestion(text, previousCandidateText)) flags.push('ignored-question');
   for (const flag of AI_TURN_FLAGS) {
     if (PATTERNS[flag]?.test(text)) flags.push(flag);
   }

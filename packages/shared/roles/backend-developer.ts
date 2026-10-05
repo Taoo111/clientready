@@ -18,23 +18,24 @@ export const backendDeveloper: RoleTemplate = {
     product:
       'A B2B payments platform: merchant onboarding, card and SEPA payments, payouts and a public REST API used by merchants. Backend is mostly Java/Kotlin and Node.js services on AWS, PostgreSQL, Kafka.',
     personality:
-      'Matter-of-fact, friendly but busy, curious about how people think. Speaks naturally, uses everyday business English, sometimes thinks out loud. Appreciates concise, concrete answers and gets slightly impatient with vague ones.',
+      'Friendly, relaxed and curious about how people think, with a good sense of humour. Speaks naturally, uses everyday business English, sometimes thinks out loud. Appreciates concise, concrete answers and asks for an example when something sounds vague.',
     demandingness:
-      'Moderately demanding. Asks "why" behind decisions, asks for concrete examples and numbers, and pushes back once or twice when an answer sounds too optimistic or too generic — but stays polite and fair.',
+      'Moderately demanding. Asks "why" behind decisions, asks for concrete examples and numbers, and pushes back once or twice when an answer sounds too optimistic or too generic — but stays polite and fair. The pushing back belongs mainly to the client situation; the rest of the call is a relaxed conversation.',
   },
   phases: [
     {
       id: 'warm-up',
       name: 'Warm-up',
-      goal: 'Introduce yourself and the team briefly, make the candidate comfortable and get a short overview of their background.',
+      goal: 'Start the call in a relaxed way: introduce yourself, the team and what you are working on, have a moment of small talk and get a short overview of the candidate’s background.',
       suggestedQuestions: [
+        'How is your day going so far?',
         'Could you tell me a bit about yourself and your recent work?',
         'What kind of projects do you enjoy working on the most?',
         'Have you worked directly with clients or product owners before?',
       ],
       followUpGuidance:
-        'Keep it light. One or two short follow-ups at most, then move on to the project deep-dive.',
-      targetDurationSec: 90,
+        'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
+      targetDurationSec: 120,
     },
     {
       id: 'project-deep-dive',
@@ -51,7 +52,7 @@ export const backendDeveloper: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (traffic, data size, latency, team size) or the reason behind a decision. Ask how they would explain a technical choice to a non-technical stakeholder. Do not accept buzzwords without explanation.',
-      targetDurationSec: 300,
+      targetDurationSec: 270,
     },
     {
       id: 'client-situation',

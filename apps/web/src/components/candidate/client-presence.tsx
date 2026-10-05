@@ -1,10 +1,9 @@
 import type { PersonaCard } from '@clientready/shared';
 import { Mic } from 'lucide-react';
 import { en } from '@/i18n/en';
+import type { PresenceState } from '@/lib/realtime/presence';
 import { cn } from '@/lib/utils';
 import { ClientPortrait } from './client-portrait';
-
-export type PresenceState = 'connecting' | 'listening' | 'thinking' | 'speaking' | 'you';
 
 const labels: Record<PresenceState, string> = {
   connecting: en.live.connecting,
