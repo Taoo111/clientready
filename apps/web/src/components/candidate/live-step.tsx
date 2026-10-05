@@ -5,19 +5,17 @@ import {
   WRAP_UP_AT_MS,
   type PublicAssessmentView,
 } from '@clientready/shared';
-import { RotateCw, WifiOff } from 'lucide-react';
+import { MicOff, WifiOff } from 'lucide-react';
 import { useEffect, useSyncExternalStore } from 'react';
-import { Notice } from '@/components/common/notice';
 import { Spinner } from '@/components/common/spinner';
-import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 import type { ConversationController } from '@/lib/realtime/conversation-controller';
-import { CandidateCard, StatusScreen } from './candidate-shell';
+import { CandidateCard } from './candidate-shell';
 import { EndedStep } from './ended-step';
 import { ClientPresence } from './client-presence';
 import { EndCallButton } from './end-call-button';
 import { MicLevel } from './mic-level';
-import { PaceToggle } from './pace-toggle';
+import { PausedScreen } from './paused-screen';
 import { SessionTimer } from './session-timer';
 
 /** Warn before closing the tab while the conversation is running. */
@@ -63,33 +61,29 @@ export function LiveStep({
 
   if (state.phase === 'dropped') {
     return (
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <SessionTimer remainingMs={state.remainingMs} />
-        </div>
-        <StatusScreen
-          icon={WifiOff}
-          tone="warning"
-          title={t.dropped.title}
-          body={state.error ? undefined : t.dropped.body}
-        >
-          {state.error && (
-            <Notice tone="danger" className="text-left">
-              {t.errors[state.error]}
-            </Notice>
-          )}
-          {state.canReconnect && (
-            <Button
-              size="lg"
-              className="w-full sm:w-auto"
-              onClick={() => void controller.connect()}
-            >
-              <RotateCw aria-hidden />
-              {t.dropped.reconnect}
-            </Button>
-          )}
-        </StatusScreen>
-      </div>
+      <PausedScreen
+        icon={WifiOff}
+        title={t.dropped.title}
+        body={t.dropped.body}
+        error={state.error && t.errors[state.error]}
+        action={state.canReconnect ? t.dropped.reconnect : undefined}
+        onAction={() => void controller.connect()}
+        remainingMs={state.remainingMs}
+      />
+    );
+  }
+
+  if (state.phase === 'interrupted') {
+    return (
+      <PausedScreen
+        icon={MicOff}
+        title={t.interrupted.title}
+        body={t.interrupted.body}
+        error={state.error && t.errors[state.error]}
+        action={t.interrupted.continue}
+        onAction={() => void controller.continueAfterInterruption()}
+        remainingMs={state.remainingMs}
+      />
     );
   }
 
@@ -115,11 +109,6 @@ export function LiveStep({
 
       {/* Call controls, like the bottom bar of a video call. */}
       <div className="grid gap-3 sm:flex sm:justify-center [&>button]:w-full sm:[&>button]:w-auto">
-        <PaceToggle
-          pace={state.pace}
-          disabled={state.phase === 'connecting'}
-          onChange={(pace) => controller.setPace(pace)}
-        />
         <EndCallButton
           disabled={state.phase === 'connecting'}
           onConfirm={() => void controller.endByCandidate()}

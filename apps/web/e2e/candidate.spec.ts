@@ -33,7 +33,7 @@ test('candidate goes through consent and the microphone check to the conversatio
   await expect(page.getByRole('button', { name: en.live.dropped.reconnect })).toBeVisible();
 });
 
-test('the conversation screen shows the client, the timer and the pace toggle', async ({
+test('the conversation screen shows the client, the timer and the end button', async ({
   page,
   request,
 }) => {
@@ -44,7 +44,6 @@ test('the conversation screen shows the client, the timer and the pace toggle', 
   await expect(page.getByText('Emma Visser')).toBeVisible();
   await expect(page.getByText(en.live.connecting)).toBeVisible();
   await expect(page.getByRole('timer')).toBeVisible();
-  await expect(page.getByRole('button', { name: en.live.slower })).toBeDisabled();
   await expect(page.getByRole('button', { name: en.live.end })).toBeDisabled();
 });
 

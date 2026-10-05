@@ -7,7 +7,7 @@ import { LevelMeter } from './level-meter';
 export class CallAudio {
   /** Undefined when the browser refuses an AudioContext (levels then read 0). */
   readonly context: AudioContext | undefined;
-  private readonly micMeter: LevelMeter | undefined;
+  private micMeter: LevelMeter | undefined;
   private aiMeter: LevelMeter | undefined;
   private readonly remoteAudio: HTMLAudioElement;
 
@@ -39,6 +39,18 @@ export class CallAudio {
     void this.remoteAudio.play().catch(() => undefined);
     this.aiMeter?.dispose();
     this.aiMeter = this.context ? new LevelMeter(this.context, stream) : undefined;
+  }
+
+  /** Measures a new microphone (the old one was taken by another app). */
+  replaceMic(mic: MediaStream): void {
+    this.micMeter?.dispose();
+    this.micMeter = this.context ? new LevelMeter(this.context, mic) : undefined;
+  }
+
+  /** Resumes audio that the system suspended (e.g. during a phone call); needs a user gesture. */
+  async resume(): Promise<void> {
+    await this.context?.resume().catch(() => undefined);
+    if (this.remoteAudio.srcObject) await this.remoteAudio.play().catch(() => undefined);
   }
 
   /** Stops measuring the client's voice (the connection segment ended). */

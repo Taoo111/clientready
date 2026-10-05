@@ -1,7 +1,7 @@
 import { CircleCheck, CloudAlert, CloudCheck } from 'lucide-react';
 import { Spinner } from '@/components/common/spinner';
 import { en } from '@/i18n/en';
-import type { UploadStatus } from '@/lib/realtime/conversation-controller';
+import type { UploadStatus } from '@/lib/realtime/conversation-state';
 import { cn } from '@/lib/utils';
 import { StatusScreen } from './candidate-shell';
 

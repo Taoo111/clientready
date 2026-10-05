@@ -75,6 +75,7 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `OPENAI_REALTIME_MODEL`                                           | Realtime model: `gpt-realtime-2.1-mini` in development (`.env.example`), `gpt-realtime-2.1` in production (code default; follows the prompt much better) |
 | `OPENAI_REALTIME_VOICE`, `OPENAI_TRANSCRIBE_MODEL`                | AI client voice and input transcription model                                                                                                            |
 | `OPENAI_REALTIME_REASONING_EFFORT`                                | `minimal` (default) for gpt-realtime-2.x; `none` for older models such as gpt-realtime-mini                                                              |
+| `OPENAI_REALTIME_NOISE_REDUCTION`                                 | Noise reduction before the speech detector: `far_field` (default, laptop/phone mic), `near_field` (headset), `off`                                       |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                   | Recruiter panel account, created (or its password updated) at API startup; password min. 12 chars, argon2id                                              |
 | `SESSION_TTL_HOURS`                                               | Panel login session lifetime (default 12 h)                                                                                                              |
 | `ADMIN_API_KEY`                                                   | For scripts/CLI only: header `x-admin-key` on `/admin/*` endpoints (min. 24 chars; unset = disabled)                                                     |
@@ -126,7 +127,9 @@ How it works:
 
 - The AI client's instructions are built only on the server (`apps/api/src/prompts/client/`, current version selected in `index.ts`; built from the role template + target level + guardrails). The browser gets a short-lived OpenAI client secret and connects to the Realtime API directly over WebRTC.
 - Transcript turns (candidate input transcription + AI audio transcript) are sent to the API as they finish and stored in `TranscriptTurn`.
-- The candidate can slow the AI client down: by asking it (the client calls the `set_speaking_pace` realtime tool, the browser lowers `audio.output.speed`) or with the "Slower speech" button.
+- Asked to slow down, the AI client speaks more calmly and simply in its own voice (a lowered `audio.output.speed` was tried and removed: it sounded robotic).
+- Interruptions on the candidate's device (e.g. a phone call on a mobile takes the microphone and suspends the page's audio while WebRTC stays connected) are detected; the screen says the call was interrupted, and "Continue" gets a working microphone back onto the same call (`RTCRtpSender.replaceTrack`) and lets the client pick up where it stopped. The timer keeps running.
+- Noise reduction (`OPENAI_REALTIME_NOISE_REDUCTION`) filters short noises before the speech detector, so a creaking chair does not cut the client off.
 - The conversation is hard-stopped after 12 minutes, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
 - Audio (candidate + AI mixed) is recorded per connection segment and uploaded to `apps/api/storage/recordings/<assessmentId>/` (`Recording` rows).
 - Endpoints: `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`; `GET|POST /admin/assessments`, `GET /admin/assessments/:id`, `POST …/:id/evaluate`, `DELETE …/:id/data`, `GET …/:id/recordings/:recordingId`; `GET /public/assessments/:token`, `POST …/consent`, `…/realtime-session`, `…/turns`, `…/recording`, `…/end`.
