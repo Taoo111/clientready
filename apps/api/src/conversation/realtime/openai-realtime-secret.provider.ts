@@ -13,6 +13,14 @@ import {
 const CLIENT_SECRETS_URL = 'https://api.openai.com/v1/realtime/client_secrets';
 /** The secret is only needed to establish the WebRTC call. */
 const SECRET_TTL_SECONDS = 120;
+/**
+ * Guides the input transcription. Without it, echo, noise and fillers ("uh") were sometimes
+ * transcribed as a few characters of Japanese or Thai, which the evaluation then reported as
+ * "the candidate used another language". No `language` is set on purpose: real Polish speech
+ * must stay visible as Polish.
+ */
+const TRANSCRIPTION_PROMPT =
+  'A job interview call in English between a client and a Polish IT professional, about software projects, payments and cloud systems. The speaker may hesitate or use fillers, and occasionally say a Polish word.';
 
 const ClientSecretResponseSchema = z.object({
   value: z.string().min(1),
@@ -58,7 +66,10 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
         output_modalities: ['audio'],
         audio: {
           input: {
-            transcription: { model: this.config.get('OPENAI_TRANSCRIBE_MODEL', { infer: true }) },
+            transcription: {
+              model: this.config.get('OPENAI_TRANSCRIBE_MODEL', { infer: true }),
+              prompt: TRANSCRIPTION_PROMPT,
+            },
             ...(noiseReduction === 'off' ? {} : { noise_reduction: { type: noiseReduction } }),
             // Interruptions are switched on by the browser after the client's first turn.
             turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: false },

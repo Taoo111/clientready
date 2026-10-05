@@ -164,6 +164,7 @@ export const pl = {
     keyEvidence: {
       weakest: 'Najsłabszy punkt',
       strongest: 'Najmocniejszy punkt',
+      example: 'Przykładowy cytat',
     },
     modelDisagrees: (label: string) =>
       `Model oceniający sugerował „${label}”. Rekomendacja wynika ze stałej reguły względem poziomu docelowego.`,

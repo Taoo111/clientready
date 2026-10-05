@@ -28,11 +28,12 @@ describe('keyEvidence', () => {
 
   it('skips criteria without verified quotes', () => {
     const result = keyEvidence([criterion('a', 1), criterion('b', 4, ['b1'])]);
-    expect(result).toEqual([expect.objectContaining({ kind: 'strongest', criterionKey: 'b' })]);
+    expect(result).toEqual([expect.objectContaining({ kind: 'example', criterionKey: 'b' })]);
   });
 
   it('returns one quote when all scores are equal, none without quotes', () => {
-    expect(keyEvidence([criterion('a', 3, ['a1']), criterion('b', 3, ['b1'])])).toHaveLength(1);
+    const equal = keyEvidence([criterion('a', 3, ['a1']), criterion('b', 3, ['b1'])]);
+    expect(equal.map((e) => e.kind)).toEqual(['example']);
     expect(keyEvidence([criterion('a', 3)])).toEqual([]);
   });
 });
