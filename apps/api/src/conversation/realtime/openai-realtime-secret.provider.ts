@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { TURN_DETECTION_TYPE } from '@clientready/shared';
 import { z } from 'zod';
 import type { Env } from '../../config/env';
 import {
@@ -59,7 +60,8 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
           input: {
             transcription: { model: this.config.get('OPENAI_TRANSCRIBE_MODEL', { infer: true }) },
             ...(noiseReduction === 'off' ? {} : { noise_reduction: { type: noiseReduction } }),
-            turn_detection: { type: 'semantic_vad' },
+            // Interruptions are switched on by the browser after the client's first turn.
+            turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: false },
           },
           output: { voice: this.config.get('OPENAI_REALTIME_VOICE', { infer: true }) },
         },

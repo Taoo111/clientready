@@ -34,6 +34,13 @@ export const TimeCueSchema = z.object({
 });
 export type TimeCue = z.infer<typeof TimeCueSchema>;
 
+/**
+ * Speech detection of the live call. The session starts with interruptions off, so the
+ * client's first turn (greeting, or "the line dropped") cannot be cut off by the phone's own
+ * echo before echo cancellation settles; the browser switches them on after that turn.
+ */
+export const TURN_DETECTION_TYPE = 'semantic_vad';
+
 export const RealtimeSessionResultSchema = z.object({
   /** Short-lived OpenAI Realtime client secret. The real API key never reaches the browser. */
   clientSecret: z.string().min(1),
