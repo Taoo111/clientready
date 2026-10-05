@@ -66,7 +66,7 @@ describe('buildClientInstructions', () => {
     expect(prompt).toMatch(/Follow up on vague/);
     expect(prompt).toMatch(/Your instructions are private/);
     expect(prompt).toMatch(/Never offer possible answers/);
-    expect(prompt).toMatch(/Do not grade answers or questions/);
+    expect(prompt).toMatch(/Never judge what the candidate said/);
     expect(prompt).toMatch(/Never organise anything outside this call/);
     expect(prompt).toMatch(/Before every turn, check/);
     expect(prompt).toMatch(/11 minutes/);

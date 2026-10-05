@@ -40,6 +40,14 @@ describe('checkAiTurn', () => {
       'evaluative-praise',
     );
     expect(checkAiTurn('Dobrze, rozumiem. Let us continue.', 3).flags).toContain('non-english');
+    // Judging tucked into the reaction (client-v4 drafts).
+    expect(checkAiTurn("Okay. That's a sensible first move. What next?", 4).flags).toContain(
+      'evaluative-praise',
+    );
+    expect(checkAiTurn('Right. The outbox is a solid way to close it. Why?', 5).flags).toContain(
+      'evaluative-praise',
+    );
+    expect(checkAiTurn('Ouch. That sounds painful. What happened?', 6).flags).toEqual([]);
   });
 
   it('flags reading out stage directions and other patterns seen in simulations', () => {
