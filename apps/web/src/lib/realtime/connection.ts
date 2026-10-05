@@ -1,4 +1,4 @@
-import type { TimeCue } from '@clientready/shared';
+import { TURN_DETECTION_TYPE, type TimeCue } from '@clientready/shared';
 import { reportProblem } from '../monitoring';
 import {
   TurnTracker,
@@ -44,6 +44,8 @@ export class RealtimeConnection {
   private readonly turns: TurnTracker;
   private readonly usage = new UsageMeter();
   private rateLimitRetries = 0;
+  /** The session starts without interruptions (see TURN_DETECTION_TYPE). */
+  private interruptionsOn = false;
 
   constructor(private readonly options: RealtimeConnectionOptions) {
     this.turns = new TurnTracker({ onTurn: options.onTurn, onActivity: options.onActivity });
@@ -142,6 +144,23 @@ export class RealtimeConnection {
     });
   }
 
+  /**
+   * After the client's first turn the candidate may interrupt it again (barge-in), like in
+   * a normal call. A partial session.update: transcription and noise settings stay.
+   */
+  private enableInterruptions(): void {
+    this.interruptionsOn = true;
+    this.send({
+      type: 'session.update',
+      session: {
+        type: 'realtime',
+        audio: {
+          input: { turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: true } },
+        },
+      },
+    });
+  }
+
   private handleConnectionState(): void {
     const state = this.pc?.connectionState;
     if (state === 'connected') {
@@ -176,6 +195,7 @@ export class RealtimeConnection {
     switch (event.type) {
       case 'response.done': {
         this.options.onActivity?.('response-done');
+        if (!this.interruptionsOn) this.enableInterruptions();
         // A response rejected by the rate limit leaves the client silent: ask again shortly.
         const response = event.response as
           { status?: string; status_details?: { error?: { code?: string } } } | undefined;
