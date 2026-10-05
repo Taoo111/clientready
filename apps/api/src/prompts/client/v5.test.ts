@@ -2,12 +2,10 @@ import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clie
 import { describe, expect, it } from 'vitest';
 import {
   buildClientInstructions,
-  buildPaceNotes,
+  buildResumeNote,
   buildTimeCues,
-  buildTools,
   CLIENT_PROMPT_VERSION,
-  SPEAKING_PACE_TOOL,
-} from './v4';
+} from './v5';
 
 const template = getRoleTemplate('backend-developer') as RoleTemplate;
 
@@ -22,7 +20,7 @@ function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]>
 
 describe('buildClientInstructions', () => {
   it('has a version id', () => {
-    expect(CLIENT_PROMPT_VERSION).toBe('client-v4');
+    expect(CLIENT_PROMPT_VERSION).toBe('client-v5');
   });
 
   it('includes the persona', () => {
@@ -88,7 +86,7 @@ describe('buildClientInstructions', () => {
     expect(prompt).toMatch(/urgent phone call/);
     expect(prompt).toMatch(/"End conversation" button/);
     expect(prompt).toMatch(/speak more slowly/);
-    expect(prompt).toMatch(/Never ignore it when they use another language/);
+    expect(prompt).toMatch(/React only when the candidate actually says words in another language/);
   });
 
   it('does not leak the rubric', () => {
@@ -158,19 +156,24 @@ describe('buildTimeCues', () => {
   });
 });
 
-describe('speaking pace', () => {
-  it('offers the pace tool and tells the client when to call it', () => {
-    const [tool] = buildTools();
-    expect(tool?.name).toBe(SPEAKING_PACE_TOOL);
-    expect(tool?.parameters).toMatchObject({
-      properties: { pace: { enum: ['normal', 'slower'] } },
-    });
-    expect(build()).toContain(`call the ${SPEAKING_PACE_TOOL} tool with "slower"`);
+describe('v5 changes (first production test)', () => {
+  it('has no speed tool; slowing down is just calmer, simpler speech', () => {
+    const prompt = build();
+    expect(prompt).not.toMatch(/set_speaking_pace|tool/);
+    expect(prompt).toMatch(/speak more slowly and calmly/);
   });
 
-  it('has a private note for each pace', () => {
-    const notes = buildPaceNotes();
-    expect(notes.slower).toMatch(/do not mention it.*slower pace/);
-    expect(notes.normal).toMatch(/do not mention it.*normal pace/);
+  it('reacts only to another language, not to talk about Poland', () => {
+    const prompt = build();
+    expect(prompt).toMatch(/only about the language the candidate speaks/);
+    expect(prompt).not.toContain('Ładna dziś pogoda');
+  });
+
+  it('continues a turn cut off by a short noise', () => {
+    expect(build()).toMatch(/cut off by a short noise.*continue from where you stopped/);
+  });
+
+  it('has a private note for when the audio is back', () => {
+    expect(buildResumeNote()).toMatch(/do not mention it.*interrupted.*continue/);
   });
 });

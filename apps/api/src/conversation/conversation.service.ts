@@ -111,7 +111,7 @@ export class ConversationService {
       remainingMs: SESSION_HARD_LIMIT_MS - elapsed,
       nextSeq: maxSeq + 1,
       timeCues: currentClientPrompt.buildTimeCues(template).filter((cue) => cue.atMs > elapsed),
-      paceNotes: currentClientPrompt.buildPaceNotes?.() ?? null,
+      resumeNote: currentClientPrompt.buildResumeNote?.() ?? null,
     };
   }
 

@@ -1,37 +1,15 @@
-import {
-  SESSION_HARD_LIMIT_MS,
-  type RealtimeSessionResult,
-  type SpeakingPace,
-} from '@clientready/shared';
+import { SESSION_HARD_LIMIT_MS, type RealtimeSessionResult } from '@clientready/shared';
 import { CallAudio } from '../audio/call-audio';
+import { InterruptionWatcher, type InterruptionCause } from '../audio/interruption';
+import { liveMic } from '../audio/mic';
 import { SegmentRecorder } from '../audio/segment-recorder';
 import { ApiError, candidateApi } from '../candidate-api';
 import { reportProblem } from '../monitoring';
 import { RealtimeConnection } from './connection';
-import { PresenceSmoother, type PresenceState } from './presence';
+import type { ConversationState } from './conversation-state';
+import { PresenceSmoother } from './presence';
 import { TranscriptUploader } from './transcript-uploader';
 import { UsageUploader } from './usage-uploader';
-
-export type ConversationPhase = 'connecting' | 'live' | 'dropped' | 'finishing' | 'ended';
-export type ConversationError = 'tooManyConnections' | 'unavailable' | 'connectFailed';
-export type UploadStatus = 'idle' | 'uploading' | 'done' | 'failed';
-
-export interface ConversationState {
-  phase: ConversationPhase;
-  /** Set while `dropped` when reconnecting is not possible or failed. */
-  error?: ConversationError;
-  /** Reconnecting makes sense (false e.g. after too many connections). */
-  canReconnect: boolean;
-  remainingMs: number;
-  micLevel: number;
-  aiLevel: number;
-  /** Who is talking, smoothed for the label on the screen. */
-  presence: PresenceState;
-  endReason?: 'candidate' | 'timeUp';
-  upload: UploadStatus;
-  /** How fast the client speaks (button, or the client itself when asked by voice). */
-  pace: SpeakingPace;
-}
 
 const TICK_MS = 100;
 
@@ -49,7 +27,6 @@ export class ConversationController {
     aiLevel: 0,
     presence: 'connecting',
     upload: 'idle',
-    pace: 'normal',
   };
   private readonly audio: CallAudio;
   private readonly uploader: TranscriptUploader;
@@ -57,14 +34,19 @@ export class ConversationController {
   private readonly recorder: SegmentRecorder;
   private connection: RealtimeConnection | undefined;
   private sessionStartEpochMs: number | undefined;
+  private mic: MediaStream;
+  private remoteStream: MediaStream | undefined;
+  private resumeNote: string | null = null;
+  private readonly watcher = new InterruptionWatcher((cause) => this.handleInterruption(cause));
   private readonly presence = new PresenceSmoother();
   private readonly ticker: ReturnType<typeof setInterval>;
   private readonly listeners = new Set<() => void>();
 
   constructor(
     private readonly token: string,
-    private readonly mic: MediaStream,
+    mic: MediaStream,
   ) {
+    this.mic = mic;
     this.audio = new CallAudio(mic);
     this.uploader = new TranscriptUploader(token);
     this.usage = new UsageUploader(token);
@@ -105,7 +87,7 @@ export class ConversationController {
       );
     }
     this.update(patch);
-    const active = ['connecting', 'live', 'dropped'].includes(this.state.phase);
+    const active = ['connecting', 'live', 'interrupted', 'dropped'].includes(this.state.phase);
     if (active && this.sessionStartEpochMs !== undefined && this.state.remainingMs <= 0) {
       void this.finish('timeUp');
     }
@@ -116,6 +98,11 @@ export class ConversationController {
     if (this.state.phase !== 'connecting' && this.state.phase !== 'dropped') return;
     this.update({ phase: 'connecting', error: undefined });
     this.presence.reset();
+    // A phone call may have taken the microphone meanwhile (connect runs from a click).
+    if ((await this.useLiveMic()) === 'failed') {
+      this.update({ phase: 'dropped', error: 'micUnavailable', canReconnect: true });
+      return;
+    }
 
     // Everything said before a drop must be stored before the server builds the resume prompt.
     await this.uploader.flush();
@@ -129,6 +116,7 @@ export class ConversationController {
     }
 
     this.sessionStartEpochMs = Date.now() - session.elapsedMs;
+    this.resumeNote = session.resumeNote;
     this.uploader.syncNextSeq(session.nextSeq);
 
     this.recorder.startSegment();
@@ -139,8 +127,6 @@ export class ConversationController {
       mic: this.mic,
       timeCues: session.timeCues,
       sessionStartEpochMs: this.sessionStartEpochMs,
-      initialPace: this.state.pace,
-      paceNotes: session.paceNotes,
       onRemoteStream: (stream) => this.attachRemote(stream),
       onTurn: (turn) =>
         this.uploader.add(
@@ -152,7 +138,6 @@ export class ConversationController {
       onDrop: (reason) => this.handleDrop(reason),
       onActivity: (activity) => this.presence.activity(activity, Date.now()),
       onUsage: (usage) => this.usage.update(connectionId, usage),
-      onPaceChange: (pace) => this.update({ pace }),
     });
     this.connection = connection;
 
@@ -167,14 +152,28 @@ export class ConversationController {
       this.update({ phase: 'dropped', error: 'connectFailed', canReconnect: true });
       return;
     }
-    if (this.state.phase === 'connecting') this.update({ phase: 'live' });
+    if (this.state.phase !== 'connecting') return;
+    this.update({ phase: 'live' });
+    this.watcher.watch(this.mic, this.audio.context);
   }
 
-  /** The candidate changed the client's speaking pace with the button. */
-  setPace(pace: SpeakingPace): void {
-    if (pace === this.state.pace) return;
-    this.update({ pace });
-    this.connection?.setPace(pace);
+  /** The candidate is back after an interruption (a click): working microphone, client goes on. */
+  async continueAfterInterruption(): Promise<void> {
+    if (this.state.phase !== 'interrupted') return;
+    const mic = await this.useLiveMic();
+    if (mic === 'failed') {
+      this.update({ error: 'micUnavailable' });
+      return;
+    }
+    if (mic === 'switched') {
+      // The recording continues as a new part with the new microphone.
+      this.recorder.stopSegment();
+      this.recorder.startSegment();
+      if (this.remoteStream) this.recorder.addRemote(this.remoteStream);
+    }
+    this.watcher.watch(this.mic, this.audio.context);
+    this.connection?.resumeAfterInterruption(this.resumeNote);
+    this.update({ phase: 'live', error: undefined });
   }
 
   /** The candidate chose to end the conversation. */
@@ -185,13 +184,41 @@ export class ConversationController {
   /** Releases timers and audio resources (e.g. when the component unmounts). */
   dispose(): void {
     clearInterval(this.ticker);
+    this.watcher.stop();
     this.connection?.close();
     this.audio.dispose();
   }
 
   private attachRemote(stream: MediaStream): void {
+    this.remoteStream = stream;
     this.audio.playRemote(stream);
     this.recorder.addRemote(stream);
+  }
+
+  /**
+   * Makes sure the call has a working microphone and audio: a phone call can end or mute the
+   * track and suspend the page's audio. A new track replaces the old one on the live call.
+   */
+  private async useLiveMic(): Promise<'same' | 'switched' | 'failed'> {
+    try {
+      const mic = await liveMic(this.mic);
+      await this.audio.resume();
+      if (mic === this.mic) return 'same';
+      this.mic = mic;
+      this.audio.replaceMic(mic);
+      this.recorder.setMic(mic);
+      await this.connection?.replaceMic(mic);
+      return 'switched';
+    } catch (error) {
+      reportProblem('realtime', error, 'warning');
+      return 'failed';
+    }
+  }
+
+  private handleInterruption(cause: InterruptionCause): void {
+    if (this.state.phase !== 'live') return;
+    reportProblem('realtime', `audio interrupted: ${cause}`, 'warning');
+    this.update({ phase: 'interrupted', error: undefined });
   }
 
   private handleSessionError(error: unknown): void {
@@ -213,7 +240,8 @@ export class ConversationController {
   private handleDrop(reason: string): void {
     console.warn('[conversation] connection dropped:', reason);
     reportProblem('realtime', `connection dropped: ${reason}`, 'warning');
-    if (this.state.phase !== 'live' && this.state.phase !== 'connecting') return;
+    if (!['live', 'connecting', 'interrupted'].includes(this.state.phase)) return;
+    this.watcher.stop();
     this.connection = undefined;
     this.stopSegment();
     this.update({ phase: 'dropped', error: undefined, canReconnect: true });
@@ -231,6 +259,7 @@ export class ConversationController {
     if (this.state.phase === 'finishing' || this.state.phase === 'ended') return;
     this.update({ phase: 'finishing', endReason: reason });
 
+    this.watcher.stop();
     this.connection?.close();
     this.connection = undefined;
     this.stopSegment();

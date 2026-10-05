@@ -38,6 +38,7 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
     }
     const model = this.config.get('OPENAI_REALTIME_MODEL', { infer: true });
     const reasoningEffort = this.config.get('OPENAI_REALTIME_REASONING_EFFORT', { infer: true });
+    const noiseReduction = this.config.get('OPENAI_REALTIME_NOISE_REDUCTION', { infer: true });
 
     const body = {
       expires_after: { anchor: 'created_at', seconds: SECRET_TTL_SECONDS },
@@ -57,6 +58,7 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
         audio: {
           input: {
             transcription: { model: this.config.get('OPENAI_TRANSCRIBE_MODEL', { infer: true }) },
+            ...(noiseReduction === 'off' ? {} : { noise_reduction: { type: noiseReduction } }),
             turn_detection: { type: 'semantic_vad' },
           },
           output: { voice: this.config.get('OPENAI_REALTIME_VOICE', { infer: true }) },

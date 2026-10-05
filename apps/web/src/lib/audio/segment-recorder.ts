@@ -13,7 +13,7 @@ export class SegmentRecorder {
 
   constructor(
     private readonly context: AudioContext | undefined,
-    private readonly mic: MediaStream,
+    private mic: MediaStream,
     private readonly upload: (blob: Blob, durationMs: number) => Promise<unknown>,
   ) {}
 
@@ -26,6 +26,11 @@ export class SegmentRecorder {
       console.warn('[recording] could not start', error);
       reportProblem('recording', error, 'warning');
     }
+  }
+
+  /** Microphone for the segments started from now on. */
+  setMic(mic: MediaStream): void {
+    this.mic = mic;
   }
 
   /** Mixes the AI's voice into the current segment. */

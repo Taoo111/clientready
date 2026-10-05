@@ -110,7 +110,6 @@ export const en = {
     thinking: 'Thinking…',
     clientSpeaking: 'Speaking',
     hint: 'Speak naturally. You can ask the client to repeat or to slow down.',
-    slower: 'Slower speech',
     timeLeft: 'left',
     end: 'End conversation',
     endTitle: 'End the conversation now?',
@@ -119,6 +118,11 @@ export const en = {
     endAction: 'End conversation',
     finishing: 'Saving your conversation…',
     wrapUp: 'About a minute left - the client will wrap up.',
+    interrupted: {
+      title: 'Your call was interrupted',
+      body: 'Another app - for example a phone call - took over your microphone. When you’re ready, continue: the client will pick up where you left off. The timer keeps running.',
+      continue: 'Continue the conversation',
+    },
     dropped: {
       title: 'The connection dropped',
       body: 'No worries - your answers so far are saved. Check your internet connection and reconnect to continue where you stopped.',
@@ -129,6 +133,8 @@ export const en = {
         'The conversation was interrupted too many times and can’t be resumed. Please contact your recruiter.',
       unavailable:
         'The conversation service is temporarily unavailable. Please wait a moment and try again.',
+      micUnavailable:
+        'We couldn’t get your microphone back. End the other call or close the app that uses the microphone, then try again.',
       connectFailed:
         'We couldn’t connect the call. Check your internet connection (and any VPN or firewall), then try again.',
     },

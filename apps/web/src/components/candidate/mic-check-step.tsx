@@ -6,16 +6,12 @@ import { Notice } from '@/components/common/notice';
 import { Button } from '@/components/ui/button';
 import { en } from '@/i18n/en';
 import { LevelMeter, SPEAKING_THRESHOLD } from '@/lib/audio/level-meter';
+import { MIC_CONSTRAINTS } from '@/lib/audio/mic';
 import { cn } from '@/lib/utils';
 import { CandidateCard } from './candidate-shell';
 import { VoiceOrb } from './voice-orb';
 
 type MicError = keyof typeof en.mic.errors;
-
-/** Clear, echo-cancelled speech is what the realtime model and the recording need. */
-export const MIC_CONSTRAINTS: MediaStreamConstraints = {
-  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-};
 
 function micErrorFor(error: unknown): MicError {
   const name = error instanceof DOMException ? error.name : '';
