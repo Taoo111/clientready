@@ -1,4 +1,5 @@
 import type { RoleTemplate } from '../src/roles/schema.js';
+import { aiDataEngineer } from './ai-data-engineer.js';
 import { backendDeveloper } from './backend-developer.js';
 import { businessAnalyst } from './business-analyst.js';
 import { frontendDeveloper } from './frontend-developer.js';
@@ -16,4 +17,5 @@ export const roleTemplates: RoleTemplate[] = [
   qaEngineer,
   businessAnalyst,
   productOwner,
+  aiDataEngineer,
 ];
