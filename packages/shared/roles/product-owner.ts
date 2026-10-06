@@ -12,6 +12,7 @@ export const productOwner: RoleTemplate = {
       company: 'Trackwise Logistics',
       location: 'Gothenburg',
     },
+    voice: 'marin',
     role: 'Chief Commercial Officer and the main business sponsor of the product, called Hannah Lindqvist',
     company:
       'Trackwise Logistics, a fictional freight and parcel logistics company based in Gothenburg (about 1,200 people) that has hired an external delivery team, including a product owner, to build its new customer portal',

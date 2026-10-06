@@ -12,6 +12,7 @@ export const frontendDeveloper: RoleTemplate = {
       company: 'Fernway Outdoor',
       location: 'Manchester',
     },
+    voice: 'cedar',
     role: 'Head of Digital responsible for the online shop, called Oliver Hartley',
     company:
       'Fernway Outdoor, a fictional outdoor and sports equipment retailer based in Manchester (about 600 people, 40 stores) that is extending its e-commerce team with external developers',

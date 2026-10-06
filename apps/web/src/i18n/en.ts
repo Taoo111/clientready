@@ -77,8 +77,7 @@ export const en = {
       'We can’t hear you yet. Check that the right microphone is selected in your system settings and that it isn’t muted.',
     headphones: 'Tip: use headphones so the AI doesn’t hear itself.',
     level: 'Microphone level',
-    start: 'Start the conversation',
-    startHint: 'The client will greet you first. The timer starts now.',
+    continue: 'Continue',
     resumeTitle: 'Welcome back',
     resumeBody:
       'Your conversation was interrupted. Check your microphone, then continue where you left off - the timer kept running while you were away.',
@@ -101,6 +100,18 @@ export const en = {
         body: 'Please reload the page and try again. If it keeps happening, try a different browser.',
       },
     },
+  },
+
+  ready: {
+    title: (clientFirstName: string) => `${clientFirstName} is ready for your call`,
+    intro: (clientFirstName: string) =>
+      `${clientFirstName} will greet you first. Talk as you would on a first call with a new client.`,
+    points: [
+      'It takes about 12 minutes. The timer starts when you start the call.',
+      'You can ask the client to repeat something or to slow down.',
+      'If the call gets interrupted, you can continue where you left off.',
+    ],
+    start: 'Start the call',
   },
 
   live: {

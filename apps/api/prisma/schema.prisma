@@ -45,8 +45,9 @@ model Assessment {
   consentAt          DateTime?
   startedAt          DateTime?
   endedAt            DateTime?
-  /// Realtime model and client prompt version used for the conversation (traceability).
+  /// Realtime model, voice and client prompt version used for the conversation (traceability).
   realtimeModel      String?
+  realtimeVoice      String?
   promptVersion      String?
   /// Number of realtime connections (first connect + resumes).
   connectCount       Int              @default(0)

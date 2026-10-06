@@ -25,7 +25,9 @@ describe('buildClientInstructions', () => {
 
   it('includes the persona', () => {
     const prompt = build();
-    for (const value of Object.values(template.persona).filter((v) => typeof v === 'string')) {
+    for (const value of Object.entries(template.persona)
+      .filter(([key, v]) => key !== 'voice' && typeof v === 'string')
+      .map(([, v]) => v)) {
       expect(prompt).toContain(value);
     }
   });

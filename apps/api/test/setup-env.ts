@@ -20,3 +20,5 @@ process.env.ADMIN_EMAIL = 'recruiter@example.com';
 process.env.ADMIN_PASSWORD = 'correct horse battery staple';
 process.env.SESSION_TTL_HOURS = '12';
 process.env.RETENTION_PURGE_INTERVAL_HOURS = '0';
+// Empty = unset: tests check the persona's own voice, whatever a local .env overrides.
+process.env.OPENAI_REALTIME_VOICE = '';

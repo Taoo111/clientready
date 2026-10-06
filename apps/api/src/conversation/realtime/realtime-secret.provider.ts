@@ -9,6 +9,8 @@ export interface RealtimeFunctionTool {
 export interface RealtimeSecretRequest {
   instructions: string;
   tools: readonly RealtimeFunctionTool[];
+  /** Realtime voice of the AI client. */
+  voice: string;
   /** Stable, non-identifying id of the end user (for OpenAI abuse monitoring). */
   safetyIdentifier: string;
 }

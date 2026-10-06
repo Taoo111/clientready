@@ -19,6 +19,12 @@ export const PersonaCardSchema = z.object({
 
 export const PersonaSchema = z.object({
   card: PersonaCardSchema,
+  /**
+   * Realtime voice of the AI client, matching the persona's name (e.g. `marin` for a woman,
+   * `cedar` for a man). Every candidate for a role hears the same voice: comparable
+   * listening conditions. OPENAI_REALTIME_VOICE overrides it for all roles.
+   */
+  voice: z.string().min(1),
   /** Who the AI client is, e.g. "Head of Product at a logistics SaaS". */
   role: z.string().min(1),
   company: z.string().min(1),

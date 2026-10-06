@@ -11,12 +11,14 @@ import { errorFor, ErrorScreen, type ErrorKind } from './error-screen';
 import { LiveStep } from './live-step';
 import { LoadingCard } from './loading-card';
 import { MicCheckStep } from './mic-check-step';
+import { ReadyStep } from './ready-step';
 
 type Step =
   | { kind: 'loading' }
   | { kind: 'error'; error: ErrorKind }
   | { kind: 'consent'; view: PublicAssessmentView }
   | { kind: 'mic'; view: PublicAssessmentView; resume: boolean }
+  | { kind: 'ready'; view: PublicAssessmentView; mic: MediaStream }
   | { kind: 'live'; controller: ConversationController; view: PublicAssessmentView };
 
 function browserSupported(): boolean {
@@ -61,6 +63,16 @@ export function CandidateFlow({ token }: { token: string }) {
     // Initial data load once the API is up.
     if (api.state === 'ready') void load();
   }, [api.state, load]);
+
+  /**
+   * Must run in a click handler: the AudioContext needs a user gesture, and this runs exactly
+   * once (an effect could run twice in development).
+   */
+  function startCall(mic: MediaStream, view: PublicAssessmentView): void {
+    const controller = new ConversationController(token, mic);
+    void controller.connect();
+    setStep({ kind: 'live', controller, view });
+  }
 
   if (api.state === 'down' && step.kind === 'loading') {
     return (
@@ -107,14 +119,20 @@ export function CandidateFlow({ token }: { token: string }) {
         <CandidateShell step={1}>
           <MicCheckStep
             resume={step.resume}
-            onReady={(mic) => {
-              // Created in the click handler: the AudioContext needs a user gesture, and this
-              // runs exactly once (an effect could run twice in development).
-              const controller = new ConversationController(token, mic);
-              void controller.connect();
-              setStep({ kind: 'live', controller, view: step.view });
-            }}
+            onReady={(mic) =>
+              // A resumed call continues straight away; a new one first shows who is calling.
+              step.resume
+                ? startCall(mic, step.view)
+                : setStep({ kind: 'ready', view: step.view, mic })
+            }
           />
+        </CandidateShell>
+      );
+
+    case 'ready':
+      return (
+        <CandidateShell step={2}>
+          <ReadyStep view={step.view} onStart={() => startCall(step.mic, step.view)} />
         </CandidateShell>
       );
 
