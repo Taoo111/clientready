@@ -86,7 +86,7 @@ If port 5433 is taken, change `POSTGRES_PORT` and the port in `DATABASE_URL` in 
 | `EVAL_PROVIDER`, `EVAL_MODEL`                                     | Evaluation provider `openai` (default, `gpt-6-sol`) or `anthropic` (`claude-sonnet-5`); empty model = default                                            |
 | `EVAL_REASONING_EFFORT`                                           | `low` / `medium` / `high` (default) for the evaluation model                                                                                             |
 | `ANTHROPIC_API_KEY`                                               | Only needed with `EVAL_PROVIDER=anthropic`                                                                                                               |
-| `EVAL_MIN_CONVERSATION_SEC`, `EVAL_MIN_CANDIDATE_SPEECH_SEC`      | Below these (default 7 min / 3 min) the report says "insufficient data" instead of scores                                                                |
+| `EVAL_MIN_CONVERSATION_SEC`, `EVAL_MIN_CANDIDATE_SPEECH_SEC`      | Below these (default 5 min / 2.5 min) the report says "insufficient data" instead of scores                                                              |
 | `EVAL_START_DELAY_MS`, `EVAL_MAX_ATTEMPTS`, `EVAL_RETRY_DELAY_MS` | Automatic evaluation: delay after the session, attempts, first retry delay (doubles)                                                                     |
 | `DATA_RETENTION_DAYS`                                             | Retention for `pnpm purge-data` (default 90)                                                                                                             |
 
@@ -119,7 +119,7 @@ Tailwind CSS v4 + shadcn/ui (Radix) + lucide-react; tokens (colours, radius, sha
      -Headers @{ 'x-admin-key' = $env:ADMIN_API_KEY } -ContentType 'application/json' -Body $body
    ```
 
-3. Open the printed link (`http://localhost:3000/a/<token>`) in Chrome/Edge: consent → microphone check → ~12-minute voice conversation → end screen.
+3. Open the printed link (`http://localhost:3000/a/<token>`) in Chrome/Edge: consent → microphone check → "ready for your call" → ~8-minute voice conversation → end screen.
 
 Microphone access requires a secure context: `http://localhost` works, a LAN address such as `http://192.168.x.x:3000` does not (use HTTPS for that).
 
@@ -130,14 +130,14 @@ How it works:
 - Asked to slow down, the AI client speaks more calmly and simply in its own voice (a lowered `audio.output.speed` was tried and removed: it sounded robotic).
 - Interruptions on the candidate's device (e.g. a phone call on a mobile takes the microphone and suspends the page's audio while WebRTC stays connected) are detected; the screen says the call was interrupted, and "Continue" gets a working microphone back onto the same call (`RTCRtpSender.replaceTrack`) and lets the client pick up where it stopped. The timer keeps running.
 - Noise reduction (`OPENAI_REALTIME_NOISE_REDUCTION`) filters short noises before the speech detector, so a creaking chair does not cut the client off. The client's first turn of each connection (greeting, or "the line dropped") cannot be interrupted at all: on a phone speaker the client's own echo would otherwise cut it off before echo cancellation settles. The browser switches interruptions on after that turn.
-- The conversation is hard-stopped after 12 minutes, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
+- The conversation lasts about 8 minutes (`CONVERSATION_MINUTES` in `packages/shared`, the single source for prompts, timer and texts) and is hard-stopped a minute later, measured from the first connection (the timer keeps running during a disconnect). After a dropped connection the candidate can reconnect; the AI gets the transcript so far and continues.
 - Audio (candidate + AI mixed) is recorded per connection segment and uploaded to `apps/api/storage/recordings/<assessmentId>/` (`Recording` rows).
 - Endpoints: `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`; `GET|POST /admin/assessments`, `GET /admin/assessments/:id`, `POST …/:id/evaluate`, `DELETE …/:id/data`, `GET …/:id/recordings/:recordingId`; `GET /public/assessments/:token`, `POST …/consent`, `…/realtime-session`, `…/turns`, `…/recording`, `…/end`.
 
 ## Evaluation and report (milestone 3)
 
 - When a session ends, the API evaluates it automatically in the background (after `EVAL_START_DELAY_MS`), retries transient provider errors and sets the status to `EVALUATED` or `FAILED`. Pending evaluations are resumed after an API restart.
-- Too short or interrupted conversations (defaults: under 7 min, or under 3 min of candidate speech) get an "insufficient data" report without calling the model.
+- Too short or interrupted conversations (defaults: under 5 min, or under 2.5 min of candidate speech) get an "insufficient data" report without calling the model.
 - The model scores only the candidate's turns (the AI's turns are context), gives 1–3 quotes per criterion and CEFR speaking/listening. Every quote is checked against the transcript after normalisation; quotes that are not found are dropped and logged. The recommendation (`READY` / `READY_WITH_CONCERNS` / `NOT_READY`) is computed by a fixed rule relative to the target level (`apps/api/src/evaluation/recommendation.ts`).
 - Prompt: `apps/api/src/prompts/evaluation/` (current version re-exported from `index.ts`), the same for every provider. Each report stores provider, model and prompt version.
 - Report page (Polish): `http://localhost:3000/admin/assessments/<id>` in the recruiter panel. `pnpm create-assessment` prints this link.

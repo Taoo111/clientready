@@ -68,9 +68,9 @@ const EnvSchema = z
     EVAL_REASONING_EFFORT: z.enum(['low', 'medium', 'high']).default('high'),
     ANTHROPIC_API_KEY: z.string().optional(),
     /** Conversations shorter than this are not scored ("insufficient data"). */
-    EVAL_MIN_CONVERSATION_SEC: z.coerce.number().int().nonnegative().default(420),
+    EVAL_MIN_CONVERSATION_SEC: z.coerce.number().int().nonnegative().default(300),
     /** Minimum total candidate speech for a scored report. */
-    EVAL_MIN_CANDIDATE_SPEECH_SEC: z.coerce.number().int().nonnegative().default(180),
+    EVAL_MIN_CANDIDATE_SPEECH_SEC: z.coerce.number().int().nonnegative().default(150),
     EVAL_MAX_ATTEMPTS: z.coerce.number().int().positive().default(3),
     /** Wait after the session ends before evaluating (late transcript flushes). */
     EVAL_START_DELAY_MS: z.coerce.number().int().nonnegative().default(10_000),

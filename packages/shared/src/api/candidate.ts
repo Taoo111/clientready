@@ -4,10 +4,16 @@ import { AssessmentStatusSchema, SpeakerSchema } from '../enums.js';
 import { PersonaCardSchema } from '../roles/schema.js';
 import { TokenUsageSchema } from '../usage.js';
 
-/** The conversation is hard-stopped after this long (measured from the first connect). */
-export const SESSION_HARD_LIMIT_MS = 12 * 60_000;
+/**
+ * Planned length of the conversation, in minutes: a screening of client communication, not a
+ * certification exam. 12 minutes felt stretched to testers; 8 still gives the evaluation
+ * about 4-5 minutes of the candidate's speech. Prompts, timer and texts derive from it.
+ */
+export const CONVERSATION_MINUTES = 8;
 /** The AI client starts wrapping up the conversation at this point. */
-export const WRAP_UP_AT_MS = 11 * 60_000;
+export const WRAP_UP_AT_MS = CONVERSATION_MINUTES * 60_000;
+/** The conversation is hard-stopped after this long (measured from the first connect). */
+export const SESSION_HARD_LIMIT_MS = WRAP_UP_AT_MS + 60_000;
 
 /** What the candidate's browser may see about an assessment. No email, ids or level. */
 export const PublicAssessmentViewSchema = z.object({
@@ -40,6 +46,12 @@ export type TimeCue = z.infer<typeof TimeCueSchema>;
  * echo before echo cancellation settles; the browser switches them on after that turn.
  */
 export const TURN_DETECTION_TYPE = 'semantic_vad';
+/**
+ * How long the speech detector waits before deciding the candidate has finished. `low` waits
+ * longer when a sentence sounds unfinished: non-native speakers pause to think, and with the
+ * default the client cut in mid-answer ("Hm, retr…") and split answers into fragments.
+ */
+export const TURN_DETECTION_EAGERNESS = 'low';
 
 export const RealtimeSessionResultSchema = z.object({
   /** Short-lived OpenAI Realtime client secret. The real API key never reaches the browser. */

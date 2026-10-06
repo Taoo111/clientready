@@ -36,7 +36,7 @@ export const aiDataEngineer: RoleTemplate = {
       ],
       followUpGuidance:
         'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
-      targetDurationSec: 120,
+      targetDurationSec: 90,
     },
     {
       id: 'project-deep-dive',
@@ -53,7 +53,7 @@ export const aiDataEngineer: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (data volume, accuracy, latency, cost per month, time saved) or the reason behind a decision. Ask how they would explain the model and its limits to a non-technical manager like you. Do not accept buzzwords such as "AI-powered", "state of the art" or "we fine-tuned it" without an example.',
-      targetDurationSec: 270,
+      targetDurationSec: 180,
     },
     {
       id: 'client-situation',
@@ -66,7 +66,7 @@ export const aiDataEngineer: RoleTemplate = {
       ],
       followUpGuidance:
         'Choose exactly ONE scenario and stay with it for the whole phase. Present it the way a real client would — never explain what the candidate should ask or do. Answer questions briefly and realistically, push back once on the first answer, then ask about next steps. If the candidate just agrees to everything, add a small complication.',
-      targetDurationSec: 240,
+      targetDurationSec: 180,
     },
     {
       id: 'closing',
