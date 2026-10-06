@@ -61,8 +61,14 @@ describe('role template registry', () => {
     },
   );
 
-  it('registers the QA, frontend, product owner and AI & data engineer templates', () => {
-    for (const id of ['qa-engineer', 'frontend-developer', 'product-owner', 'ai-data-engineer']) {
+  it('registers the QA, frontend, full stack, product owner and AI & data engineer templates', () => {
+    for (const id of [
+      'qa-engineer',
+      'frontend-developer',
+      'fullstack-developer',
+      'product-owner',
+      'ai-data-engineer',
+    ]) {
       expect(getRoleTemplate(id), id).toBeDefined();
     }
   });
@@ -105,6 +111,7 @@ describe('role template registry', () => {
     expect(voiceOf('business-analyst')).toBe('cedar'); // Lukas
     expect(voiceOf('frontend-developer')).toBe('cedar'); // Oliver
     expect(voiceOf('ai-data-engineer')).toBe('cedar'); // Daniel
+    expect(voiceOf('fullstack-developer')).toBe('marin'); // Clara
   });
 
   it('gives every template its own client persona', () => {

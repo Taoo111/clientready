@@ -3,6 +3,7 @@ import { aiDataEngineer } from './ai-data-engineer.js';
 import { backendDeveloper } from './backend-developer.js';
 import { businessAnalyst } from './business-analyst.js';
 import { frontendDeveloper } from './frontend-developer.js';
+import { fullstackDeveloper } from './fullstack-developer.js';
 import { productOwner } from './product-owner.js';
 import { qaEngineer } from './qa-engineer.js';
 
@@ -14,6 +15,7 @@ import { qaEngineer } from './qa-engineer.js';
 export const roleTemplates: RoleTemplate[] = [
   backendDeveloper,
   frontendDeveloper,
+  fullstackDeveloper,
   qaEngineer,
   businessAnalyst,
   productOwner,
