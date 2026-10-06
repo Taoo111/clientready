@@ -80,6 +80,32 @@ describe('role template registry', () => {
     },
   );
 
+  it.each(roleTemplates.map((t) => [t.id, t] as const))(
+    '%s gives its persona a realtime voice',
+    (_id, t) => {
+      // Voices offered by the OpenAI Realtime API; marin/cedar are recommended for gpt-realtime.
+      expect([
+        'marin',
+        'cedar',
+        'alloy',
+        'ash',
+        'ballad',
+        'coral',
+        'echo',
+        'sage',
+        'shimmer',
+        'verse',
+      ]).toContain(t.persona.voice);
+    },
+  );
+
+  it('matches the voice to the persona (female names: marin, male names: cedar)', () => {
+    const voiceOf = (id: string) => getRoleTemplate(id)?.persona.voice;
+    expect(voiceOf('backend-developer')).toBe('marin'); // Emma
+    expect(voiceOf('business-analyst')).toBe('cedar'); // Lukas
+    expect(voiceOf('frontend-developer')).toBe('cedar'); // Oliver
+  });
+
   it('gives every template its own client persona', () => {
     const companies = roleTemplates.map((t) => t.persona.card.company);
     const names = roleTemplates.map((t) => t.persona.card.name);

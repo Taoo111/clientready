@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 import { en } from '../src/i18n/en';
 import { createAssessment } from './helpers';
 
-/** Consent and microphone check (Chromium's synthetic microphone), up to "Start". */
+/** Consent, microphone check (Chromium's synthetic microphone) and the ready screen. */
 async function startConversation(page: Page, request: APIRequestContext): Promise<void> {
   const { link } = await createAssessment(request, 'Anna Kowalska');
   await page.goto(new URL(link).pathname);
@@ -16,9 +16,13 @@ async function startConversation(page: Page, request: APIRequestContext): Promis
 
   await expect(page.getByRole('heading', { name: en.mic.title })).toBeVisible();
   await page.getByRole('button', { name: en.mic.allow }).click();
-  const start = page.getByRole('button', { name: en.mic.start });
-  await expect(start).toBeEnabled({ timeout: 15_000 });
-  await start.click();
+  const next = page.getByRole('button', { name: en.mic.continue, exact: true });
+  await expect(next).toBeEnabled({ timeout: 15_000 });
+  await next.click();
+
+  // Who is about to call, then a deliberate start.
+  await expect(page.getByRole('heading', { name: en.ready.title('Emma') })).toBeVisible();
+  await page.getByRole('button', { name: en.ready.start }).click();
 }
 
 test('candidate goes through consent and the microphone check to the conversation', async ({

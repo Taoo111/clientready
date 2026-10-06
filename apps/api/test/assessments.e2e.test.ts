@@ -138,6 +138,14 @@ describe('conversation lifecycle', () => {
     expect(second.consentAt).toEqual(first.consentAt);
   });
 
+  it('speaks with the voice of the role persona (a man for Lukas, the BA client)', async () => {
+    const token = await createAssessment({ roleTemplateId: 'business-analyst' });
+    await startSession(token);
+    expect(ctx.realtime.requests.at(-1)?.voice).toBe('cedar');
+    const row = await ctx.prisma.assessment.findUniqueOrThrow({ where: { token } });
+    expect(row.realtimeVoice).toBe('cedar');
+  });
+
   it('starts a realtime session with server-built instructions', async () => {
     const token = await createAssessment();
     const res = await startSession(token);
@@ -158,12 +166,14 @@ describe('conversation lifecycle', () => {
     expect(req?.instructions).toContain('Anna');
     expect(req?.instructions).not.toContain('Nowak');
     expect(req?.tools).toEqual([]);
+    expect(req?.voice).toBe('marin');
     expect(req?.safetyIdentifier).toMatch(/^[a-f0-9]{64}$/);
 
     const row = await ctx.prisma.assessment.findUniqueOrThrow({ where: { token } });
     expect(row).toMatchObject({
       status: 'IN_PROGRESS',
       realtimeModel: 'fake-realtime',
+      realtimeVoice: 'marin',
       promptVersion: 'client-v6',
       connectCount: 1,
     });

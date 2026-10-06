@@ -36,7 +36,8 @@ const EnvSchema = z
     OPENAI_REALTIME_REASONING_EFFORT: z
       .enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh'])
       .default('minimal'),
-    OPENAI_REALTIME_VOICE: z.string().default('marin'),
+    /** Overrides the voice of every role's persona (`persona.voice`), e.g. for tests; unset in production. */
+    OPENAI_REALTIME_VOICE: z.string().optional(),
     /**
      * Noise reduction before the speech detector, so a creaking chair or a cough does not cut
      * the client off: far_field for laptop/phone microphones (most candidates), near_field

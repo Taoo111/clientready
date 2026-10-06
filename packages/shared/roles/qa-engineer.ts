@@ -12,6 +12,7 @@ export const qaEngineer: RoleTemplate = {
       company: 'Medora Health',
       location: 'Lyon',
     },
+    voice: 'marin',
     role: 'Engineering Manager responsible for the patient apps, called Sophie Laurent',
     company:
       'Medora Health, a fictional healthtech company based in Lyon (about 350 people) that is strengthening its delivery teams with external QA engineers',

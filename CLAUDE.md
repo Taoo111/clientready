@@ -57,7 +57,7 @@ Volume at the pilot customer: a few to a dozen+ candidates per month. Optimize f
 Stored in `packages/shared/roles/*.ts` (typed objects, validated with zod). Adding a role must require **no code changes** beyond adding a template. Each template contains:
 
 - `id`, `name`, `description`
-- `persona` — who the AI client is (company, product, personality, how demanding)
+- `persona` — who the AI client is (company, product, personality, how demanding) and its realtime `voice`, matching the persona's name (`marin` for women, `cedar` for men); every candidate of a role hears the same voice (comparable listening conditions; `OPENAI_REALTIME_VOICE` overrides it for all)
 - `phases` — ordered list with goal, suggested questions, follow-up guidance, target duration
 - `rubric` — criteria with key, name, what 1/3/5 looks like
 - `levels` — how difficulty changes for B1 / B2 / C1 target

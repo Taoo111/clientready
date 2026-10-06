@@ -74,7 +74,7 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
             // Interruptions are switched on by the browser after the client's first turn.
             turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: false },
           },
-          output: { voice: this.config.get('OPENAI_REALTIME_VOICE', { infer: true }) },
+          output: { voice: request.voice },
         },
       },
     };

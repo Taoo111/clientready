@@ -85,7 +85,11 @@ export class ConversationService {
       candidateName: assessment.candidateName,
       resume: isResume ? { elapsedMs: elapsed, turns } : undefined,
     });
-    const secret = await this.createSecret(assessment, instructions);
+    // Same voice for every candidate of a role (the persona's), unless overridden for all
+    // (an empty override counts as unset).
+    const voice =
+      this.config.get('OPENAI_REALTIME_VOICE', { infer: true }) || template.persona.voice;
+    const secret = await this.createSecret(assessment, instructions, voice);
 
     await this.prisma.assessment.update({
       where: { id: assessment.id },
@@ -93,12 +97,13 @@ export class ConversationService {
         status: 'IN_PROGRESS',
         startedAt: assessment.startedAt ?? now,
         realtimeModel: secret.model,
+        realtimeVoice: voice,
         promptVersion: currentClientPrompt.CLIENT_PROMPT_VERSION,
       },
     });
     this.logger.log(
       `Assessment ${assessment.id}: realtime session ${isResume ? 'resumed' : 'started'} ` +
-        `(model=${secret.model}, prompt=${currentClientPrompt.CLIENT_PROMPT_VERSION}, elapsed=${elapsed}ms)`,
+        `(model=${secret.model}, voice=${voice}, prompt=${currentClientPrompt.CLIENT_PROMPT_VERSION}, elapsed=${elapsed}ms)`,
     );
 
     const maxSeq = turns.reduce((max, turn) => Math.max(max, turn.seq), -1);
@@ -207,10 +212,11 @@ export class ConversationService {
     });
   }
 
-  private async createSecret(assessment: Assessment, instructions: string) {
+  private async createSecret(assessment: Assessment, instructions: string, voice: string) {
     try {
       return await this.realtime.createSecret({
         instructions,
+        voice,
         tools: currentClientPrompt.buildTools?.() ?? [],
         safetyIdentifier: createHash('sha256').update(assessment.id).digest('hex'),
       });

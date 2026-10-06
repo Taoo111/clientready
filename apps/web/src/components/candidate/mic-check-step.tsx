@@ -165,10 +165,9 @@ export function MicCheckStep({
               onReady(stream);
             }}
           >
-            {resume ? t.resume : t.start}
+            {resume ? t.resume : t.continue}
             <ArrowRight aria-hidden />
           </Button>
-          {!resume && <p className="text-center text-sm text-muted-foreground">{t.startHint}</p>}
         </div>
       )}
     </CandidateCard>

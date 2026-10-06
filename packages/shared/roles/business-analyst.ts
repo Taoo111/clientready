@@ -12,6 +12,7 @@ export const businessAnalyst: RoleTemplate = {
       company: 'Veldmark Insurance',
       location: 'Rotterdam',
     },
+    voice: 'cedar',
     role: 'Head of Claims Operations, called Lukas Brenner',
     company:
       'Veldmark Insurance, a fictional mid-sized insurer based in Rotterdam (about 900 people) that is modernising its claims handling with an external delivery team',
