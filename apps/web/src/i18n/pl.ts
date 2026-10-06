@@ -28,6 +28,27 @@ export const pl = {
       'Serwer usypia się po okresie bezczynności i właśnie się budzi - to trwa do ok. minuty. Możesz już wpisać dane logowania.',
     apiDown: 'Serwer nie odpowiada. Spróbuj ponownie za chwilę.',
     retry: 'Spróbuj ponownie',
+    candidateHint: 'Jesteś kandydatem? Otwórz link z zaproszenia od rekrutera.',
+    showcase: {
+      label: 'Czym jest ClientReady',
+      eyebrow: 'Ocena gotowości do pracy z klientem',
+      title: 'Sprawdź, czy kandydat poradzi sobie w rozmowie z klientem.',
+      body: '12-minutowa rozmowa głosowa z klientem AI, zanim kandydat trafi na rozmowę techniczną. Raport z cytatami trafia do Ciebie, decyzja zawsze należy do Ciebie.',
+      example: 'Przykład',
+      call: 'Rozmowa z Emmą Visser',
+      callFacts: 'Northbeam Payments · 12 min · AI w roli klienta',
+      quoteMeta: 'Kandydat · 4:12',
+      quoteBefore: '…so ',
+      quoteMarked: 'we paused only the payout worker',
+      quoteAfter: ' and kept the rest of the platform running.',
+      verdict: 'Gotowy z zastrzeżeniami',
+      verdictFacts: 'Mówienie B2 · Rozumienie B2 · cel B2',
+      facts: [
+        { value: '12 min', label: 'rozmowy po angielsku' },
+        { value: '5 kryteriów', label: 'z cytatami i poziomem CEFR' },
+        { value: '0', label: 'automatycznych odrzuceń' },
+      ],
+    },
   },
 
   wake: {
