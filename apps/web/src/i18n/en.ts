@@ -1,3 +1,5 @@
+import { CONVERSATION_MINUTES } from '@clientready/shared';
+
 /** Candidate-facing strings (English). */
 export const en = {
   appName: 'ClientReady',
@@ -39,10 +41,10 @@ export const en = {
 
   consent: {
     callWith: (name: string) => `Call with ${name}`,
-    callFacts: ['About 12 minutes', 'Recorded', 'AI playing a client'],
+    callFacts: [`About ${CONVERSATION_MINUTES} minutes`, 'Recorded', 'AI playing a client'],
     title: (name: string) => `Hi ${name}, welcome`,
     intro: (role: string, company?: string) =>
-      `This is a relaxed, 12-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} - like a first call with a new client.`,
+      `This is a relaxed, ${CONVERSATION_MINUTES}-minute conversation in English for the ${role} role${company ? ` at ${company}` : ''} - like a first call with a new client.`,
     points: [
       {
         title: 'You’ll talk to an AI',
@@ -107,7 +109,7 @@ export const en = {
     intro: (clientFirstName: string) =>
       `${clientFirstName} will greet you first. Talk as you would on a first call with a new client.`,
     points: [
-      'It takes about 12 minutes. The timer starts when you start the call.',
+      `It takes about ${CONVERSATION_MINUTES} minutes. The timer starts when you start the call.`,
       'You can ask the client to repeat something or to slow down.',
       'If the call gets interrupted, you can continue where you left off.',
     ],

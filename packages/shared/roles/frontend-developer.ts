@@ -36,7 +36,7 @@ export const frontendDeveloper: RoleTemplate = {
       ],
       followUpGuidance:
         'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
-      targetDurationSec: 120,
+      targetDurationSec: 90,
     },
     {
       id: 'project-deep-dive',
@@ -53,7 +53,7 @@ export const frontendDeveloper: RoleTemplate = {
       ],
       followUpGuidance:
         'Always follow up on vague or generic answers: ask for a concrete example, a number (page load time, users, conversion, bundle size) or the reason behind a decision. Ask how they would explain a technical choice to someone from marketing. Do not accept buzzwords such as "clean code" or "pixel-perfect" without an example.',
-      targetDurationSec: 270,
+      targetDurationSec: 180,
     },
     {
       id: 'client-situation',
@@ -66,7 +66,7 @@ export const frontendDeveloper: RoleTemplate = {
       ],
       followUpGuidance:
         'Choose exactly ONE scenario and stay with it for the whole phase. Present it the way a real client would — never explain what the candidate should ask or do. Answer questions briefly and realistically, push back once on the first answer, then ask about next steps. If the candidate just agrees to everything, add a small complication.',
-      targetDurationSec: 240,
+      targetDurationSec: 180,
     },
     {
       id: 'closing',

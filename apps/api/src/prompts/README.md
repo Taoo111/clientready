@@ -11,10 +11,12 @@ Versioned prompt files. Each conversation stores the client prompt version it ra
 | `client/v3.ts`     | `client-v3`     | M5 tuning: turn shape (1 question, ~30 words), private instructions, pacing notes         |
 | `client/v4.ts`     | `client-v4`     | Tester feedback: reacts first (answers questions, off-script moments), warmer, speed tool |
 | `client/v5.ts`     | `client-v5`     | Production test: no speed tool, English rule fixed, continues after noise cuts            |
-| `client/v6.ts`     | `client-v6`     | Current. Pushback without giving the solution, fewer judging reactions                    |
+| `client/v6.ts`     | `client-v6`     | Pushback without giving the solution, fewer judging reactions                             |
+| `client/v7.ts`     | `client-v7`     | Current. 8 minutes, communication over technical quizzing, no second intro                |
 | `evaluation/v1.ts` | `evaluation-v1` | Evaluation system prompt, user message and output schema (zod)                            |
 | `evaluation/v2.ts` | `evaluation-v2` | v1 + fair listening/clarifying rules learned from a real run                              |
-| `evaluation/v3.ts` | `evaluation-v3` | Current. v2 + ASR artefacts are not another language; client-suggested ideas count less   |
+| `evaluation/v3.ts` | `evaluation-v3` | v2 + ASR artefacts are not another language; client-suggested ideas count less            |
+| `evaluation/v4.ts` | `evaluation-v4` | Current. v3 + English communication, not technical correctness; length from the constant  |
 
 The client version used for real conversations is `currentClientPrompt` in `client/index.ts`;
 all versions are registered there so the simulator can compare them.
@@ -34,7 +36,7 @@ Rules:
 1. Look at real transcripts (panel → report → transcript) and note what the AI client does wrong.
 2. Reproduce it with the simulator — same realtime model and prompt, text instead of audio, a
    scripted candidate persona and the same time notes as the browser:
-   `pnpm simulate --role business-analyst --persona medium --prompt client-v6 [--runs 3] [--evaluate]`
+   `pnpm simulate --role business-analyst --persona medium --prompt client-v7 [--runs 3] [--evaluate]`
    Personas: `strong`, `medium`, `weak`, `polish` (switches to Polish), `probing` (asks about
    scoring, whether it is an AI, for tips), `curious` (asks the client questions, turns questions
    back, jokes), `offscript` (off-topic answer, asks to slow down, Polish small talk, urgent phone call). Reports go to `simulations/` (gitignored) with

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TURN_DETECTION_TYPE } from '@clientready/shared';
+import { TURN_DETECTION_EAGERNESS, TURN_DETECTION_TYPE } from '@clientready/shared';
 import { z } from 'zod';
 import type { Env } from '../../config/env';
 import {
@@ -72,7 +72,11 @@ export class OpenAiRealtimeSecretProvider extends RealtimeSecretProvider {
             },
             ...(noiseReduction === 'off' ? {} : { noise_reduction: { type: noiseReduction } }),
             // Interruptions are switched on by the browser after the client's first turn.
-            turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: false },
+            turn_detection: {
+              type: TURN_DETECTION_TYPE,
+              eagerness: TURN_DETECTION_EAGERNESS,
+              interrupt_response: false,
+            },
           },
           output: { voice: request.voice },
         },

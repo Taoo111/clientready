@@ -10,7 +10,7 @@ This is the founder's own product (not built for or owned by any employer). Keep
 2. Candidate opens the link in a browser (no install):
    - consent screen: clearly states they will talk to an AI and that the session is recorded; explicit consent checkbox,
    - microphone check,
-   - 10–12 min live **voice** conversation with an AI playing the client. Phases: warm-up → project deep-dive with follow-ups → client situation (ambiguous requirement / prod incident / estimate pushback),
+   - ~8 min live **voice** conversation with an AI playing the client (`CONVERSATION_MINUTES`; 12 min felt stretched to testers). Phases: warm-up → project deep-dive with follow-ups → client situation (ambiguous requirement / prod incident / estimate pushback),
    - end screen.
 3. After the session, a separate **evaluation** step scores the transcript with a fixed rubric and produces a report for the recruiter:
    - CEFR estimate (speaking, listening),
@@ -81,7 +81,8 @@ Keep a data retention setting (env, default 90 days) and a job/command that purg
 
 - Stay in character as the client; never reveal scoring or that it is evaluating.
 - One question at a time, natural pace, follow up on vague answers.
-- Respect phase timing; wrap up politely at ~11 min. The client also hard-stops the session at 12 min.
+- Respect phase timing; wrap up politely at ~8 min. The session is hard-stopped a minute later.
+- Assess English communication with a client, not technical knowledge: the client asks mostly about people, explaining and agreeing on things; the evaluation does not lower scores for a technically weak answer that is communicated well.
 - Never switch to Polish, even if the candidate does; say "Let's continue in English" once.
 - No questions about protected characteristics or personal life.
 

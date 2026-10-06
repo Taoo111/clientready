@@ -98,7 +98,7 @@ describe('evaluateConversation', () => {
     expect(result).toMatchObject({
       provider: 'openai',
       model: 'fake-model',
-      promptVersion: 'evaluation-v3',
+      promptVersion: 'evaluation-v4',
     });
     const { report } = result;
     expect(report.status).toBe('OK');
@@ -210,6 +210,9 @@ describe('evaluateConversation', () => {
     // evaluation-v3: ASR artefacts and ideas the client already suggested.
     expect(request?.system).toContain('recognition artefacts');
     expect(request?.system).toContain('is not evidence of their own reasoning');
+    // evaluation-v4: communication, not technical correctness; length from the constant.
+    expect(request?.system).toContain('not technical knowledge');
+    expect(request?.system).toContain('~8-minute live voice conversation');
     for (const criterion of template.rubric) expect(request?.system).toContain(criterion.score5);
   });
 });

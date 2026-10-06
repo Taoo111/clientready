@@ -1,4 +1,4 @@
-import { TURN_DETECTION_TYPE, type TimeCue } from '@clientready/shared';
+import { TURN_DETECTION_EAGERNESS, TURN_DETECTION_TYPE, type TimeCue } from '@clientready/shared';
 import { reportProblem } from '../monitoring';
 import {
   TurnTracker,
@@ -155,7 +155,14 @@ export class RealtimeConnection {
       session: {
         type: 'realtime',
         audio: {
-          input: { turn_detection: { type: TURN_DETECTION_TYPE, interrupt_response: true } },
+          input: {
+            // The whole turn_detection object is replaced, so the eagerness is sent again.
+            turn_detection: {
+              type: TURN_DETECTION_TYPE,
+              eagerness: TURN_DETECTION_EAGERNESS,
+              interrupt_response: true,
+            },
+          },
         },
       },
     });

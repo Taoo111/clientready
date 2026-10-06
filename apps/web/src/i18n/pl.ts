@@ -1,4 +1,9 @@
-import type { AssessmentStatus, Recommendation, TargetLevel } from '@clientready/shared';
+import {
+  CONVERSATION_MINUTES,
+  type AssessmentStatus,
+  type Recommendation,
+  type TargetLevel,
+} from '@clientready/shared';
 
 /** Recruiter panel and report strings (Polish). */
 export const pl = {
@@ -33,10 +38,10 @@ export const pl = {
       label: 'Czym jest ClientReady',
       eyebrow: 'Ocena gotowości do pracy z klientem',
       title: 'Sprawdź, czy kandydat poradzi sobie w rozmowie z klientem.',
-      body: '12-minutowa rozmowa głosowa z klientem AI, zanim kandydat trafi na rozmowę techniczną. Raport z cytatami trafia do Ciebie, decyzja zawsze należy do Ciebie.',
+      body: `${CONVERSATION_MINUTES}-minutowa rozmowa głosowa z klientem AI, zanim kandydat trafi na rozmowę techniczną. Raport z cytatami trafia do Ciebie, decyzja zawsze należy do Ciebie.`,
       example: 'Przykład',
       call: 'Rozmowa z Emmą Visser',
-      callFacts: 'Northbeam Payments · 12 min · AI w roli klienta',
+      callFacts: `Northbeam Payments · ${CONVERSATION_MINUTES} min · AI w roli klienta`,
       quoteMeta: 'Kandydat · 4:12',
       quoteBefore: '…so ',
       quoteMarked: 'we paused only the payout worker',
@@ -44,7 +49,7 @@ export const pl = {
       verdict: 'Gotowy z zastrzeżeniami',
       verdictFacts: 'Mówienie B2 · Rozumienie B2 · cel B2',
       facts: [
-        { value: '12 min', label: 'rozmowy po angielsku' },
+        { value: `${CONVERSATION_MINUTES} min`, label: 'rozmowy po angielsku' },
         { value: '5 kryteriów', label: 'z cytatami i poziomem CEFR' },
         { value: '0', label: 'automatycznych odrzuceń' },
       ],
@@ -118,7 +123,7 @@ export const pl = {
 
   create: {
     title: 'Nowa ocena',
-    subtitle: 'Kandydat dostanie link do ok. 12-minutowej rozmowy po angielsku z klientem AI.',
+    subtitle: `Kandydat dostanie link do ok. ${CONVERSATION_MINUTES}-minutowej rozmowy po angielsku z klientem AI.`,
     candidateName: 'Imię i nazwisko kandydata',
     candidateNamePlaceholder: 'np. Anna Nowak',
     candidateEmail: 'E-mail kandydata',
@@ -158,9 +163,9 @@ export const pl = {
     polish: 'Po polsku',
     english: 'Po angielsku',
     messagePl: (name: string, role: string, link: string, company?: string) =>
-      `Cześć ${name},\n\nw ramach rekrutacji na stanowisko ${role}${company ? ` w ${company}` : ''} zapraszamy Cię na krótką rozmowę po angielsku (ok. 12 minut). Porozmawiasz z asystentem AI, który odgrywa rolę klienta - zapyta o Twoje doświadczenie i omówi z Tobą typową sytuację projektową. Rozmowa jest nagrywana, a jej wynik przegląda rekruter.\n\nWystarczy przeglądarka (najlepiej Chrome lub Edge na komputerze), mikrofon i ciche miejsce - najlepiej ze słuchawkami. Link możesz użyć raz:\n${link}\n\nPowodzenia!`,
+      `Cześć ${name},\n\nw ramach rekrutacji na stanowisko ${role}${company ? ` w ${company}` : ''} zapraszamy Cię na krótką rozmowę po angielsku (ok. ${CONVERSATION_MINUTES} minut). Porozmawiasz z asystentem AI, który odgrywa rolę klienta - zapyta o Twoje doświadczenie i omówi z Tobą typową sytuację projektową. Rozmowa jest nagrywana, a jej wynik przegląda rekruter.\n\nWystarczy przeglądarka (najlepiej Chrome lub Edge na komputerze), mikrofon i ciche miejsce - najlepiej ze słuchawkami. Link możesz użyć raz:\n${link}\n\nPowodzenia!`,
     messageEn: (name: string, role: string, link: string, company?: string) =>
-      `Hi ${name},\n\nAs part of the recruitment process for the ${role} role${company ? ` at ${company}` : ''}, we'd like to invite you to a short conversation in English (about 12 minutes). You'll talk to an AI assistant playing a client - it will ask about your experience and discuss a typical project situation with you. The conversation is recorded and reviewed by a recruiter.\n\nAll you need is a browser (ideally Chrome or Edge on a computer), a microphone and a quiet place - headphones help. The link can be used once:\n${link}\n\nGood luck!`,
+      `Hi ${name},\n\nAs part of the recruitment process for the ${role} role${company ? ` at ${company}` : ''}, we'd like to invite you to a short conversation in English (about ${CONVERSATION_MINUTES} minutes). You'll talk to an AI assistant playing a client - it will ask about your experience and discuss a typical project situation with you. The conversation is recorded and reviewed by a recruiter.\n\nAll you need is a browser (ideally Chrome or Edge on a computer), a microphone and a quiet place - headphones help. The link can be used once:\n${link}\n\nGood luck!`,
   },
 
   report: {

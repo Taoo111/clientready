@@ -1,22 +1,13 @@
-import {
-  getRoleTemplate,
-  SESSION_HARD_LIMIT_MS,
-  WRAP_UP_AT_MS,
-  type RoleTemplate,
-} from '@clientready/shared';
+import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clientready/shared';
 import { describe, expect, it } from 'vitest';
 import {
   buildClientInstructions,
   buildResumeNote,
   buildTimeCues,
   CLIENT_PROMPT_VERSION,
-} from './v5';
+} from './v7';
 
-// Phase timings as they were when this version was released (templates evolve; this
-// version's tests check its timing logic, not the current template).
-const RELEASED_DURATIONS_SEC = [120, 270, 240, 30];
-const template = structuredClone(getRoleTemplate('backend-developer') as RoleTemplate);
-template.phases.forEach((phase, i) => (phase.targetDurationSec = RELEASED_DURATIONS_SEC[i]!));
+const template = getRoleTemplate('backend-developer') as RoleTemplate;
 
 function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]> = {}): string {
   return buildClientInstructions({
@@ -29,7 +20,7 @@ function build(overrides: Partial<Parameters<typeof buildClientInstructions>[0]>
 
 describe('buildClientInstructions', () => {
   it('has a version id', () => {
-    expect(CLIENT_PROMPT_VERSION).toBe('client-v5');
+    expect(CLIENT_PROMPT_VERSION).toBe('client-v7');
   });
 
   it('includes the persona', () => {
@@ -51,8 +42,9 @@ describe('buildClientInstructions', () => {
       expect(prompt).toContain(phase.followUpGuidance);
       expect(prompt).not.toContain('Phase 1');
     }
-    expect(prompt).toContain('0:00–2:00');
-    expect(prompt).toContain('10:30–11:00');
+    expect(prompt).toContain('0:00–1:30');
+    expect(prompt).toContain('7:30–8:00');
+    expect(prompt).toContain('The call lasts about 8 minutes');
   });
 
   it.each(['B1', 'B2', 'C1'] as const)('includes only the %s level guidance', (level) => {
@@ -74,8 +66,8 @@ describe('buildClientInstructions', () => {
     expect(prompt).toMatch(/Never judge what the candidate said/);
     expect(prompt).toMatch(/Never organise anything outside this call/);
     expect(prompt).toMatch(/Before every turn, check/);
-    expect(prompt).toMatch(/11 minutes/);
-    expect(prompt).toMatch(/12 minutes/);
+    expect(prompt).toMatch(/about 8 minutes\)/);
+    expect(prompt).toMatch(/cut at 9 minutes/);
     expect(prompt).toContain("Let's continue in English.");
     expect(prompt).toMatch(/Never switch to Polish/);
     expect(prompt).toMatch(/protected characteristics or personal life/);
@@ -149,12 +141,17 @@ describe('buildTimeCues', () => {
     expect(offsets.every((o) => o > 0 && o < SESSION_HARD_LIMIT_MS)).toBe(true);
   });
 
-  it('marks the first transition, then the wrap-up and the goodbye', () => {
-    // Offsets follow the shared timing constants, which changed after this version was released.
-    const offsets = cues.map((c) => c.atMs);
-    expect(offsets).toContain(template.phases[0]!.targetDurationSec * 1000);
-    expect(offsets).toContain(WRAP_UP_AT_MS);
-    expect(offsets.at(-1)).toBe(SESSION_HARD_LIMIT_MS - 15_000);
+  it('marks only the phase transitions, the wrap-up and the goodbye (no "stay" notes)', () => {
+    expect(cues.map((c) => c.atMs)).toEqual([90_000, 270_000, 450_000, 480_000, 525_000]);
+    expect(cues[0]?.text).toMatch(/you have reacted to what they said/);
+    expect(cues[1]?.text).toContain('Client situation');
+    expect(cues.some((c) => /still in/.test(c.text))).toBe(false);
+    for (const cue of cues) {
+      expect(cue.text).toMatch(/do not mention it/);
+      expect(cue.text).not.toMatch(/phase \d/i);
+    }
+    expect(cues[3]?.text).toMatch(/quick question/);
+    expect(cues[4]?.text).toMatch(/goodbye/);
   });
 });
 
@@ -177,5 +174,35 @@ describe('v5 changes (first production test)', () => {
 
   it('has a private note for when the audio is back', () => {
     expect(buildResumeNote()).toMatch(/do not mention it.*interrupted.*continue/);
+  });
+});
+
+describe('kept from v6', () => {
+  it('pushes back without handing over the solution', () => {
+    const prompt = build();
+    expect(prompt).toMatch(/Never give the answer or the solution yourself/);
+    expect(prompt).toMatch(/no solution handed over in a pushback/);
+  });
+
+  it('lists the judging reactions seen in the test', () => {
+    const prompt = build();
+    expect(prompt).toContain("that's a solid anchor");
+    expect(prompt).toContain("that's honest, which I appreciate");
+  });
+});
+
+describe('v7 changes (shorter, communication first)', () => {
+  it('asks about people and communication, not technical knowledge', () => {
+    const prompt = build();
+    expect(prompt).toContain('# What you care about');
+    expect(prompt).toMatch(/not to test their technical knowledge/);
+    expect(prompt).toMatch(/Never quiz them/);
+    expect(prompt).toMatch(/not quizzing their technical knowledge/);
+  });
+
+  it('does not introduce itself twice or answer its own question', () => {
+    const prompt = build();
+    expect(prompt).toMatch(/Never introduce yourself again/);
+    expect(prompt).toMatch(/answer just that in one sentence/);
   });
 });

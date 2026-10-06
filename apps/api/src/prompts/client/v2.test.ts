@@ -1,4 +1,9 @@
-import { getRoleTemplate, SESSION_HARD_LIMIT_MS, type RoleTemplate } from '@clientready/shared';
+import {
+  getRoleTemplate,
+  SESSION_HARD_LIMIT_MS,
+  WRAP_UP_AT_MS,
+  type RoleTemplate,
+} from '@clientready/shared';
 import { describe, expect, it } from 'vitest';
 import { buildClientInstructions, buildTimeCues, CLIENT_PROMPT_VERSION, firstName } from './v2';
 
@@ -115,11 +120,12 @@ describe('buildTimeCues', () => {
     expect(offsets.every((o) => o > 0 && o < SESSION_HARD_LIMIT_MS)).toBe(true);
   });
 
-  it('marks each phase transition and the wrap-up', () => {
-    expect(cues.map((c) => c.atMs)).toEqual([90_000, 390_000, 630_000, 660_000, 705_000]);
-    expect(cues[1]?.text).toContain('Client situation');
-    expect(cues[3]?.text).toMatch(/wrapping up/);
-    expect(cues[4]?.text).toMatch(/goodbye/);
+  it('marks the first transition, then the wrap-up and the goodbye', () => {
+    // Offsets follow the shared timing constants, which changed after this version was released.
+    const offsets = cues.map((c) => c.atMs);
+    expect(offsets).toContain(template.phases[0]!.targetDurationSec * 1000);
+    expect(offsets).toContain(WRAP_UP_AT_MS);
+    expect(offsets.at(-1)).toBe(SESSION_HARD_LIMIT_MS - 15_000);
   });
 });
 

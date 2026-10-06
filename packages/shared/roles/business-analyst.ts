@@ -36,7 +36,7 @@ export const businessAnalyst: RoleTemplate = {
       ],
       followUpGuidance:
         'Keep it relaxed, like the start of any normal call: react to what they say and share a little about yourself or the team. One or two easy follow-ups, then move on to the project deep-dive.',
-      targetDurationSec: 120,
+      targetDurationSec: 90,
     },
     {
       id: 'project-deep-dive',
@@ -53,7 +53,7 @@ export const businessAnalyst: RoleTemplate = {
       ],
       followUpGuidance:
         'Follow up on vague or generic answers: ask for a concrete example, a number (users, processes, time saved) or the reason behind a decision. Ask how they would explain something to a non-technical manager like you. Do not accept buzzwords such as "agile" or "user-centric" without an example.',
-      targetDurationSec: 270,
+      targetDurationSec: 180,
     },
     {
       id: 'client-situation',
@@ -66,7 +66,7 @@ export const businessAnalyst: RoleTemplate = {
       ],
       followUpGuidance:
         'Choose exactly ONE scenario and stay with it for the whole phase. Present it the way a real business owner would — never explain what the candidate should ask or do. Answer questions briefly and realistically, stay a bit vague, push back once on the first proposal and ask what the next steps are. If the candidate simply agrees with everything, add a small complication that makes the conflict obvious.',
-      targetDurationSec: 240,
+      targetDurationSec: 180,
     },
     {
       id: 'closing',
