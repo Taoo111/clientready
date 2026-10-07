@@ -41,18 +41,18 @@ export const frontendDeveloper: RoleTemplate = {
     {
       id: 'project-deep-dive',
       name: 'Project deep-dive',
-      goal: 'Understand one recent project in depth: the product and its users, the frontend architecture, the candidate’s own part and the reasoning behind technical and UX trade-offs.',
+      goal: 'Understand one recent project through the people side of the work: who used it, the candidate’s own part, how they worked with designers and business people, how they explained technical limits in plain words and what they did when opinions differed.',
       suggestedQuestions: [
-        'Pick one recent project you are proud of. What was it?',
-        'Who were the users, and what did they use it for?',
-        'How was the frontend built?',
-        'Which part did you own?',
-        'Why did you choose that approach?',
-        'How did you work with the designers when something was hard to build?',
-        'How did you know the pages were fast enough for real users?',
+        'Pick one recent project you are proud of. Who used it, and what for?',
+        'What was your part in it?',
+        'How did you work with the designers?',
+        'Tell me about a time a design was hard to build and how you handled it with the designer.',
+        'How did you explain a technical limit to someone from marketing?',
+        'What feedback from users or the business changed your work?',
+        'What would you do differently next time?',
       ],
       followUpGuidance:
-        'Always follow up on vague or generic answers: ask for a concrete example, a number (page load time, users, conversion, bundle size) or the reason behind a decision. Ask how they would explain a technical choice to someone from marketing. Do not accept buzzwords such as "clean code" or "pixel-perfect" without an example.',
+        'Follow up on vague or generic answers: ask for a concrete example, what exactly they said or did, or the reason behind a decision. Ask at most one question about how the frontend works, only to understand the story, never to quiz them. Do not accept phrases such as "pixel-perfect" or "user-centric" without an example.',
       targetDurationSec: 180,
     },
     {

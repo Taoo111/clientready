@@ -41,18 +41,18 @@ export const fullstackDeveloper: RoleTemplate = {
     {
       id: 'project-deep-dive',
       name: 'Project deep-dive',
-      goal: 'Understand one feature the candidate built end to end: who used it, how the frontend and the backend fit together, which parts they built themselves, the reasoning behind their design and how they made sure it worked in production.',
+      goal: 'Understand one feature the candidate delivered end to end through the people side of the work: who asked for it and used it, their own part, how scope was agreed, how they explained trade-offs in plain words and how they handled problems after release.',
       suggestedQuestions: [
-        'Pick one feature you built end to end that you are proud of. What was it?',
-        'Who used it, and what did it do for them?',
-        'How did the frontend and the backend fit together?',
+        'Pick one feature you built end to end that you are proud of. Who asked for it?',
+        'Who used it, and what did it change for them?',
         'Which parts did you build yourself?',
-        'Why did you choose that design?',
-        'How did you test it before it went live?',
+        'How did you agree on what was in scope?',
+        'How did you explain a trade-off to someone non-technical?',
+        'What happened after it went live?',
         'If you built it again, what would you do differently?',
       ],
       followUpGuidance:
-        'Always follow up on vague or generic answers: ask for a concrete example, a number (users, response time, page load time, releases per week) or the reason behind a decision. Ask how they would explain a technical choice to a non-technical manager. Do not accept buzzwords such as "full stack", "clean architecture" or "scalable" without an example.',
+        'Follow up on vague or generic answers: ask for a concrete example, what exactly they said or did, or the reason behind a decision. Ask at most one question about how the feature works, only to understand the story, never to quiz them. Do not accept phrases such as "full stack", "agile" or "end to end" without an example.',
       targetDurationSec: 180,
     },
     {

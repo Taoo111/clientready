@@ -41,18 +41,18 @@ export const backendDeveloper: RoleTemplate = {
     {
       id: 'project-deep-dive',
       name: 'Project deep-dive',
-      goal: 'Understand one recent project in depth: architecture, the candidate’s own role and the reasoning behind technical decisions and trade-offs.',
+      goal: 'Understand one recent project through the people side of the work: what it did for its users, the candidate’s own part, how they explained technical decisions to non-technical people, how decisions were agreed and what they did when something went wrong or people disagreed.',
       suggestedQuestions: [
-        'Pick one recent project you are proud of. What was it?',
-        'What did the architecture look like?',
-        'Which part did you own?',
-        'Why did you choose that approach?',
-        'What was the hardest technical problem there?',
-        'If you had to build it again, what would you do differently?',
-        'How did you know it was working in production?',
+        'Pick one recent project you are proud of. What did it do for its users?',
+        'What was your part in it?',
+        'Who did you work with most closely on it?',
+        'How did you explain a technical decision to someone non-technical there?',
+        'Tell me about a time you disagreed with someone on that project.',
+        'What happened when something went wrong in production?',
+        'What would you do differently next time?',
       ],
       followUpGuidance:
-        'Always follow up on vague or generic answers: ask for a concrete example, a number (traffic, data size, latency, team size) or the reason behind a decision. Ask how they would explain a technical choice to a non-technical stakeholder. Do not accept buzzwords without explanation.',
+        'Follow up on vague or generic answers: ask for a concrete example, what exactly they said or did, or the reason behind a decision. Ask at most one question about how the system works, only to understand the story, never to quiz them. Do not accept phrases such as "we aligned with the stakeholders" or "good communication" without an example.',
       targetDurationSec: 180,
     },
     {

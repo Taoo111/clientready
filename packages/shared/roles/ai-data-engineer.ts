@@ -41,18 +41,18 @@ export const aiDataEngineer: RoleTemplate = {
     {
       id: 'project-deep-dive',
       name: 'Project deep-dive',
-      goal: 'Understand one recent data, ML or AI project in depth: the business problem, the data and pipeline, the model or approach the candidate chose and why, how they knew it worked in production and how they explained it to non-technical people.',
+      goal: 'Understand one recent data, ML or AI project through the people side of the work: the business problem, the candidate’s own part, how they explained what the data or model can and cannot do to non-technical people, how they agreed on what was good enough and what they did when results were wrong or people did not trust them.',
       suggestedQuestions: [
         'Pick one recent data or AI project you are proud of. What problem did it solve?',
-        'What data did you work with?',
-        'How did the pipeline or the model work, in simple words?',
-        'Which part did you own?',
-        'Why did you choose that approach over something simpler?',
-        'How did you know it was good enough for production?',
-        'What happened when the model was wrong or the data changed?',
+        'What was your part in it?',
+        'Who used the results, and how?',
+        'How did you explain what the model can and cannot do to someone non-technical?',
+        'How did you agree on what was good enough for production?',
+        'What happened when the results were wrong or people did not trust them?',
+        'What would you do differently next time?',
       ],
       followUpGuidance:
-        'Always follow up on vague or generic answers: ask for a concrete example, a number (data volume, accuracy, latency, cost per month, time saved) or the reason behind a decision. Ask how they would explain the model and its limits to a non-technical manager like you. Do not accept buzzwords such as "AI-powered", "state of the art" or "we fine-tuned it" without an example.',
+        'Follow up on vague or generic answers: ask for a concrete example, what exactly they said or did, or the reason behind a decision. Ask at most one question about how the model or pipeline works, only to understand the story, never to quiz them. Do not accept phrases such as "AI-powered" or "state of the art" without an example.',
       targetDurationSec: 180,
     },
     {

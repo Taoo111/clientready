@@ -174,7 +174,7 @@ describe('conversation lifecycle', () => {
       status: 'IN_PROGRESS',
       realtimeModel: 'fake-realtime',
       realtimeVoice: 'marin',
-      promptVersion: 'client-v7',
+      promptVersion: 'client-v8',
       connectCount: 1,
     });
     expect(row.startedAt).not.toBeNull();

@@ -7,6 +7,7 @@ import * as v4 from './v4';
 import * as v5 from './v5';
 import * as v6 from './v6';
 import * as v7 from './v7';
+import * as v8 from './v8';
 
 export interface ClientPromptModule {
   CLIENT_PROMPT_VERSION: string;
@@ -27,7 +28,8 @@ export const clientPrompts: Record<string, ClientPromptModule> = {
   'client-v5': v5,
   'client-v6': v6,
   'client-v7': v7,
+  'client-v8': v8,
 };
 
 /** The version used for real conversations. */
-export const currentClientPrompt: ClientPromptModule = v7;
+export const currentClientPrompt: ClientPromptModule = v8;
