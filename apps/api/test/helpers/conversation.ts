@@ -19,8 +19,8 @@ export function modelOutput() {
     criteria: template.rubric.map((c) => ({
       key: c.key,
       evidence: [
-        { seq: 1, quote: 'we moved the payouts to a queue' },
-        { seq: 1, quote: 'this sentence was never said' },
+        { seq: 1, quote: 'we moved the payouts to a queue', kind: 'strength' },
+        { seq: 1, quote: 'this sentence was never said', kind: 'weakness' },
       ],
       comment: 'Konkretne odpowiedzi.',
       score: 4,

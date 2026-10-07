@@ -17,7 +17,8 @@ Versioned prompt files. Each conversation stores the client prompt version it ra
 | `evaluation/v1.ts` | `evaluation-v1` | Evaluation system prompt, user message and output schema (zod)                            |
 | `evaluation/v2.ts` | `evaluation-v2` | v1 + fair listening/clarifying rules learned from a real run                              |
 | `evaluation/v3.ts` | `evaluation-v3` | v2 + ASR artefacts are not another language; client-suggested ideas count less            |
-| `evaluation/v4.ts` | `evaluation-v4` | Current. v3 + English communication, not technical correctness; length from the constant  |
+| `evaluation/v4.ts` | `evaluation-v4` | v3 + English communication, not technical correctness; length from the constant           |
+| `evaluation/v5.ts` | `evaluation-v5` | Current. v4 + CEFR about the English only, disfluencies are fine; quote kinds; new rule   |
 
 The client version used for real conversations is `currentClientPrompt` in `client/index.ts`;
 all versions are registered there so the simulator can compare them.

@@ -63,8 +63,8 @@ function output(overrides: Partial<EvaluationOutput> = {}): EvaluationOutput {
     criteria: template.rubric.map((c) => ({
       key: c.key,
       evidence: [
-        { seq: 3, quote: 'we used Postgres because it was reliable' },
-        { seq: 3, quote: 'I have ten years of Rust experience' },
+        { seq: 3, quote: 'we used Postgres because it was reliable', kind: 'strength' },
+        { seq: 3, quote: 'I have ten years of Rust experience', kind: 'strength' },
       ],
       comment: 'Komentarz.',
       score: 4,
@@ -98,7 +98,7 @@ describe('evaluateConversation', () => {
     expect(result).toMatchObject({
       provider: 'openai',
       model: 'fake-model',
-      promptVersion: 'evaluation-v4',
+      promptVersion: 'evaluation-v5',
     });
     const { report } = result;
     expect(report.status).toBe('OK');
@@ -107,7 +107,7 @@ describe('evaluateConversation', () => {
     expect(report.criteria[0]).toMatchObject({
       name: template.rubric[0]!.name,
       score: 4,
-      evidence: [{ quote: 'we used Postgres because it was reliable', seq: 3 }],
+      evidence: [{ quote: 'we used Postgres because it was reliable', seq: 3, kind: 'strength' }],
       rejectedQuotes: 1,
     });
     // One invented quote per criterion was rejected and logged.
@@ -213,6 +213,12 @@ describe('evaluateConversation', () => {
     // evaluation-v4: communication, not technical correctness; length from the constant.
     expect(request?.system).toContain('not technical knowledge');
     expect(request?.system).toContain('~8-minute live voice conversation');
+    // evaluation-v5: the CEFR level is about the English, not about the content.
+    expect(request?.system).toContain('The CEFR level is about the English only');
+    expect(request?.system).toContain('normal in fluent and native speech');
+    expect(request?.system).toContain('Asking the client to repeat or rephrase once or twice');
+    expect(request?.system).toContain('Be calibrated in both directions');
+    expect(request?.system).toContain('two or more criteria score 1');
     for (const criterion of template.rubric) expect(request?.system).toContain(criterion.score5);
   });
 });

@@ -16,9 +16,18 @@ describe('computeRecommendation (target B2)', () => {
     ).toBe('READY_WITH_CONCERNS');
   });
 
-  it('READY_WITH_CONCERNS when at target but one criterion weak', () => {
+  it('one weaker criterion alone does not block READY', () => {
     expect(
       computeRecommendation({ ...base, speaking: 'B2', listening: 'B2', scores: [4, 4, 4, 2, 4] }),
+    ).toBe('READY');
+  });
+
+  it('READY_WITH_CONCERNS when two criteria are weak or one is at 1', () => {
+    expect(
+      computeRecommendation({ ...base, speaking: 'B2', listening: 'B2', scores: [4, 4, 2, 2, 5] }),
+    ).toBe('READY_WITH_CONCERNS');
+    expect(
+      computeRecommendation({ ...base, speaking: 'B2', listening: 'B2', scores: [4, 4, 4, 1, 5] }),
     ).toBe('READY_WITH_CONCERNS');
   });
 
@@ -28,9 +37,9 @@ describe('computeRecommendation (target B2)', () => {
     ).toBe('NOT_READY');
   });
 
-  it('NOT_READY when any criterion is 1 or the average is low', () => {
+  it('NOT_READY when two criteria are at 1 or the average is low', () => {
     expect(
-      computeRecommendation({ ...base, speaking: 'B2', listening: 'B2', scores: [4, 4, 4, 1, 4] }),
+      computeRecommendation({ ...base, speaking: 'B2', listening: 'B2', scores: [4, 4, 1, 1, 4] }),
     ).toBe('NOT_READY');
     expect(
       computeRecommendation({ ...base, speaking: 'B1', listening: 'B1', scores: [2, 2, 3, 2, 2] }),

@@ -1,4 +1,4 @@
-import type { EvidenceQuote } from '@clientready/shared';
+import type { EvidenceKind, EvidenceQuote } from '@clientready/shared';
 import type { EvalTurn } from './transcript';
 
 /**
@@ -37,6 +37,7 @@ function containsInOrder(haystack: string, parts: string[]): boolean {
 export interface QuoteCandidate {
   quote: string;
   seq?: number;
+  kind?: EvidenceKind;
 }
 
 /**
@@ -78,7 +79,11 @@ export function verifyQuotes(
     const key = normalizeForMatch(quote.quote);
     if (seen.has(key) || accepted.length >= limit) continue;
     seen.add(key);
-    accepted.push({ quote: quote.quote.trim(), seq: turn.seq });
+    accepted.push({
+      quote: quote.quote.trim(),
+      seq: turn.seq,
+      ...(quote.kind && { kind: quote.kind }),
+    });
   }
   return { accepted, rejected };
 }
