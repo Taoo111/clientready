@@ -41,18 +41,18 @@ export const qaEngineer: RoleTemplate = {
     {
       id: 'project-deep-dive',
       name: 'Project deep-dive',
-      goal: 'Understand one recent project in depth: the product, the candidate’s own role, how they decided what to test, which tools they used and how they communicated quality risks to the team.',
+      goal: 'Understand one recent project through the people side of quality work: the product, the candidate’s own part, how they reported problems and quality risks to developers and managers, how priorities were agreed under release pressure and what they did when people disagreed about a bug.',
       suggestedQuestions: [
         'Pick one recent project you are proud of. What was the product?',
-        'What did your testing look like there, day to day?',
-        'How did you decide what to test first when time was short?',
-        'Tell me about an important bug you found.',
-        'How did you explain that bug to the developers or the product owner?',
-        'What did you automate, and why that part?',
-        'If you joined that project again, what would you change in the process?',
+        'What was your part in it?',
+        'Tell me about an important bug you found and how you reported it.',
+        'How did the developers react?',
+        'How did you explain a quality risk to a manager who wanted to release?',
+        'Tell me about a time someone disagreed with you about a bug.',
+        'If you joined that project again, what would you change in how the team worked?',
       ],
       followUpGuidance:
-        'Always follow up on vague or generic answers: ask for a concrete example, a number (test cases, release frequency, bugs per release, pipeline time) or the reason behind a decision. Ask how they would explain a quality risk to a non-technical manager. Do not accept buzzwords such as "shift-left" or "full coverage" without an example.',
+        'Follow up on vague or generic answers: ask for a concrete example, what exactly they said or did, or the reason behind a decision. Ask at most one question about tools or test techniques, only to understand the story, never to quiz them. Do not accept phrases such as "we test everything" or "full coverage" without an example.',
       targetDurationSec: 180,
     },
     {
