@@ -12,7 +12,8 @@ export const baFluentVagueCandidate: TranscriptFixture = {
   templateId: 'business-analyst',
   targetLevel: 'C1',
   expected: {
-    recommendation: 'READY_WITH_CONCERNS',
+    // The language is at target; the content decides between the two.
+    recommendation: ['READY_WITH_CONCERNS', 'READY'],
     speaking: ['C1', 'C2'],
     listening: ['C1', 'C2'],
   },

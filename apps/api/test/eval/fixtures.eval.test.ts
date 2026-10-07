@@ -74,7 +74,7 @@ describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
     (name, fixture) => {
       const result = results.get(name)!;
       expect(result.report.status).toBe('OK');
-      expect(result.report.recommendation).toBe(fixture.expected.recommendation);
+      expect([fixture.expected.recommendation].flat()).toContain(result.report.recommendation);
       expectLevel(result.report.cefr!.speaking.level, fixture.expected.speaking);
       if (fixture.expected.listening) {
         expectLevel(result.report.cefr!.listening.level, fixture.expected.listening);

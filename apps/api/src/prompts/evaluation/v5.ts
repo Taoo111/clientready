@@ -20,6 +20,8 @@ import { formatClock } from '../client/v2';
  * repeat are not signs of a low level - B1 needs real learner errors; one weakness lowers
  * only the criterion it belongs to; calibration works in both directions. Each quote is
  * marked as a strength or a weakness, so the report shows a real strength by the verdict.
+ * Ships with the new recommendation rule (no single criterion decides the outcome alone);
+ * v1-v4 keep describing the old one (recommendation-rule-v1.ts).
  * Do not edit the text of a released version — copy to a new vN.ts.
  */
 export const EVALUATION_PROMPT_VERSION = 'evaluation-v5';

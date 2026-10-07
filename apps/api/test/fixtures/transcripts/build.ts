@@ -10,7 +10,8 @@ export interface TranscriptFixture {
   templateId: string;
   targetLevel: TargetLevel;
   expected: {
-    recommendation: Recommendation;
+    /** One outcome, or the acceptable ones for a candidate on the edge of two. */
+    recommendation: Recommendation | Recommendation[];
     /** Acceptable speaking CEFR range (inclusive). */
     speaking: [string, string];
     /** Acceptable listening CEFR range (inclusive), when the fixture is about listening too. */

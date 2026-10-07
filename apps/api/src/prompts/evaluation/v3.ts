@@ -5,7 +5,7 @@ import {
   type TargetLevel,
 } from '@clientready/shared';
 import { z } from 'zod';
-import { RECOMMENDATION_RULE_TEXT } from '../../evaluation/recommendation';
+import { RECOMMENDATION_RULE_TEXT_V1 } from './recommendation-rule-v1';
 import type { EvalTurn } from '../../evaluation/transcript';
 import { formatClock } from '../client/v2';
 
@@ -128,7 +128,7 @@ ${CEFR_GUIDE}
 Give a separate estimate for speaking and for listening, each with a 1–2 sentence justification in Polish.
 
 # Recommendation (relative to the target level given in the message)
-${RECOMMENDATION_RULE_TEXT}
+${RECOMMENDATION_RULE_TEXT_V1}
 
 # Summary
 3–5 sentences in Polish for the recruiter: the candidate's main strengths and risks in client communication at the target level, concrete and factual. Do not name the recommendation label in the summary.
