@@ -88,4 +88,18 @@ describe('verifyQuotes', () => {
       'the team already knew it',
     ]);
   });
+
+  it('keeps whether a quote is a strength or a weakness', () => {
+    const result = verifyQuotes(
+      [
+        { quote: 'we needed replay', seq: 1, kind: 'strength' },
+        { quote: 'maybe three weeks', seq: 2, kind: 'weakness' },
+      ],
+      turns,
+    );
+    expect(result.accepted).toEqual([
+      { quote: 'we needed replay', seq: 1, kind: 'strength' },
+      { quote: 'maybe three weeks', seq: 2, kind: 'weakness' },
+    ]);
+  });
 });

@@ -64,16 +64,21 @@ describe.skipIf(!hasKey)(`evaluation fixtures (${env.EVAL_PROVIDER})`, () => {
     if (rejectedQuotes.length) console.warn(rejectedQuotes.join('\n'));
   });
 
+  const expectLevel = (level: CefrLevel, [min, max]: [string, string]) => {
+    expect(cefrRank(level)).toBeGreaterThanOrEqual(cefrRank(min as CefrLevel));
+    expect(cefrRank(level)).toBeLessThanOrEqual(cefrRank(max as CefrLevel));
+  };
+
   it.each(transcriptFixtures.map((f) => [f.name, f] as const))(
-    '%s: expected recommendation and speaking level',
+    '%s: expected recommendation and CEFR levels',
     (name, fixture) => {
       const result = results.get(name)!;
       expect(result.report.status).toBe('OK');
       expect(result.report.recommendation).toBe(fixture.expected.recommendation);
-      const speaking = cefrRank(result.report.cefr!.speaking.level);
-      const [min, max] = fixture.expected.speaking as [CefrLevel, CefrLevel];
-      expect(speaking).toBeGreaterThanOrEqual(cefrRank(min));
-      expect(speaking).toBeLessThanOrEqual(cefrRank(max));
+      expectLevel(result.report.cefr!.speaking.level, fixture.expected.speaking);
+      if (fixture.expected.listening) {
+        expectLevel(result.report.cefr!.listening.level, fixture.expected.listening);
+      }
     },
   );
 

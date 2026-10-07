@@ -36,4 +36,47 @@ describe('keyEvidence', () => {
     expect(equal.map((e) => e.kind)).toEqual(['example']);
     expect(keyEvidence([criterion('a', 3)])).toEqual([]);
   });
+
+  describe('with quotes marked as strengths and weaknesses (evaluation-v5)', () => {
+    const marked = (
+      key: string,
+      score: number,
+      quotes: [string, 'strength' | 'weakness'][],
+    ): CriterionResult => ({
+      ...criterion(key, score),
+      evidence: quotes.map(([quote, kind], i) => ({ quote, seq: i + 1, kind })),
+    });
+
+    it('shows a weakness of the weakest and a strength of the strongest criterion', () => {
+      const result = keyEvidence([
+        marked('a', 2, [
+          ['a-good', 'strength'],
+          ['a-bad', 'weakness'],
+        ]),
+        marked('b', 4, [
+          ['b-bad', 'weakness'],
+          ['b-good', 'strength'],
+        ]),
+      ]);
+      expect(result.map((e) => [e.kind, e.criterionKey, e.quote])).toEqual([
+        ['weakest', 'a', 'a-bad'],
+        ['strongest', 'b', 'b-good'],
+      ]);
+    });
+
+    it('never shows a weakness as the strongest point', () => {
+      const result = keyEvidence([
+        marked('a', 1, [['a-bad', 'weakness']]),
+        marked('b', 2, [['b-bad', 'weakness']]),
+        marked('c', 2, [['c-good', 'strength']]),
+      ]);
+      expect(result.map((e) => [e.kind, e.quote])).toEqual([
+        ['weakest', 'a-bad'],
+        ['strongest', 'c-good'],
+      ]);
+      expect(keyEvidence([marked('a', 1, [['a-bad', 'weakness']])])).toEqual([
+        expect.objectContaining({ kind: 'weakest', quote: 'a-bad' }),
+      ]);
+    });
+  });
 });

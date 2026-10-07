@@ -18,11 +18,16 @@ export const CefrEstimateSchema = z.object({
 });
 export type CefrEstimate = z.infer<typeof CefrEstimateSchema>;
 
+export const EvidenceKindSchema = z.enum(['strength', 'weakness']);
+export type EvidenceKind = z.infer<typeof EvidenceKindSchema>;
+
 export const EvidenceQuoteSchema = z.object({
   /** Verbatim candidate quote, verified against the transcript. */
   quote: z.string().min(1),
   /** Transcript turn the quote was found in. */
   seq: z.number().int().nonnegative(),
+  /** What the quote shows for its criterion; missing in reports before evaluation-v5. */
+  kind: EvidenceKindSchema.optional(),
 });
 export type EvidenceQuote = z.infer<typeof EvidenceQuoteSchema>;
 

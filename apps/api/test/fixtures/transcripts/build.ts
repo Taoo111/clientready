@@ -13,6 +13,8 @@ export interface TranscriptFixture {
     recommendation: Recommendation;
     /** Acceptable speaking CEFR range (inclusive). */
     speaking: [string, string];
+    /** Acceptable listening CEFR range (inclusive), when the fixture is about listening too. */
+    listening?: [string, string];
   };
   turns: EvalTurn[];
   conversationMs: number;

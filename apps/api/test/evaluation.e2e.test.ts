@@ -42,7 +42,7 @@ describe('automatic evaluation', () => {
     expect(res.body.report).toMatchObject({
       provider: 'openai',
       model: 'fake-eval',
-      promptVersion: 'evaluation-v4',
+      promptVersion: 'evaluation-v5',
       data: {
         status: 'OK',
         targetLevel: 'B2',
@@ -54,7 +54,7 @@ describe('automatic evaluation', () => {
     const [criterion] = res.body.report.data.criteria;
     // The invented quote was rejected; the real one kept with its turn.
     expect(criterion).toMatchObject({
-      evidence: [{ quote: 'we moved the payouts to a queue', seq: 1 }],
+      evidence: [{ quote: 'we moved the payouts to a queue', seq: 1, kind: 'strength' }],
       rejectedQuotes: 1,
     });
     expect(res.body.turns).toHaveLength(24);
