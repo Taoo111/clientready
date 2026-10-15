@@ -1,5 +1,6 @@
 import type { AdminAssessmentDetail } from '@clientready/shared';
 import { pl } from '@/i18n/pl';
+import { RecordingPlayer } from './recording-player';
 
 const t = pl.report;
 
@@ -21,10 +22,7 @@ export function Recordings({
           {recordings.length > 1 && (
             <p className="text-xs text-muted-foreground">{t.recordingPart(index + 1)}</p>
           )}
-          <audio
-            controls
-            preload="metadata"
-            className="w-full"
+          <RecordingPlayer
             src={
               // Cloud storage: short-lived signed URL; local disk: streamed via this app.
               recording.playbackUrl ??
